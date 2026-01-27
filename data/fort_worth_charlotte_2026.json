@@ -1,0 +1,159 @@
+{
+  "name": "2026 Primary Races - Fort Worth & Charlotte",
+  "description": "Primary races for residents of Fort Worth, TX (Tarrant County) and Charlotte, NC (Mecklenburg County) - March 3, 2026",
+  "races": [
+    {
+      "name": "US Senate Texas 2026",
+      "position": "US Senator",
+      "race_type": "federal",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "candidates": [
+        {"name": "Jasmine Crockett", "party": "Democratic", "incumbent": false},
+        {"name": "James Talarico", "party": "Democratic", "incumbent": false}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Texas Governor 2026",
+      "position": "Governor",
+      "race_type": "state",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "candidates": [],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Tarrant County Judge 2026",
+      "position": "County Judge",
+      "race_type": "local",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "candidates": [
+        {"name": "Tim O'Hare", "party": "Republican", "incumbent": true},
+        {"name": "Robert Buker", "party": "Republican", "incumbent": false},
+        {"name": "Lydia Bean", "party": "Democratic", "incumbent": false}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Tarrant County Commissioner Precinct 1 2026",
+      "position": "County Commissioner",
+      "race_type": "local",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "candidates": [
+        {"name": "Alisa Simmons", "party": "Democratic", "incumbent": true},
+        {"name": "Tony Tinderholt", "party": "Republican", "incumbent": false}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Tarrant County District Clerk 2026",
+      "position": "District Clerk",
+      "race_type": "local",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "candidates": [
+        {"name": "Phil Sorrells", "party": "Republican", "incumbent": true},
+        {"name": "Tiffany Burks", "party": "Democratic", "incumbent": false}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Tarrant County Clerk 2026",
+      "position": "County Clerk",
+      "race_type": "local",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "candidates": [
+        {"name": "Tom Wilder", "party": "Republican", "incumbent": true},
+        {"name": "Nathan Smith", "party": "Democratic", "incumbent": false}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Texas House District 90 2026",
+      "position": "State Representative",
+      "race_type": "state",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "district": "90",
+      "candidates": [
+        {"name": "Ramon Romero Jr.", "party": "Democratic", "incumbent": true}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Texas House District 95 2026",
+      "position": "State Representative",
+      "race_type": "state",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "district": "95",
+      "candidates": [
+        {"name": "Nicole Collier", "party": "Democratic", "incumbent": true}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Fort Worth City Council District 10 2026",
+      "position": "City Council Member",
+      "race_type": "local",
+      "year": 2026,
+      "state": "TX",
+      "city": "Fort Worth",
+      "district": "10",
+      "candidates": [],
+      "primary_date": "2026-05-03"
+    },
+    {
+      "name": "US Senate North Carolina 2026",
+      "position": "US Senator",
+      "race_type": "federal",
+      "year": 2026,
+      "state": "NC",
+      "city": "Charlotte",
+      "candidates": [
+        {"name": "Roy Cooper", "party": "Democratic", "incumbent": false},
+        {"name": "Michael Whatley", "party": "Republican", "incumbent": false},
+        {"name": "Michele Morrow", "party": "Republican", "incumbent": false}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "NC House District 14 2026",
+      "position": "US Representative",
+      "race_type": "federal",
+      "year": 2026,
+      "state": "NC",
+      "city": "Charlotte",
+      "district": "14",
+      "candidates": [
+        {"name": "Tim Moore", "party": "Republican", "incumbent": true},
+        {"name": "Kate Barr", "party": "Democratic", "incumbent": false}
+      ],
+      "primary_date": "2026-03-03"
+    },
+    {
+      "name": "Mecklenburg County Sheriff 2026",
+      "position": "Sheriff",
+      "race_type": "local",
+      "year": 2026,
+      "state": "NC",
+      "city": "Charlotte",
+      "candidates": [
+        {"name": "Garry McFadden", "party": "Democratic", "incumbent": true}
+      ],
+      "primary_date": "2026-03-03"
+    }
+  ]
+}
