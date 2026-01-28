@@ -275,17 +275,65 @@ app.get('/api/questionnaires/:id/changes', (req: Request, res: Response) => {
 // Import questionnaire
 app.post('/api/questionnaires/import', (req: Request, res: Response) => {
   const content = req.body;
-  if (!content || !content.name) {
-    return res.status(400).json({ error: 'Invalid JSON: must have a "name" field' });
+
+  // Support both formats:
+  // 1. { "name": "...", "pages": [...] } - has explicit name
+  // 2. { "pages": [...] } - derive name from first page title
+
+  let name = content.name;
+
+  if (!name && content.pages && content.pages.length > 0) {
+    // Derive name from first page title or use default
+    name = content.pages[0].title || 'Imported Questionnaire';
   }
 
-  // Create using same logic as POST /api/questionnaires
-  const fakeReq = { body: { name: content.name, description: content.description, content } } as Request;
-  return app._router.handle(
-    Object.assign(fakeReq, { method: 'POST', url: '/api/questionnaires' }),
-    res,
-    () => {}
-  );
+  if (!name) {
+    return res.status(400).json({ error: 'Invalid JSON: must have a "name" field or "pages" array' });
+  }
+
+  const id = nextId++;
+  const now = new Date().toISOString();
+
+  const questionnaire = {
+    id,
+    name,
+    description: content.description || '',
+    state: null,
+    city: null,
+    region: null,
+    primary_date: null,
+    current_version: 1,
+    created_at: now,
+    updated_at: now,
+    page_count: content.pages?.length || 0,
+    question_count: content.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0
+  };
+
+  questionnaires.set(id, questionnaire);
+
+  // Store full content including pages
+  const fullContent = { name, ...content };
+
+  versions.set(`${id}-1`, {
+    id: nextId++,
+    questionnaire_id: id,
+    version_number: 1,
+    content_json: JSON.stringify(fullContent, null, 2),
+    change_summary: 'Imported from JSON',
+    created_at: now
+  });
+
+  changeLogs.push({
+    id: nextId++,
+    questionnaire_id: id,
+    version_from: null,
+    version_to: 1,
+    change_type: 'import',
+    change_summary: 'Imported from JSON file',
+    created_at: now
+  });
+
+  res.status(201).json({ questionnaire, content: fullContent });
 });
 
 // Get unique states

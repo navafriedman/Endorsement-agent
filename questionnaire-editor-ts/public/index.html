@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Election Questionnaire Editor</title>
+    <title>Questionnaire Editor</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -30,8 +30,6 @@
             background: var(--bg);
         }
         .app { display: flex; min-height: 100vh; }
-
-        /* Sidebar */
         .sidebar {
             width: 320px;
             background: var(--bg-white);
@@ -44,10 +42,7 @@
             height: 100vh;
             overflow-y: auto;
         }
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
         .sidebar-header h1 { font-size: 18px; font-weight: 600; }
         .sidebar-actions {
             padding: 16px 20px;
@@ -55,32 +50,6 @@
             flex-direction: column;
             gap: 8px;
             border-bottom: 1px solid var(--border);
-        }
-        .filter-section {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border);
-        }
-        .filter-section h3 {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-        .filter-group { margin-bottom: 12px; }
-        .filter-group label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        .filter-group input, .filter-group select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 13px;
         }
         .questionnaire-list { flex: 1; overflow-y: auto; padding: 12px; }
         .q-item {
@@ -94,8 +63,6 @@
         .q-item.active { background: #eff6ff; border: 1px solid #bfdbfe; }
         .q-item-name { font-weight: 500; margin-bottom: 4px; }
         .q-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; }
-
-        /* Main */
         .main { flex: 1; margin-left: 320px; padding: 24px; }
         .empty-state {
             display: flex;
@@ -106,7 +73,6 @@
         }
         .empty-state h2 { font-size: 24px; margin-bottom: 12px; }
         .empty-state p { color: var(--text-secondary); margin-bottom: 24px; }
-
         .editor {
             background: var(--bg-white);
             border-radius: var(--radius);
@@ -151,13 +117,12 @@
             border-radius: 4px;
             font-size: 14px;
         }
-        .form-group input:focus, .form-group select:focus {
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
-
-        .races-section { padding: 20px 24px; }
+        .pages-section { padding: 20px 24px; }
         .section-header {
             display: flex;
             justify-content: space-between;
@@ -165,67 +130,73 @@
             margin-bottom: 16px;
         }
         .section-header h3 { font-size: 16px; font-weight: 600; }
-        .races-container { display: flex; flex-direction: column; gap: 12px; }
-
-        /* Race Card */
-        .race-card {
+        .pages-container { display: flex; flex-direction: column; gap: 16px; }
+        .page-card {
             border: 1px solid var(--border);
             border-radius: var(--radius);
             transition: box-shadow 0.15s;
         }
-        .race-card:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .race-header {
+        .page-card:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             padding: 16px;
+            background: var(--bg);
+            border-radius: var(--radius) var(--radius) 0 0;
             cursor: pointer;
         }
-        .race-title { font-weight: 500; margin-bottom: 4px; }
-        .race-meta { font-size: 12px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 12px; }
-        .race-type {
+        .page-number {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            margin-right: 12px;
+        }
+        .page-title { font-weight: 500; margin-bottom: 4px; }
+        .page-meta { font-size: 12px; color: var(--text-muted); }
+        .category-badge {
             display: inline-block;
             padding: 2px 8px;
             border-radius: 10px;
             font-size: 11px;
             font-weight: 500;
-            text-transform: uppercase;
+            background: #dbeafe;
+            color: #1e40af;
+            margin-right: 8px;
         }
-        .race-type.federal { background: #dbeafe; color: #1e40af; }
-        .race-type.state { background: #fef3c7; color: #92400e; }
-        .race-type.local { background: #d1fae5; color: #065f46; }
-        .race-type.judicial { background: #ede9fe; color: #5b21b6; }
-        .race-body {
-            padding: 0 16px 16px;
-            border-top: 1px solid var(--border);
-        }
-        .candidates-header {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin: 12px 0 8px;
-        }
-        .candidate-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
+        .page-body { padding: 16px; }
+        .question-item {
+            padding: 12px;
             background: var(--bg);
             border-radius: 4px;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
+            cursor: pointer;
         }
-        .candidate-name { font-weight: 500; flex: 1; }
-        .candidate-party { font-size: 12px; color: var(--text-secondary); }
-        .candidate-incumbent {
-            font-size: 11px;
+        .question-item:hover { background: #e2e8f0; }
+        .question-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .question-type {
+            font-size: 10px;
             padding: 2px 6px;
-            background: #fef3c7;
-            color: #92400e;
             border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            text-transform: uppercase;
         }
-
-        /* Buttons */
+        .question-text { font-size: 13px; margin-top: 4px; }
+        .options-preview {
+            margin-top: 8px;
+            padding-left: 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .options-preview li { margin-bottom: 2px; }
         .btn {
             display: inline-flex;
             align-items: center;
@@ -245,8 +216,6 @@
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
         .btn-outline:hover { background: #f1f5f9; }
         .btn-danger { background: var(--danger); color: white; }
-
-        /* Modal */
         .modal {
             position: fixed;
             top: 0;
@@ -270,6 +239,7 @@
             overflow-y: auto;
         }
         .modal-content.lg { max-width: 700px; }
+        .modal-content.xl { max-width: 900px; }
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -294,8 +264,6 @@
             border-top: 1px solid var(--border);
             background: var(--bg);
         }
-
-        /* Version list */
         .version-item {
             display: flex;
             justify-content: space-between;
@@ -309,11 +277,9 @@
         .version-item.current { border-color: var(--primary); background: #eff6ff; }
         .version-number { font-weight: 600; }
         .version-meta { font-size: 12px; color: var(--text-muted); }
-
-        /* Candidate edit */
-        .candidate-edit {
+        .option-edit {
             display: grid;
-            grid-template-columns: 1fr 100px 80px 32px;
+            grid-template-columns: 1fr 80px 32px;
             gap: 8px;
             align-items: center;
             padding: 8px;
@@ -321,15 +287,8 @@
             border-radius: 4px;
             margin-bottom: 8px;
         }
-        .candidate-edit input, .candidate-edit select { padding: 6px 10px; font-size: 13px; }
-
-        /* Toast */
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 2000;
-        }
+        .option-edit input { padding: 6px 10px; font-size: 13px; }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; }
         .toast {
             padding: 12px 20px;
             border-radius: var(--radius);
@@ -344,13 +303,11 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
-
         @media (max-width: 768px) {
             .sidebar { position: relative; width: 100%; height: auto; max-height: 50vh; }
             .main { margin-left: 0; }
             .app { flex-direction: column; }
             .form-row { grid-template-columns: 1fr; }
-            .candidate-edit { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -367,19 +324,6 @@
                     <input type="file" accept=".json" onchange="importFile(event)" hidden>
                 </label>
             </div>
-            <div class="filter-section">
-                <h3>Filter By</h3>
-                <div class="filter-group">
-                    <label>State</label>
-                    <select id="filter-state" onchange="loadList()">
-                        <option value="">All States</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>City</label>
-                    <input type="text" id="filter-city" placeholder="Filter by city" onkeyup="debounce(loadList, 300)()">
-                </div>
-            </div>
             <div class="questionnaire-list" id="list"></div>
         </aside>
 
@@ -387,8 +331,11 @@
             <div class="empty-state" id="empty">
                 <div>
                     <h2>Welcome to the Questionnaire Editor</h2>
-                    <p>Select a questionnaire from the sidebar or create a new one.</p>
-                    <button class="btn btn-primary" onclick="showCreateModal()">Create New Questionnaire</button>
+                    <p>Import a JSON questionnaire or create a new one to get started.</p>
+                    <label class="btn btn-primary" style="cursor:pointer;">
+                        Import JSON File
+                        <input type="file" accept=".json" onchange="importFile(event)" hidden>
+                    </label>
                 </div>
             </div>
 
@@ -407,7 +354,7 @@
                 <div class="metadata">
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Name</label>
+                            <label>Questionnaire Name</label>
                             <input type="text" id="edit-name">
                         </div>
                         <div class="form-group">
@@ -416,12 +363,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="races-section">
+                <div class="pages-section">
                     <div class="section-header">
-                        <h3>Races</h3>
-                        <button class="btn btn-sm btn-outline" onclick="addRace()">+ Add Race</button>
+                        <h3>Pages</h3>
+                        <button class="btn btn-sm btn-outline" onclick="addPage()">+ Add Page</button>
                     </div>
-                    <div class="races-container" id="races"></div>
+                    <div class="pages-container" id="pages"></div>
                 </div>
             </div>
         </main>
@@ -437,21 +384,11 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Name *</label>
-                    <input type="text" id="new-name" placeholder="e.g., 2026 Primary Races - Fort Worth">
+                    <input type="text" id="new-name" placeholder="e.g., Fort Worth 2026 Primary Questions">
                 </div>
                 <div class="form-group">
                     <label>Description</label>
                     <textarea id="new-desc" rows="2" placeholder="Brief description"></textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>State</label>
-                        <input type="text" id="new-state" placeholder="TX" maxlength="2">
-                    </div>
-                    <div class="form-group">
-                        <label>City</label>
-                        <input type="text" id="new-city" placeholder="Fort Worth">
-                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -461,72 +398,91 @@
         </div>
     </div>
 
-    <!-- Race Modal -->
-    <div class="modal" id="race-modal">
+    <!-- Page Modal -->
+    <div class="modal" id="page-modal">
         <div class="modal-content lg">
             <div class="modal-header">
-                <h3 id="race-modal-title">Edit Race</h3>
-                <button class="modal-close" onclick="closeModal('race-modal')">&times;</button>
+                <h3 id="page-modal-title">Edit Page</h3>
+                <button class="modal-close" onclick="closeModal('page-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Page Title *</label>
+                    <input type="text" id="page-title" placeholder="e.g., Which of the following best describe you?">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="page-category" placeholder="e.g., IDENTITY">
+                    </div>
+                    <div class="form-group">
+                        <label>Order</label>
+                        <input type="number" id="page-order" value="1" min="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Why Text (explanation)</label>
+                    <textarea id="page-why" rows="2" placeholder="Why we ask this question..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Help Text</label>
+                    <input type="text" id="page-help" placeholder="e.g., Select all that apply">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('page-modal')">Cancel</button>
+                <button class="btn btn-danger" id="delete-page-btn" onclick="deletePage()" style="display:none;">Delete Page</button>
+                <button class="btn btn-primary" onclick="savePage()">Save Page</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Modal -->
+    <div class="modal" id="question-modal">
+        <div class="modal-content xl">
+            <div class="modal-header">
+                <h3 id="question-modal-title">Edit Question</h3>
+                <button class="modal-close" onclick="closeModal('question-modal')">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Race Name *</label>
-                        <input type="text" id="race-name" placeholder="e.g., US Senate Texas 2026">
-                    </div>
-                    <div class="form-group">
-                        <label>Position *</label>
-                        <input type="text" id="race-position" placeholder="e.g., US Senator">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Race Type</label>
-                        <select id="race-type">
-                            <option value="federal">Federal</option>
-                            <option value="state">State</option>
-                            <option value="local">Local</option>
-                            <option value="judicial">Judicial</option>
-                            <option value="school_board">School Board</option>
+                        <label>Question Type *</label>
+                        <select id="question-type">
+                            <option value="MULTI_SELECT">Multi Select</option>
+                            <option value="SINGLE_SELECT">Single Select</option>
+                            <option value="TEXT">Text Input</option>
+                            <option value="RANKING">Ranking</option>
+                            <option value="SCALE">Scale</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Year</label>
-                        <input type="number" id="race-year" value="2026">
+                        <label>Order</label>
+                        <input type="number" id="question-order" value="1" min="1">
                     </div>
                 </div>
-                <div class="form-row">
+                <div class="form-row" id="select-limits" style="display:none;">
                     <div class="form-group">
-                        <label>State</label>
-                        <input type="text" id="race-state" placeholder="TX" maxlength="2">
+                        <label>Min Selected</label>
+                        <input type="number" id="question-min" value="1" min="0">
                     </div>
                     <div class="form-group">
-                        <label>City</label>
-                        <input type="text" id="race-city" placeholder="Fort Worth">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>District</label>
-                        <input type="text" id="race-district" placeholder="e.g., 90">
-                    </div>
-                    <div class="form-group">
-                        <label>Primary Date</label>
-                        <input type="date" id="race-primary">
+                        <label>Max Selected</label>
+                        <input type="number" id="question-max" value="5" min="1">
                     </div>
                 </div>
-                <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
                     <div class="section-header">
-                        <h4 style="font-size:14px;">Candidates</h4>
-                        <button class="btn btn-sm btn-outline" onclick="addCandidate()">+ Add Candidate</button>
+                        <h4 style="font-size:14px;">Options</h4>
+                        <button class="btn btn-sm btn-outline" onclick="addOption()">+ Add Option</button>
                     </div>
-                    <div id="modal-candidates"></div>
+                    <div id="modal-options"></div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline" onclick="closeModal('race-modal')">Cancel</button>
-                <button class="btn btn-danger" id="delete-race-btn" onclick="deleteRace()" style="display:none;">Delete</button>
-                <button class="btn btn-primary" onclick="saveRace()">Save Race</button>
+                <button class="btn btn-outline" onclick="closeModal('question-modal')">Cancel</button>
+                <button class="btn btn-danger" id="delete-question-btn" onclick="deleteQuestion()" style="display:none;">Delete</button>
+                <button class="btn btn-primary" onclick="saveQuestion()">Save Question</button>
             </div>
         </div>
     </div>
@@ -549,15 +505,22 @@
         let questionnaires = [];
         let current = null;
         let content = null;
-        let editingRaceIdx = null;
-        let modalCandidates = [];
+        let editingPageIdx = null;
+        let editingQuestionIdx = null;
+        let modalOptions = [];
         let hasChanges = false;
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
             loadList();
-            loadStates();
+            document.getElementById('question-type').addEventListener('change', toggleSelectLimits);
         });
+
+        function toggleSelectLimits() {
+            const type = document.getElementById('question-type').value;
+            document.getElementById('select-limits').style.display =
+                (type === 'MULTI_SELECT' || type === 'SINGLE_SELECT') ? 'grid' : 'none';
+        }
 
         // API
         async function api(url, opts = {}) {
@@ -574,30 +537,27 @@
 
         // Load list
         async function loadList() {
-            const state = document.getElementById('filter-state').value;
-            const city = document.getElementById('filter-city').value;
-            const params = new URLSearchParams();
-            if (state) params.append('state', state);
-            if (city) params.append('city', city);
-
-            const data = await api(`/api/questionnaires?${params}`);
-            questionnaires = data.questionnaires;
-            renderList();
+            try {
+                const data = await api('/api/questionnaires');
+                questionnaires = data.questionnaires;
+                renderList();
+            } catch (e) {
+                console.error(e);
+            }
         }
 
         function renderList() {
             const el = document.getElementById('list');
             if (!questionnaires.length) {
-                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px;">No questionnaires found.</p>';
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px;">No questionnaires yet.<br>Import a JSON file to get started.</p>';
                 return;
             }
             el.innerHTML = questionnaires.map(q => `
                 <div class="q-item ${current?.id === q.id ? 'active' : ''}" onclick="selectQ(${q.id})">
                     <div class="q-item-name">${esc(q.name)}</div>
                     <div class="q-item-meta">
-                        ${q.state ? `<span>${q.state}</span>` : ''}
-                        ${q.city ? `<span>${q.city}</span>` : ''}
-                        ${q.primary_date ? `<span>${formatDate(q.primary_date)}</span>` : ''}
+                        <span>${q.page_count || 0} pages</span>
+                        <span>${q.question_count || 0} questions</span>
                     </div>
                 </div>
             `).join('');
@@ -605,14 +565,18 @@
 
         async function selectQ(id) {
             if (hasChanges && !confirm('Discard unsaved changes?')) return;
-            const data = await api(`/api/questionnaires/${id}`);
-            current = data.questionnaire;
-            content = JSON.parse(JSON.stringify(data.content));
-            hasChanges = false;
-            renderEditor();
-            renderList();
-            document.getElementById('empty').style.display = 'none';
-            document.getElementById('editor').classList.add('visible');
+            try {
+                const data = await api(`/api/questionnaires/${id}`);
+                current = data.questionnaire;
+                content = JSON.parse(JSON.stringify(data.content));
+                hasChanges = false;
+                renderEditor();
+                renderList();
+                document.getElementById('empty').style.display = 'none';
+                document.getElementById('editor').classList.add('visible');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
         }
 
         function renderEditor() {
@@ -620,145 +584,201 @@
             document.getElementById('q-version').textContent = `v${current.current_version}`;
             document.getElementById('edit-name').value = content.name || '';
             document.getElementById('edit-desc').value = content.description || '';
-            renderRaces();
+            renderPages();
         }
 
-        function renderRaces() {
-            const el = document.getElementById('races');
-            const races = content.races || [];
-            if (!races.length) {
-                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px;">No races yet. Click "Add Race" to start.</p>';
+        function renderPages() {
+            const el = document.getElementById('pages');
+            const pages = content.pages || [];
+            if (!pages.length) {
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px;">No pages yet. Click "Add Page" or import a JSON file.</p>';
                 return;
             }
-            el.innerHTML = races.map((r, i) => `
-                <div class="race-card">
-                    <div class="race-header" onclick="editRace(${i})">
-                        <div>
-                            <div class="race-title">${esc(r.name)}</div>
-                            <div class="race-meta">
-                                <span class="race-type ${r.race_type}">${r.race_type}</span>
-                                <span>${r.position}</span>
-                                ${r.state ? `<span>${r.state}</span>` : ''}
-                                ${r.city ? `<span>${r.city}</span>` : ''}
-                                ${r.district ? `<span>District ${r.district}</span>` : ''}
-                                ${r.primary_date ? `<span>${formatDate(r.primary_date)}</span>` : ''}
+            el.innerHTML = pages.map((p, i) => `
+                <div class="page-card">
+                    <div class="page-header" onclick="editPage(${i})">
+                        <div style="display:flex;align-items:flex-start;">
+                            <span class="page-number">${p.order || i+1}</span>
+                            <div>
+                                <div class="page-title">${esc(p.title)}</div>
+                                <div class="page-meta">
+                                    ${p.category ? `<span class="category-badge">${p.category}</span>` : ''}
+                                    <span>${p.questions?.length || 0} questions</span>
+                                </div>
                             </div>
                         </div>
-                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editRace(${i})">Edit</button>
+                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editPage(${i})">Edit Page</button>
                     </div>
-                    ${r.candidates?.length ? `
-                        <div class="race-body">
-                            <div class="candidates-header">Candidates (${r.candidates.length})</div>
-                            ${r.candidates.map(c => `
-                                <div class="candidate-row">
-                                    <span class="candidate-name">${esc(c.name)}</span>
-                                    ${c.party ? `<span class="candidate-party">${c.party}</span>` : ''}
-                                    ${c.incumbent ? '<span class="candidate-incumbent">Incumbent</span>' : ''}
+                    <div class="page-body">
+                        ${(p.questions || []).map((q, qi) => `
+                            <div class="question-item" onclick="editQuestion(${i}, ${qi})">
+                                <div class="question-header">
+                                    <span class="question-type">${q.type}</span>
+                                    <span style="font-size:11px;color:var(--text-muted);">Q${q.order || qi+1}</span>
                                 </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
+                                ${q.options?.length ? `
+                                    <ul class="options-preview">
+                                        ${q.options.slice(0,3).map(o => `<li>${o.graphic || ''} ${esc(o.label)}</li>`).join('')}
+                                        ${q.options.length > 3 ? `<li>... and ${q.options.length - 3} more</li>` : ''}
+                                    </ul>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                        <button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="addQuestion(${i})">+ Add Question</button>
+                    </div>
                 </div>
             `).join('');
         }
 
-        // Race editing
-        function addRace() {
-            editingRaceIdx = null;
-            modalCandidates = [];
-            document.getElementById('race-modal-title').textContent = 'Add Race';
-            document.getElementById('race-name').value = '';
-            document.getElementById('race-position').value = '';
-            document.getElementById('race-type').value = 'local';
-            document.getElementById('race-year').value = new Date().getFullYear();
-            document.getElementById('race-state').value = current?.state || '';
-            document.getElementById('race-city').value = current?.city || '';
-            document.getElementById('race-district').value = '';
-            document.getElementById('race-primary').value = '';
-            document.getElementById('delete-race-btn').style.display = 'none';
-            renderModalCandidates();
-            showModal('race-modal');
+        // Page editing
+        function addPage() {
+            editingPageIdx = null;
+            document.getElementById('page-modal-title').textContent = 'Add Page';
+            document.getElementById('page-title').value = '';
+            document.getElementById('page-category').value = '';
+            document.getElementById('page-order').value = (content.pages?.length || 0) + 1;
+            document.getElementById('page-why').value = '';
+            document.getElementById('page-help').value = '';
+            document.getElementById('delete-page-btn').style.display = 'none';
+            showModal('page-modal');
         }
 
-        function editRace(idx) {
-            const r = content.races[idx];
-            editingRaceIdx = idx;
-            modalCandidates = JSON.parse(JSON.stringify(r.candidates || []));
-            document.getElementById('race-modal-title').textContent = 'Edit Race';
-            document.getElementById('race-name').value = r.name || '';
-            document.getElementById('race-position').value = r.position || '';
-            document.getElementById('race-type').value = r.race_type || 'local';
-            document.getElementById('race-year').value = r.year || new Date().getFullYear();
-            document.getElementById('race-state').value = r.state || '';
-            document.getElementById('race-city').value = r.city || '';
-            document.getElementById('race-district').value = r.district || '';
-            document.getElementById('race-primary').value = r.primary_date || '';
-            document.getElementById('delete-race-btn').style.display = 'inline-flex';
-            renderModalCandidates();
-            showModal('race-modal');
+        function editPage(idx) {
+            const p = content.pages[idx];
+            editingPageIdx = idx;
+            document.getElementById('page-modal-title').textContent = 'Edit Page';
+            document.getElementById('page-title').value = p.title || '';
+            document.getElementById('page-category').value = p.category || '';
+            document.getElementById('page-order').value = p.order || idx + 1;
+            document.getElementById('page-why').value = p.why_text || '';
+            document.getElementById('page-help').value = p.help_text || '';
+            document.getElementById('delete-page-btn').style.display = 'inline-flex';
+            showModal('page-modal');
         }
 
-        function saveRace() {
-            const race = {
-                name: document.getElementById('race-name').value.trim(),
-                position: document.getElementById('race-position').value.trim(),
-                race_type: document.getElementById('race-type').value,
-                year: parseInt(document.getElementById('race-year').value),
-                state: document.getElementById('race-state').value.trim().toUpperCase(),
-                city: document.getElementById('race-city').value.trim(),
-                district: document.getElementById('race-district').value.trim() || undefined,
-                primary_date: document.getElementById('race-primary').value || undefined,
-                candidates: modalCandidates.filter(c => c.name.trim())
+        function savePage() {
+            const page = {
+                title: document.getElementById('page-title').value.trim(),
+                category: document.getElementById('page-category').value.trim() || undefined,
+                order: parseInt(document.getElementById('page-order').value),
+                why_text: document.getElementById('page-why').value.trim() || undefined,
+                help_text: document.getElementById('page-help').value.trim() || undefined,
+                questions: editingPageIdx !== null ? content.pages[editingPageIdx].questions || [] : []
             };
-            if (!race.name || !race.position) {
-                toast('Name and position are required', 'error');
+            if (!page.title) {
+                toast('Title is required', 'error');
                 return;
             }
-            if (!content.races) content.races = [];
-            if (editingRaceIdx !== null) {
-                content.races[editingRaceIdx] = race;
+            if (!content.pages) content.pages = [];
+            if (editingPageIdx !== null) {
+                content.pages[editingPageIdx] = page;
             } else {
-                content.races.push(race);
+                content.pages.push(page);
             }
             hasChanges = true;
-            renderRaces();
-            closeModal('race-modal');
-            toast('Race saved. Remember to save the questionnaire.');
+            renderPages();
+            closeModal('page-modal');
+            toast('Page saved. Remember to save the questionnaire.');
         }
 
-        function deleteRace() {
-            if (editingRaceIdx === null) return;
-            if (!confirm('Delete this race?')) return;
-            content.races.splice(editingRaceIdx, 1);
+        function deletePage() {
+            if (editingPageIdx === null) return;
+            if (!confirm('Delete this page and all its questions?')) return;
+            content.pages.splice(editingPageIdx, 1);
             hasChanges = true;
-            renderRaces();
-            closeModal('race-modal');
-            toast('Race deleted.', 'error');
+            renderPages();
+            closeModal('page-modal');
+            toast('Page deleted.', 'error');
         }
 
-        // Candidates
-        function renderModalCandidates() {
-            const el = document.getElementById('modal-candidates');
-            if (!modalCandidates.length) {
-                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:16px;">No candidates yet.</p>';
+        // Question editing
+        function addQuestion(pageIdx) {
+            editingPageIdx = pageIdx;
+            editingQuestionIdx = null;
+            modalOptions = [];
+            document.getElementById('question-modal-title').textContent = 'Add Question';
+            document.getElementById('question-type').value = 'MULTI_SELECT';
+            document.getElementById('question-order').value = (content.pages[pageIdx].questions?.length || 0) + 1;
+            document.getElementById('question-min').value = 1;
+            document.getElementById('question-max').value = 5;
+            document.getElementById('delete-question-btn').style.display = 'none';
+            toggleSelectLimits();
+            renderModalOptions();
+            showModal('question-modal');
+        }
+
+        function editQuestion(pageIdx, qIdx) {
+            const q = content.pages[pageIdx].questions[qIdx];
+            editingPageIdx = pageIdx;
+            editingQuestionIdx = qIdx;
+            modalOptions = JSON.parse(JSON.stringify(q.options || []));
+            document.getElementById('question-modal-title').textContent = 'Edit Question';
+            document.getElementById('question-type').value = q.type || 'MULTI_SELECT';
+            document.getElementById('question-order').value = q.order || qIdx + 1;
+            document.getElementById('question-min').value = q.minSelected || 1;
+            document.getElementById('question-max').value = q.maxSelected || 5;
+            document.getElementById('delete-question-btn').style.display = 'inline-flex';
+            toggleSelectLimits();
+            renderModalOptions();
+            showModal('question-modal');
+        }
+
+        function saveQuestion() {
+            const type = document.getElementById('question-type').value;
+            const question = {
+                type,
+                order: parseInt(document.getElementById('question-order').value),
+                visibilityConditions: editingQuestionIdx !== null ?
+                    content.pages[editingPageIdx].questions[editingQuestionIdx].visibilityConditions || [] : [],
+                options: modalOptions.filter(o => o.label.trim())
+            };
+            if (type === 'MULTI_SELECT' || type === 'SINGLE_SELECT') {
+                question.minSelected = parseInt(document.getElementById('question-min').value);
+                question.maxSelected = parseInt(document.getElementById('question-max').value);
+            }
+            if (!content.pages[editingPageIdx].questions) {
+                content.pages[editingPageIdx].questions = [];
+            }
+            if (editingQuestionIdx !== null) {
+                content.pages[editingPageIdx].questions[editingQuestionIdx] = question;
+            } else {
+                content.pages[editingPageIdx].questions.push(question);
+            }
+            hasChanges = true;
+            renderPages();
+            closeModal('question-modal');
+            toast('Question saved. Remember to save the questionnaire.');
+        }
+
+        function deleteQuestion() {
+            if (editingQuestionIdx === null) return;
+            if (!confirm('Delete this question?')) return;
+            content.pages[editingPageIdx].questions.splice(editingQuestionIdx, 1);
+            hasChanges = true;
+            renderPages();
+            closeModal('question-modal');
+            toast('Question deleted.', 'error');
+        }
+
+        // Options
+        function renderModalOptions() {
+            const el = document.getElementById('modal-options');
+            if (!modalOptions.length) {
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:16px;">No options yet.</p>';
                 return;
             }
-            el.innerHTML = modalCandidates.map((c, i) => `
-                <div class="candidate-edit">
-                    <input type="text" value="${esc(c.name)}" placeholder="Name" onchange="modalCandidates[${i}].name=this.value">
-                    <input type="text" value="${esc(c.party||'')}" placeholder="Party" onchange="modalCandidates[${i}].party=this.value">
-                    <select onchange="modalCandidates[${i}].incumbent=this.value==='true'">
-                        <option value="false" ${!c.incumbent?'selected':''}>No</option>
-                        <option value="true" ${c.incumbent?'selected':''}>Inc.</option>
-                    </select>
-                    <button class="btn btn-sm btn-outline" onclick="modalCandidates.splice(${i},1);renderModalCandidates()">&times;</button>
+            el.innerHTML = modalOptions.map((o, i) => `
+                <div class="option-edit">
+                    <input type="text" value="${esc(o.label)}" placeholder="Label" onchange="modalOptions[${i}].label=this.value">
+                    <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" style="width:60px;" onchange="modalOptions[${i}].graphic=this.value">
+                    <button class="btn btn-sm btn-outline" onclick="modalOptions.splice(${i},1);renderModalOptions()">&times;</button>
                 </div>
             `).join('');
         }
 
-        function addCandidate() {
-            modalCandidates.push({ name: '', party: '', incumbent: false });
-            renderModalCandidates();
+        function addOption() {
+            modalOptions.push({ label: '', value: '', graphic: '' });
+            renderModalOptions();
         }
 
         // Save
@@ -786,8 +806,6 @@
         function showCreateModal() {
             document.getElementById('new-name').value = '';
             document.getElementById('new-desc').value = '';
-            document.getElementById('new-state').value = '';
-            document.getElementById('new-city').value = '';
             showModal('create-modal');
         }
 
@@ -800,9 +818,7 @@
                     body: JSON.stringify({
                         name,
                         description: document.getElementById('new-desc').value.trim(),
-                        state: document.getElementById('new-state').value.trim().toUpperCase(),
-                        city: document.getElementById('new-city').value.trim(),
-                        content: { name, description: document.getElementById('new-desc').value.trim(), races: [] }
+                        content: { name, description: document.getElementById('new-desc').value.trim(), pages: [] }
                     })
                 });
                 closeModal('create-modal');
@@ -827,7 +843,7 @@
                 });
                 await loadList();
                 await selectQ(data.questionnaire.id);
-                toast('Imported!', 'success');
+                toast('Imported successfully!', 'success');
             } catch (e) {
                 toast(e.message, 'error');
             }
@@ -847,21 +863,25 @@
 
         // Versions
         async function showVersions() {
-            const data = await api(`/api/questionnaires/${current.id}/versions`);
-            document.getElementById('version-list').innerHTML = data.versions.map(v => `
-                <div class="version-item ${v.version_number === data.current_version ? 'current' : ''}">
-                    <div>
-                        <div class="version-number">Version ${v.version_number} ${v.version_number === data.current_version ? '(Current)' : ''}</div>
-                        <div class="version-meta">${formatDateTime(v.created_at)}</div>
-                        ${v.change_summary ? `<div style="font-size:13px;color:var(--text-secondary);margin-top:4px;">${esc(v.change_summary)}</div>` : ''}
+            try {
+                const data = await api(`/api/questionnaires/${current.id}/versions`);
+                document.getElementById('version-list').innerHTML = data.versions.map(v => `
+                    <div class="version-item ${v.version_number === data.current_version ? 'current' : ''}">
+                        <div>
+                            <div class="version-number">Version ${v.version_number} ${v.version_number === data.current_version ? '(Current)' : ''}</div>
+                            <div class="version-meta">${formatDateTime(v.created_at)}</div>
+                            ${v.change_summary ? `<div style="font-size:13px;color:var(--text-secondary);margin-top:4px;">${esc(v.change_summary)}</div>` : ''}
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-sm btn-outline" onclick="viewVersion(${v.version_number})">View</button>
+                            ${v.version_number !== data.current_version ? `<button class="btn btn-sm btn-secondary" onclick="rollback(${v.version_number})">Restore</button>` : ''}
+                        </div>
                     </div>
-                    <div style="display:flex;gap:8px;">
-                        <button class="btn btn-sm btn-outline" onclick="viewVersion(${v.version_number})">View</button>
-                        ${v.version_number !== data.current_version ? `<button class="btn btn-sm btn-secondary" onclick="rollback(${v.version_number})">Restore</button>` : ''}
-                    </div>
-                </div>
-            `).join('');
-            showModal('version-modal');
+                `).join('');
+                showModal('version-modal');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
         }
 
         async function viewVersion(n) {
@@ -886,20 +906,6 @@
             }
         }
 
-        // States
-        async function loadStates() {
-            try {
-                const data = await api('/api/states');
-                const sel = document.getElementById('filter-state');
-                data.states.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s;
-                    opt.textContent = s;
-                    sel.appendChild(opt);
-                });
-            } catch (e) {}
-        }
-
         // Modal utils
         function showModal(id) { document.getElementById(id).classList.add('visible'); }
         function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
@@ -921,9 +927,7 @@
 
         // Utils
         function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-        function formatDate(s) { return s ? new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''; }
         function formatDateTime(s) { return s ? new Date(s).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; }
-        function debounce(fn, ms) { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; }
     </script>
 </body>
 </html>
