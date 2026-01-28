@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { kv } from '@vercel/kv';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
 
@@ -8,146 +8,108 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// KV Keys
-const QUESTIONNAIRES_KEY = 'questionnaires';
-const VERSIONS_PREFIX = 'version:';
-const NEXT_ID_KEY = 'next_id';
-
-// Helper functions for KV storage
-async function getQuestionnaires(): Promise<Map<number, any>> {
-  try {
-    const data = await kv.get(QUESTIONNAIRES_KEY);
-    if (data && typeof data === 'object') {
-      return new Map(Object.entries(data).map(([k, v]) => [parseInt(k), v]));
-    }
-  } catch (e) {
-    console.error('KV get error:', e);
-  }
-  return new Map();
-}
-
-async function saveQuestionnaires(questionnaires: Map<number, any>): Promise<void> {
-  try {
-    const obj = Object.fromEntries(questionnaires);
-    await kv.set(QUESTIONNAIRES_KEY, obj);
-  } catch (e) {
-    console.error('KV set error:', e);
-  }
-}
-
-async function getVersion(qId: number, versionNum: number): Promise<any> {
-  try {
-    return await kv.get(`${VERSIONS_PREFIX}${qId}-${versionNum}`);
-  } catch (e) {
-    console.error('KV get version error:', e);
-    return null;
-  }
-}
-
-async function saveVersion(qId: number, versionNum: number, version: any): Promise<void> {
-  try {
-    await kv.set(`${VERSIONS_PREFIX}${qId}-${versionNum}`, version);
-  } catch (e) {
-    console.error('KV set version error:', e);
-  }
-}
-
-async function getNextId(): Promise<number> {
-  try {
-    const id = await kv.incr(NEXT_ID_KEY);
-    return id;
-  } catch (e) {
-    console.error('KV incr error:', e);
-    return Date.now(); // Fallback to timestamp
-  }
-}
-
-async function getAllVersionsForQuestionnaire(qId: number, maxVersion: number): Promise<any[]> {
-  const versions = [];
-  for (let i = 1; i <= maxVersion; i++) {
-    const v = await getVersion(qId, i);
-    if (v) versions.push(v);
-  }
-  return versions;
-}
+// Supabase client
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // API Routes
 
 // List all questionnaires
 app.get('/api/questionnaires', async (req: Request, res: Response) => {
-  const { state, city } = req.query;
-  const questionnaires = await getQuestionnaires();
-  let results = Array.from(questionnaires.values());
+  try {
+    const { data, error } = await supabase
+      .from('questionnaires')
+      .select('*')
+      .order('updated_at', { ascending: false });
 
-  if (state) {
-    results = results.filter(q => q.state === state);
+    if (error) throw error;
+    res.json({ questionnaires: data || [], count: data?.length || 0 });
+  } catch (e: any) {
+    console.error('List error:', e);
+    res.status(500).json({ error: e.message });
   }
-  if (city) {
-    results = results.filter(q => q.city?.toLowerCase().includes((city as string).toLowerCase()));
-  }
-
-  results.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
-  res.json({ questionnaires: results, count: results.length });
 });
 
 // Create questionnaire
 app.post('/api/questionnaires', async (req: Request, res: Response) => {
-  const { name, description, state, city, region, primary_date, content } = req.body;
+  const { name, description, content } = req.body;
 
   if (!name) {
     return res.status(400).json({ error: 'Name is required' });
   }
 
-  const questionnaireContent = content || { name, description: description || '', pages: [] };
-  const questionnaires = await getQuestionnaires();
-  const id = await getNextId();
-  const now = new Date().toISOString();
+  try {
+    const questionnaireContent = content || { name, description: description || '', pages: [] };
+    const now = new Date().toISOString();
 
-  const questionnaire = {
-    id,
-    name,
-    description: description || questionnaireContent.description || '',
-    state,
-    city,
-    region,
-    primary_date,
-    current_version: 1,
-    created_at: now,
-    updated_at: now,
-    page_count: questionnaireContent.pages?.length || 0,
-    question_count: questionnaireContent.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0
-  };
+    const { data: questionnaire, error: qError } = await supabase
+      .from('questionnaires')
+      .insert({
+        name,
+        description: description || questionnaireContent.description || '',
+        current_version: 1,
+        page_count: questionnaireContent.pages?.length || 0,
+        question_count: questionnaireContent.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0,
+        created_at: now,
+        updated_at: now
+      })
+      .select()
+      .single();
 
-  questionnaires.set(id, questionnaire);
-  await saveQuestionnaires(questionnaires);
+    if (qError) throw qError;
 
-  // Create initial version
-  await saveVersion(id, 1, {
-    id: await getNextId(),
-    questionnaire_id: id,
-    version_number: 1,
-    content_json: JSON.stringify(questionnaireContent, null, 2),
-    change_summary: 'Initial creation',
-    created_at: now
-  });
+    // Create initial version
+    const { error: vError } = await supabase
+      .from('versions')
+      .insert({
+        questionnaire_id: questionnaire.id,
+        version_number: 1,
+        content_json: JSON.stringify(questionnaireContent, null, 2),
+        change_summary: 'Initial creation',
+        created_at: now
+      });
 
-  res.status(201).json({ questionnaire, content: questionnaireContent });
+    if (vError) throw vError;
+
+    res.status(201).json({ questionnaire, content: questionnaireContent });
+  } catch (e: any) {
+    console.error('Create error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Get questionnaire
 app.get('/api/questionnaires/:id', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const questionnaires = await getQuestionnaires();
-  const questionnaire = questionnaires.get(id);
 
-  if (!questionnaire) {
-    return res.status(404).json({ error: 'Questionnaire not found' });
+  try {
+    const { data: questionnaire, error: qError } = await supabase
+      .from('questionnaires')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (qError) throw qError;
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
+
+    const { data: version, error: vError } = await supabase
+      .from('versions')
+      .select('*')
+      .eq('questionnaire_id', id)
+      .eq('version_number', questionnaire.current_version)
+      .single();
+
+    if (vError) throw vError;
+
+    const content = version ? JSON.parse(version.content_json) : null;
+    res.json({ questionnaire, content });
+  } catch (e: any) {
+    console.error('Get error:', e);
+    res.status(500).json({ error: e.message });
   }
-
-  const version = await getVersion(id, questionnaire.current_version);
-  const content = version ? JSON.parse(version.content_json) : null;
-
-  res.json({ questionnaire, content });
 });
 
 // Update questionnaire
@@ -159,71 +121,103 @@ app.put('/api/questionnaires/:id', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Content is required' });
   }
 
-  const questionnaires = await getQuestionnaires();
-  const questionnaire = questionnaires.get(id);
-  if (!questionnaire) {
-    return res.status(404).json({ error: 'Questionnaire not found' });
+  try {
+    const { data: questionnaire, error: qGetError } = await supabase
+      .from('questionnaires')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (qGetError) throw qGetError;
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
+
+    const newVersion = questionnaire.current_version + 1;
+    const now = new Date().toISOString();
+
+    // Create new version
+    const { error: vError } = await supabase
+      .from('versions')
+      .insert({
+        questionnaire_id: id,
+        version_number: newVersion,
+        content_json: JSON.stringify(content, null, 2),
+        change_summary: change_summary || 'Updated',
+        created_at: now
+      });
+
+    if (vError) throw vError;
+
+    // Update questionnaire
+    const { data: updated, error: qUpdateError } = await supabase
+      .from('questionnaires')
+      .update({
+        current_version: newVersion,
+        name: content.name || questionnaire.name,
+        description: content.description || questionnaire.description,
+        page_count: content.pages?.length || 0,
+        question_count: content.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0,
+        updated_at: now
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (qUpdateError) throw qUpdateError;
+
+    res.json({ questionnaire: updated, content, version: { version_number: newVersion } });
+  } catch (e: any) {
+    console.error('Update error:', e);
+    res.status(500).json({ error: e.message });
   }
-
-  const oldVersion = questionnaire.current_version;
-  const newVersion = oldVersion + 1;
-  const now = new Date().toISOString();
-
-  // Create new version
-  await saveVersion(id, newVersion, {
-    id: await getNextId(),
-    questionnaire_id: id,
-    version_number: newVersion,
-    content_json: JSON.stringify(content, null, 2),
-    change_summary: change_summary || 'Updated',
-    created_at: now
-  });
-
-  // Update questionnaire
-  questionnaire.current_version = newVersion;
-  questionnaire.name = content.name || questionnaire.name;
-  questionnaire.description = content.description || questionnaire.description;
-  questionnaire.updated_at = now;
-  questionnaire.page_count = content.pages?.length || 0;
-  questionnaire.question_count = content.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0;
-
-  questionnaires.set(id, questionnaire);
-  await saveQuestionnaires(questionnaires);
-
-  res.json({ questionnaire, content, version: { version_number: newVersion } });
 });
 
 // Delete questionnaire
 app.delete('/api/questionnaires/:id', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const questionnaires = await getQuestionnaires();
-  questionnaires.delete(id);
-  await saveQuestionnaires(questionnaires);
-  res.json({ message: 'Questionnaire deleted' });
+
+  try {
+    // Delete versions first
+    await supabase.from('versions').delete().eq('questionnaire_id', id);
+
+    // Delete questionnaire
+    const { error } = await supabase.from('questionnaires').delete().eq('id', id);
+    if (error) throw error;
+
+    res.json({ message: 'Questionnaire deleted' });
+  } catch (e: any) {
+    console.error('Delete error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // List versions
 app.get('/api/questionnaires/:id/versions', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
-  const questionnaires = await getQuestionnaires();
-  const questionnaire = questionnaires.get(id);
 
-  if (!questionnaire) {
-    return res.status(404).json({ error: 'Questionnaire not found' });
+  try {
+    const { data: questionnaire, error: qError } = await supabase
+      .from('questionnaires')
+      .select('current_version')
+      .eq('id', id)
+      .single();
+
+    if (qError) throw qError;
+
+    const { data: versions, error: vError } = await supabase
+      .from('versions')
+      .select('id, questionnaire_id, version_number, change_summary, created_at')
+      .eq('questionnaire_id', id)
+      .order('version_number', { ascending: false });
+
+    if (vError) throw vError;
+
+    res.json({ versions: versions || [], current_version: questionnaire?.current_version });
+  } catch (e: any) {
+    console.error('List versions error:', e);
+    res.status(500).json({ error: e.message });
   }
-
-  const allVersions = await getAllVersionsForQuestionnaire(id, questionnaire.current_version);
-  const qVersions = allVersions
-    .map(v => ({
-      id: v.id,
-      questionnaire_id: v.questionnaire_id,
-      version_number: v.version_number,
-      change_summary: v.change_summary,
-      created_at: v.created_at
-    }))
-    .sort((a, b) => b.version_number - a.version_number);
-
-  res.json({ versions: qVersions, current_version: questionnaire.current_version });
 });
 
 // Get specific version
@@ -231,12 +225,24 @@ app.get('/api/questionnaires/:id/versions/:versionNumber', async (req: Request, 
   const id = parseInt(req.params.id);
   const versionNumber = parseInt(req.params.versionNumber);
 
-  const version = await getVersion(id, versionNumber);
-  if (!version) {
-    return res.status(404).json({ error: 'Version not found' });
-  }
+  try {
+    const { data: version, error } = await supabase
+      .from('versions')
+      .select('*')
+      .eq('questionnaire_id', id)
+      .eq('version_number', versionNumber)
+      .single();
 
-  res.json({ version, content: JSON.parse(version.content_json) });
+    if (error) throw error;
+    if (!version) {
+      return res.status(404).json({ error: 'Version not found' });
+    }
+
+    res.json({ version, content: JSON.parse(version.content_json) });
+  } catch (e: any) {
+    console.error('Get version error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Rollback to version
@@ -244,50 +250,62 @@ app.post('/api/questionnaires/:id/versions/:versionNumber/rollback', async (req:
   const id = parseInt(req.params.id);
   const versionNumber = parseInt(req.params.versionNumber);
 
-  const questionnaires = await getQuestionnaires();
-  const questionnaire = questionnaires.get(id);
-  if (!questionnaire) {
-    return res.status(404).json({ error: 'Questionnaire not found' });
+  try {
+    const { data: questionnaire, error: qError } = await supabase
+      .from('questionnaires')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (qError) throw qError;
+
+    const { data: targetVersion, error: vError } = await supabase
+      .from('versions')
+      .select('*')
+      .eq('questionnaire_id', id)
+      .eq('version_number', versionNumber)
+      .single();
+
+    if (vError) throw vError;
+
+    const content = JSON.parse(targetVersion.content_json);
+    const newVersion = questionnaire.current_version + 1;
+    const now = new Date().toISOString();
+
+    // Create new version with old content
+    await supabase.from('versions').insert({
+      questionnaire_id: id,
+      version_number: newVersion,
+      content_json: targetVersion.content_json,
+      change_summary: `Rollback to version ${versionNumber}`,
+      created_at: now
+    });
+
+    // Update questionnaire
+    const { data: updated, error: qUpdateError } = await supabase
+      .from('questionnaires')
+      .update({
+        current_version: newVersion,
+        updated_at: now
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (qUpdateError) throw qUpdateError;
+
+    res.json({ questionnaire: updated, content, version: { version_number: newVersion } });
+  } catch (e: any) {
+    console.error('Rollback error:', e);
+    res.status(500).json({ error: e.message });
   }
-
-  const targetVersion = await getVersion(id, versionNumber);
-  if (!targetVersion) {
-    return res.status(404).json({ error: 'Version not found' });
-  }
-
-  const content = JSON.parse(targetVersion.content_json);
-  const oldVersion = questionnaire.current_version;
-  const newVersion = oldVersion + 1;
-  const now = new Date().toISOString();
-
-  // Create new version with old content
-  await saveVersion(id, newVersion, {
-    id: await getNextId(),
-    questionnaire_id: id,
-    version_number: newVersion,
-    content_json: targetVersion.content_json,
-    change_summary: `Rollback to version ${versionNumber}`,
-    created_at: now
-  });
-
-  questionnaire.current_version = newVersion;
-  questionnaire.updated_at = now;
-  questionnaires.set(id, questionnaire);
-  await saveQuestionnaires(questionnaires);
-
-  res.json({ questionnaire, content, version: { version_number: newVersion } });
 });
 
 // Import questionnaire
 app.post('/api/questionnaires/import', async (req: Request, res: Response) => {
   const content = req.body;
 
-  // Support both formats:
-  // 1. { "name": "...", "pages": [...] } - has explicit name
-  // 2. { "pages": [...] } - derive name from first page title
-
   let name = content.name;
-
   if (!name && content.pages && content.pages.length > 0) {
     name = content.pages[0].title || 'Imported Questionnaire';
   }
@@ -296,51 +314,61 @@ app.post('/api/questionnaires/import', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Invalid JSON: must have a "name" field or "pages" array' });
   }
 
-  const questionnaires = await getQuestionnaires();
-  const id = await getNextId();
-  const now = new Date().toISOString();
+  try {
+    const now = new Date().toISOString();
+    const fullContent = { name, ...content };
 
-  const questionnaire = {
-    id,
-    name,
-    description: content.description || '',
-    state: null,
-    city: null,
-    region: null,
-    primary_date: null,
-    current_version: 1,
-    created_at: now,
-    updated_at: now,
-    page_count: content.pages?.length || 0,
-    question_count: content.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0
-  };
+    const { data: questionnaire, error: qError } = await supabase
+      .from('questionnaires')
+      .insert({
+        name,
+        description: content.description || '',
+        current_version: 1,
+        page_count: content.pages?.length || 0,
+        question_count: content.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0,
+        created_at: now,
+        updated_at: now
+      })
+      .select()
+      .single();
 
-  questionnaires.set(id, questionnaire);
-  await saveQuestionnaires(questionnaires);
+    if (qError) throw qError;
 
-  // Store full content including pages
-  const fullContent = { name, ...content };
+    const { error: vError } = await supabase
+      .from('versions')
+      .insert({
+        questionnaire_id: questionnaire.id,
+        version_number: 1,
+        content_json: JSON.stringify(fullContent, null, 2),
+        change_summary: 'Imported from JSON',
+        created_at: now
+      });
 
-  await saveVersion(id, 1, {
-    id: await getNextId(),
-    questionnaire_id: id,
-    version_number: 1,
-    content_json: JSON.stringify(fullContent, null, 2),
-    change_summary: 'Imported from JSON',
-    created_at: now
-  });
+    if (vError) throw vError;
 
-  res.status(201).json({ questionnaire, content: fullContent });
+    res.status(201).json({ questionnaire, content: fullContent });
+  } catch (e: any) {
+    console.error('Import error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
-// Get unique states
+// Get unique states (for filtering)
 app.get('/api/states', async (_req: Request, res: Response) => {
-  const questionnaires = await getQuestionnaires();
-  const states = new Set<string>();
-  questionnaires.forEach(q => {
-    if (q.state) states.add(q.state);
-  });
-  res.json({ states: Array.from(states) });
+  try {
+    const { data, error } = await supabase
+      .from('questionnaires')
+      .select('state')
+      .not('state', 'is', null);
+
+    if (error) throw error;
+
+    const states = [...new Set(data?.map(d => d.state).filter(Boolean))];
+    res.json({ states });
+  } catch (e: any) {
+    console.error('States error:', e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 export default app;
