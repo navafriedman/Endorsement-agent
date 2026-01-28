@@ -33,7 +33,11 @@ ENV/
 
 # Output
 output/
+results/
 *.json.bak
+
+# Database
+*.db
 
 # Environment variables
 .env

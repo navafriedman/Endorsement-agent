@@ -1,0 +1,814 @@
+/* ==========================================================================
+   Election Questionnaire Editor - Styles
+   ========================================================================== */
+
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary-color: #64748b;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+
+    --border-color: #e2e8f0;
+    --border-radius: 8px;
+    --border-radius-sm: 4px;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+    --sidebar-width: 320px;
+    --header-height: 64px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+}
+
+/* ==========================================================================
+   Layout
+   ========================================================================== */
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--bg-primary);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: 24px;
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+   Sidebar
+   ========================================================================== */
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sidebar-actions {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.filter-section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.filter-section h3 {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.filter-group {
+    margin-bottom: 12px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 13px;
+    background-color: var(--bg-primary);
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.questionnaire-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.questionnaire-item {
+    padding: 12px 16px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: background-color 0.15s;
+}
+
+.questionnaire-item:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.questionnaire-item.active {
+    background-color: #eff6ff;
+    border: 1px solid #bfdbfe;
+}
+
+.questionnaire-item-name {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.questionnaire-item-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 8px;
+}
+
+.questionnaire-item-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ==========================================================================
+   Main Content
+   ========================================================================== */
+
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 48px);
+}
+
+.empty-state-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.empty-state-content h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.empty-state-content p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+}
+
+.editor-container {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.editor-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.editor-title h2 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.version-badge {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.metadata-section {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+.races-section {
+    padding: 20px 24px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.races-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ==========================================================================
+   Race Card
+   ========================================================================== */
+
+.race-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--bg-primary);
+    transition: box-shadow 0.15s;
+}
+
+.race-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.race-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px;
+    cursor: pointer;
+}
+
+.race-card-title {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.race-card-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.race-type-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.race-type-badge.federal { background-color: #dbeafe; color: #1e40af; }
+.race-type-badge.state { background-color: #fef3c7; color: #92400e; }
+.race-type-badge.local { background-color: #d1fae5; color: #065f46; }
+.race-type-badge.judicial { background-color: #ede9fe; color: #5b21b6; }
+.race-type-badge.school_board { background-color: #fce7f3; color: #9d174d; }
+
+.race-card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.race-card-body {
+    padding: 0 16px 16px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 0;
+}
+
+.candidates-header {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 12px 0 8px;
+}
+
+.candidate-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+    margin-bottom: 4px;
+}
+
+.candidate-name {
+    font-weight: 500;
+    flex: 1;
+}
+
+.candidate-party {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.candidate-incumbent {
+    font-size: 11px;
+    padding: 2px 6px;
+    background-color: #fef3c7;
+    color: #92400e;
+    border-radius: 4px;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+}
+
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #475569;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.btn-outline:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+.btn-icon {
+    padding: 6px;
+    border-radius: var(--border-radius-sm);
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 14px;
+    background-color: var(--bg-primary);
+    transition: border-color 0.15s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+/* ==========================================================================
+   Modals
+   ========================================================================== */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content.modal-lg {
+    max-width: 700px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-secondary);
+}
+
+/* ==========================================================================
+   Version History
+   ========================================================================== */
+
+.version-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.version-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.version-item.current {
+    border-color: var(--primary-color);
+    background-color: #eff6ff;
+}
+
+.version-info {
+    flex: 1;
+}
+
+.version-number {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.version-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.version-summary {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.version-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ==========================================================================
+   Changes List
+   ========================================================================== */
+
+.changes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.change-item {
+    padding: 12px 16px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+    border-left: 3px solid var(--primary-color);
+}
+
+.change-item.create { border-left-color: var(--success-color); }
+.change-item.update { border-left-color: var(--primary-color); }
+.change-item.rollback { border-left-color: var(--warning-color); }
+.change-item.import { border-left-color: #8b5cf6; }
+
+.change-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.change-type {
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.change-time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.change-summary {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Candidates Section (in modal)
+   ========================================================================== */
+
+.candidates-section {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.candidates-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.candidates-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.candidate-edit-row {
+    display: grid;
+    grid-template-columns: 1fr 120px 80px 32px;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+}
+
+.candidate-edit-row input {
+    padding: 6px 10px;
+    font-size: 13px;
+}
+
+.candidate-edit-row select {
+    padding: 6px 8px;
+    font-size: 13px;
+}
+
+.candidate-edit-row .btn-icon {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.candidate-edit-row .btn-icon:hover {
+    color: var(--danger-color);
+}
+
+/* ==========================================================================
+   Toast Notifications
+   ========================================================================== */
+
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast {
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    background-color: var(--text-primary);
+    color: white;
+    box-shadow: var(--shadow-lg);
+    animation: slideIn 0.3s ease;
+    max-width: 400px;
+}
+
+.toast.success {
+    background-color: var(--success-color);
+}
+
+.toast.error {
+    background-color: var(--danger-color);
+}
+
+.toast.warning {
+    background-color: var(--warning-color);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        max-height: 50vh;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .app-container {
+        flex-direction: column;
+    }
+
+    .editor-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .editor-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .candidate-edit-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   Scrollbar
+   ========================================================================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
