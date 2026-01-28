@@ -279,7 +279,7 @@
         .version-meta { font-size: 12px; color: var(--text-muted); }
         .option-edit {
             display: grid;
-            grid-template-columns: 50px 1fr 70px 70px 32px;
+            grid-template-columns: 50px 1fr 70px 70px 120px 32px;
             gap: 8px;
             align-items: center;
             padding: 8px;
@@ -290,6 +290,10 @@
         }
         .option-edit.dragging { opacity: 0.5; background: #dbeafe; }
         .option-edit input { padding: 6px 10px; font-size: 13px; }
+        .signal-input { font-family: monospace; font-size: 11px !important; }
+        .visibility-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .visibility-badge { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+        .signal-tag { display: inline-block; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; }
         .drag-buttons { display: flex; flex-direction: column; gap: 2px; }
         .drag-buttons button {
             padding: 2px 8px;
@@ -471,6 +475,11 @@
                 <div class="form-group">
                     <label>Help Text</label>
                     <input type="text" id="page-help" placeholder="e.g., Select all that apply">
+                </div>
+                <div class="visibility-section">
+                    <label>Visibility Condition (optional)</label>
+                    <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Only show this page if user selected an option with this signal</p>
+                    <input type="text" id="page-required-signal" class="signal-input" placeholder="e.g., ISSUE_PROPERTY_TAX">
                 </div>
             </div>
             <div class="modal-footer">
@@ -677,6 +686,7 @@
                                 <div class="page-title">${esc(p.title)}</div>
                                 <div class="page-meta">
                                     ${p.category ? `<span class="category-badge">${p.category}</span>` : ''}
+                                    ${p.visibilityConditions?.[0]?.requiredSignal ? `<span class="visibility-badge">Requires: ${p.visibilityConditions[0].requiredSignal}</span>` : ''}
                                     <span>${p.questions?.length || 0} questions</span>
                                 </div>
                             </div>
@@ -713,6 +723,7 @@
             document.getElementById('page-order').value = (content.pages?.length || 0) + 1;
             document.getElementById('page-why').value = '';
             document.getElementById('page-help').value = '';
+            document.getElementById('page-required-signal').value = '';
             document.getElementById('delete-page-btn').style.display = 'none';
             showModal('page-modal');
         }
@@ -726,17 +737,22 @@
             document.getElementById('page-order').value = p.order || idx + 1;
             document.getElementById('page-why').value = p.why_text || '';
             document.getElementById('page-help').value = p.help_text || '';
+            // Get required signal from visibility conditions
+            const reqSignal = p.visibilityConditions?.[0]?.requiredSignal || '';
+            document.getElementById('page-required-signal').value = reqSignal;
             document.getElementById('delete-page-btn').style.display = 'inline-flex';
             showModal('page-modal');
         }
 
         function savePage() {
+            const requiredSignal = document.getElementById('page-required-signal').value.trim();
             const page = {
                 title: document.getElementById('page-title').value.trim(),
                 category: document.getElementById('page-category').value.trim() || undefined,
                 order: parseInt(document.getElementById('page-order').value),
                 why_text: document.getElementById('page-why').value.trim() || undefined,
                 help_text: document.getElementById('page-help').value.trim() || undefined,
+                visibilityConditions: requiredSignal ? [{ requiredSignal }] : undefined,
                 questions: editingPageIdx !== null ? content.pages[editingPageIdx].questions || [] : []
             };
             if (!page.title) {
@@ -849,7 +865,8 @@
                     </div>
                     <input type="text" value="${esc(o.label)}" placeholder="Label" onchange="modalOptions[${i}].label=this.value">
                     <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" onchange="modalOptions[${i}].graphic=this.value">
-                    <input type="number" value="${o.number||''}" placeholder="Number" onchange="modalOptions[${i}].number=this.value?parseInt(this.value):undefined">
+                    <input type="number" value="${o.number||''}" placeholder="Num" onchange="modalOptions[${i}].number=this.value?parseInt(this.value):undefined">
+                    <input type="text" class="signal-input" value="${esc(o.signal||'')}" placeholder="Signal" onchange="modalOptions[${i}].signal=this.value||undefined">
                     <button class="btn btn-sm btn-outline" onclick="modalOptions.splice(${i},1);renderModalOptions()">&times;</button>
                 </div>
             `).join('');
