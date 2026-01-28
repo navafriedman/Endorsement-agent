@@ -279,7 +279,7 @@
         .version-meta { font-size: 12px; color: var(--text-muted); }
         .option-edit {
             display: grid;
-            grid-template-columns: 1fr 80px 32px;
+            grid-template-columns: 1fr 70px 70px 32px;
             gap: 8px;
             align-items: center;
             padding: 8px;
@@ -288,6 +288,30 @@
             margin-bottom: 8px;
         }
         .option-edit input { padding: 6px 10px; font-size: 13px; }
+        .q-item-actions { display: flex; gap: 4px; margin-top: 8px; }
+        .q-item-actions button { padding: 2px 8px; font-size: 11px; }
+        .revision-section {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .revision-list { max-height: 200px; overflow-y: auto; }
+        .revision-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .revision-item.current { border-color: var(--primary); background: #eff6ff; }
+        .revision-item .rev-info { flex: 1; }
+        .revision-item .rev-num { font-weight: 600; }
+        .revision-item .rev-date { color: var(--text-muted); font-size: 12px; }
+        .revision-item .rev-summary { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; }
         .toast {
             padding: 12px 20px;
@@ -369,6 +393,13 @@
                         <button class="btn btn-sm btn-outline" onclick="addPage()">+ Add Page</button>
                     </div>
                     <div class="pages-container" id="pages"></div>
+                </div>
+                <div class="revision-section">
+                    <div class="section-header">
+                        <h3>Revision History</h3>
+                        <button class="btn btn-sm btn-outline" onclick="showVersions()">View All</button>
+                    </div>
+                    <div class="revision-list" id="revisions"></div>
                 </div>
             </div>
         </main>
@@ -454,6 +485,7 @@
                             <option value="TEXT">Text Input</option>
                             <option value="RANKING">Ranking</option>
                             <option value="SCALE">Scale</option>
+                            <option value="LIKERT">Likert</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -559,6 +591,9 @@
                         <span>${q.page_count || 0} pages</span>
                         <span>${q.question_count || 0} questions</span>
                     </div>
+                    <div class="q-item-actions">
+                        <button class="btn btn-sm btn-outline btn-danger" onclick="event.stopPropagation();deleteQ(${q.id})" title="Delete">Delete</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -585,6 +620,32 @@
             document.getElementById('edit-name').value = content.name || '';
             document.getElementById('edit-desc').value = content.description || '';
             renderPages();
+            loadRevisions();
+        }
+
+        async function loadRevisions() {
+            try {
+                const data = await api(`/api/questionnaires/${current.id}/versions`);
+                const el = document.getElementById('revisions');
+                if (!data.versions.length) {
+                    el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:16px;">No revisions yet.</p>';
+                    return;
+                }
+                el.innerHTML = data.versions.slice(0, 5).map(v => `
+                    <div class="revision-item ${v.version_number === data.current_version ? 'current' : ''}">
+                        <div class="rev-info">
+                            <span class="rev-num">v${v.version_number}</span>
+                            <span class="rev-date">${formatDateTime(v.created_at)}</span>
+                            ${v.change_summary ? `<div class="rev-summary">${esc(v.change_summary)}</div>` : ''}
+                        </div>
+                        <div>
+                            ${v.version_number !== data.current_version ? `<button class="btn btn-sm btn-outline" onclick="rollback(${v.version_number})">Restore</button>` : '<span style="font-size:11px;color:var(--success);">Current</span>'}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
         }
 
         function renderPages() {
@@ -770,14 +831,15 @@
             el.innerHTML = modalOptions.map((o, i) => `
                 <div class="option-edit">
                     <input type="text" value="${esc(o.label)}" placeholder="Label" onchange="modalOptions[${i}].label=this.value">
-                    <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" style="width:60px;" onchange="modalOptions[${i}].graphic=this.value">
+                    <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" onchange="modalOptions[${i}].graphic=this.value">
+                    <input type="number" value="${o.number||''}" placeholder="Number" onchange="modalOptions[${i}].number=this.value?parseInt(this.value):undefined">
                     <button class="btn btn-sm btn-outline" onclick="modalOptions.splice(${i},1);renderModalOptions()">&times;</button>
                 </div>
             `).join('');
         }
 
         function addOption() {
-            modalOptions.push({ label: '', value: '', graphic: '' });
+            modalOptions.push({ label: '', value: '', graphic: '', number: undefined });
             renderModalOptions();
         }
 
@@ -825,6 +887,23 @@
                 await loadList();
                 await selectQ(data.questionnaire.id);
                 toast('Created!', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        async function deleteQ(id) {
+            if (!confirm('Are you sure you want to delete this questionnaire? This cannot be undone.')) return;
+            try {
+                await api(`/api/questionnaires/${id}`, { method: 'DELETE' });
+                if (current?.id === id) {
+                    current = null;
+                    content = null;
+                    document.getElementById('editor').classList.remove('visible');
+                    document.getElementById('empty').style.display = 'flex';
+                }
+                await loadList();
+                toast('Questionnaire deleted', 'success');
             } catch (e) {
                 toast(e.message, 'error');
             }
