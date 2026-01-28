@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionnaire Editor</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text);
+            background: var(--bg);
+        }
+        .app { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 320px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
+        .sidebar-header h1 { font-size: 18px; font-weight: 600; }
+        .sidebar-actions {
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .questionnaire-list { flex: 1; overflow-y: auto; padding: 12px; }
+        .q-item {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 0.15s;
+        }
+        .q-item:hover { background: #f1f5f9; }
+        .q-item.active { background: #eff6ff; border: 1px solid #bfdbfe; }
+        .q-item-name { font-weight: 500; margin-bottom: 4px; }
+        .q-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; }
+        .main { flex: 1; margin-left: 320px; padding: 24px; }
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 48px);
+            text-align: center;
+        }
+        .empty-state h2 { font-size: 24px; margin-bottom: 12px; }
+        .empty-state p { color: var(--text-secondary); margin-bottom: 24px; }
+        .editor {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: none;
+        }
+        .editor.visible { display: block; }
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .editor-title { display: flex; align-items: center; gap: 12px; }
+        .editor-title h2 { font-size: 20px; }
+        .version-badge {
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .editor-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .metadata { padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--bg); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .pages-section { padding: 20px 24px; }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .section-header h3 { font-size: 16px; font-weight: 600; }
+        .pages-container { display: flex; flex-direction: column; gap: 16px; }
+        .page-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: box-shadow 0.15s;
+        }
+        .page-card:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 16px;
+            background: var(--bg);
+            border-radius: var(--radius) var(--radius) 0 0;
+            cursor: pointer;
+        }
+        .page-number {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            margin-right: 12px;
+        }
+        .page-title { font-weight: 500; margin-bottom: 4px; }
+        .page-meta { font-size: 12px; color: var(--text-muted); }
+        .category-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            background: #dbeafe;
+            color: #1e40af;
+            margin-right: 8px;
+        }
+        .page-body { padding: 16px; }
+        .question-item {
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .question-item:hover { background: #e2e8f0; }
+        .question-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .question-type {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        .question-text { font-size: 13px; margin-top: 4px; }
+        .options-preview {
+            margin-top: 8px;
+            padding-left: 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .options-preview li { margin-bottom: 2px; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-danger { background: var(--danger); color: white; }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.visible { display: flex; }
+        .modal-content {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content.lg { max-width: 700px; }
+        .modal-content.xl { max-width: 900px; }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-header h3 { font-size: 18px; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .modal-body { padding: 24px; }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .version-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+        .version-item.current { border-color: var(--primary); background: #eff6ff; }
+        .version-number { font-weight: 600; }
+        .version-meta { font-size: 12px; color: var(--text-muted); }
+        .option-edit {
+            display: grid;
+            grid-template-columns: 1fr 80px 32px;
+            gap: 8px;
+            align-items: center;
+            padding: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .option-edit input { padding: 6px 10px; font-size: 13px; }
+        .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; }
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            background: var(--text);
+            color: white;
+            margin-top: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { position: relative; width: 100%; height: auto; max-height: 50vh; }
+            .main { margin-left: 0; }
+            .app { flex-direction: column; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Questionnaire Editor</h1>
+            </div>
+            <div class="sidebar-actions">
+                <button class="btn btn-primary" onclick="showCreateModal()">+ New Questionnaire</button>
+                <label class="btn btn-secondary" style="text-align:center;">
+                    Import JSON
+                    <input type="file" accept=".json" onchange="importFile(event)" hidden>
+                </label>
+            </div>
+            <div class="questionnaire-list" id="list"></div>
+        </aside>
+
+        <main class="main">
+            <div class="empty-state" id="empty">
+                <div>
+                    <h2>Welcome to the Questionnaire Editor</h2>
+                    <p>Import a JSON questionnaire or create a new one to get started.</p>
+                    <label class="btn btn-primary" style="cursor:pointer;">
+                        Import JSON File
+                        <input type="file" accept=".json" onchange="importFile(event)" hidden>
+                    </label>
+                </div>
+            </div>
+
+            <div class="editor" id="editor">
+                <div class="editor-header">
+                    <div class="editor-title">
+                        <h2 id="q-name">Name</h2>
+                        <span class="version-badge" id="q-version">v1</span>
+                    </div>
+                    <div class="editor-actions">
+                        <button class="btn btn-outline" onclick="showVersions()">Version History</button>
+                        <button class="btn btn-outline" onclick="exportQ()">Export JSON</button>
+                        <button class="btn btn-primary" onclick="saveQ()">Save Changes</button>
+                    </div>
+                </div>
+                <div class="metadata">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Questionnaire Name</label>
+                            <input type="text" id="edit-name">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="edit-desc">
+                        </div>
+                    </div>
+                </div>
+                <div class="pages-section">
+                    <div class="section-header">
+                        <h3>Pages</h3>
+                        <button class="btn btn-sm btn-outline" onclick="addPage()">+ Add Page</button>
+                    </div>
+                    <div class="pages-container" id="pages"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Modal -->
+    <div class="modal" id="create-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Questionnaire</h3>
+                <button class="modal-close" onclick="closeModal('create-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name *</label>
+                    <input type="text" id="new-name" placeholder="e.g., Fort Worth 2026 Primary Questions">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="new-desc" rows="2" placeholder="Brief description"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('create-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="createQ()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Modal -->
+    <div class="modal" id="page-modal">
+        <div class="modal-content lg">
+            <div class="modal-header">
+                <h3 id="page-modal-title">Edit Page</h3>
+                <button class="modal-close" onclick="closeModal('page-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Page Title *</label>
+                    <input type="text" id="page-title" placeholder="e.g., Which of the following best describe you?">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="page-category" placeholder="e.g., IDENTITY">
+                    </div>
+                    <div class="form-group">
+                        <label>Order</label>
+                        <input type="number" id="page-order" value="1" min="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Why Text (explanation)</label>
+                    <textarea id="page-why" rows="2" placeholder="Why we ask this question..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Help Text</label>
+                    <input type="text" id="page-help" placeholder="e.g., Select all that apply">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('page-modal')">Cancel</button>
+                <button class="btn btn-danger" id="delete-page-btn" onclick="deletePage()" style="display:none;">Delete Page</button>
+                <button class="btn btn-primary" onclick="savePage()">Save Page</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Modal -->
+    <div class="modal" id="question-modal">
+        <div class="modal-content xl">
+            <div class="modal-header">
+                <h3 id="question-modal-title">Edit Question</h3>
+                <button class="modal-close" onclick="closeModal('question-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Question Type *</label>
+                        <select id="question-type">
+                            <option value="MULTI_SELECT">Multi Select</option>
+                            <option value="SINGLE_SELECT">Single Select</option>
+                            <option value="TEXT">Text Input</option>
+                            <option value="RANKING">Ranking</option>
+                            <option value="SCALE">Scale</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Order</label>
+                        <input type="number" id="question-order" value="1" min="1">
+                    </div>
+                </div>
+                <div class="form-row" id="select-limits" style="display:none;">
+                    <div class="form-group">
+                        <label>Min Selected</label>
+                        <input type="number" id="question-min" value="1" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Max Selected</label>
+                        <input type="number" id="question-max" value="5" min="1">
+                    </div>
+                </div>
+                <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                    <div class="section-header">
+                        <h4 style="font-size:14px;">Options</h4>
+                        <button class="btn btn-sm btn-outline" onclick="addOption()">+ Add Option</button>
+                    </div>
+                    <div id="modal-options"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('question-modal')">Cancel</button>
+                <button class="btn btn-danger" id="delete-question-btn" onclick="deleteQuestion()" style="display:none;">Delete</button>
+                <button class="btn btn-primary" onclick="saveQuestion()">Save Question</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Version Modal -->
+    <div class="modal" id="version-modal">
+        <div class="modal-content lg">
+            <div class="modal-header">
+                <h3>Version History</h3>
+                <button class="modal-close" onclick="closeModal('version-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="version-list"></div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toasts"></div>
+
+    <script>
+        // State
+        let questionnaires = [];
+        let current = null;
+        let content = null;
+        let editingPageIdx = null;
+        let editingQuestionIdx = null;
+        let modalOptions = [];
+        let hasChanges = false;
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            loadList();
+            document.getElementById('question-type').addEventListener('change', toggleSelectLimits);
+        });
+
+        function toggleSelectLimits() {
+            const type = document.getElementById('question-type').value;
+            document.getElementById('select-limits').style.display =
+                (type === 'MULTI_SELECT' || type === 'SINGLE_SELECT') ? 'grid' : 'none';
+        }
+
+        // API
+        async function api(url, opts = {}) {
+            const res = await fetch(url, {
+                headers: { 'Content-Type': 'application/json', ...opts.headers },
+                ...opts
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ error: 'Request failed' }));
+                throw new Error(err.error || `HTTP ${res.status}`);
+            }
+            return res.json();
+        }
+
+        // Load list
+        async function loadList() {
+            try {
+                const data = await api('/api/questionnaires');
+                questionnaires = data.questionnaires;
+                renderList();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderList() {
+            const el = document.getElementById('list');
+            if (!questionnaires.length) {
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px;">No questionnaires yet.<br>Import a JSON file to get started.</p>';
+                return;
+            }
+            el.innerHTML = questionnaires.map(q => `
+                <div class="q-item ${current?.id === q.id ? 'active' : ''}" onclick="selectQ(${q.id})">
+                    <div class="q-item-name">${esc(q.name)}</div>
+                    <div class="q-item-meta">
+                        <span>${q.page_count || 0} pages</span>
+                        <span>${q.question_count || 0} questions</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectQ(id) {
+            if (hasChanges && !confirm('Discard unsaved changes?')) return;
+            try {
+                const data = await api(`/api/questionnaires/${id}`);
+                current = data.questionnaire;
+                content = JSON.parse(JSON.stringify(data.content));
+                hasChanges = false;
+                renderEditor();
+                renderList();
+                document.getElementById('empty').style.display = 'none';
+                document.getElementById('editor').classList.add('visible');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        function renderEditor() {
+            document.getElementById('q-name').textContent = current.name;
+            document.getElementById('q-version').textContent = `v${current.current_version}`;
+            document.getElementById('edit-name').value = content.name || '';
+            document.getElementById('edit-desc').value = content.description || '';
+            renderPages();
+        }
+
+        function renderPages() {
+            const el = document.getElementById('pages');
+            const pages = content.pages || [];
+            if (!pages.length) {
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px;">No pages yet. Click "Add Page" or import a JSON file.</p>';
+                return;
+            }
+            el.innerHTML = pages.map((p, i) => `
+                <div class="page-card">
+                    <div class="page-header" onclick="editPage(${i})">
+                        <div style="display:flex;align-items:flex-start;">
+                            <span class="page-number">${p.order || i+1}</span>
+                            <div>
+                                <div class="page-title">${esc(p.title)}</div>
+                                <div class="page-meta">
+                                    ${p.category ? `<span class="category-badge">${p.category}</span>` : ''}
+                                    <span>${p.questions?.length || 0} questions</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editPage(${i})">Edit Page</button>
+                    </div>
+                    <div class="page-body">
+                        ${(p.questions || []).map((q, qi) => `
+                            <div class="question-item" onclick="editQuestion(${i}, ${qi})">
+                                <div class="question-header">
+                                    <span class="question-type">${q.type}</span>
+                                    <span style="font-size:11px;color:var(--text-muted);">Q${q.order || qi+1}</span>
+                                </div>
+                                ${q.options?.length ? `
+                                    <ul class="options-preview">
+                                        ${q.options.slice(0,3).map(o => `<li>${o.graphic || ''} ${esc(o.label)}</li>`).join('')}
+                                        ${q.options.length > 3 ? `<li>... and ${q.options.length - 3} more</li>` : ''}
+                                    </ul>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                        <button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="addQuestion(${i})">+ Add Question</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Page editing
+        function addPage() {
+            editingPageIdx = null;
+            document.getElementById('page-modal-title').textContent = 'Add Page';
+            document.getElementById('page-title').value = '';
+            document.getElementById('page-category').value = '';
+            document.getElementById('page-order').value = (content.pages?.length || 0) + 1;
+            document.getElementById('page-why').value = '';
+            document.getElementById('page-help').value = '';
+            document.getElementById('delete-page-btn').style.display = 'none';
+            showModal('page-modal');
+        }
+
+        function editPage(idx) {
+            const p = content.pages[idx];
+            editingPageIdx = idx;
+            document.getElementById('page-modal-title').textContent = 'Edit Page';
+            document.getElementById('page-title').value = p.title || '';
+            document.getElementById('page-category').value = p.category || '';
+            document.getElementById('page-order').value = p.order || idx + 1;
+            document.getElementById('page-why').value = p.why_text || '';
+            document.getElementById('page-help').value = p.help_text || '';
+            document.getElementById('delete-page-btn').style.display = 'inline-flex';
+            showModal('page-modal');
+        }
+
+        function savePage() {
+            const page = {
+                title: document.getElementById('page-title').value.trim(),
+                category: document.getElementById('page-category').value.trim() || undefined,
+                order: parseInt(document.getElementById('page-order').value),
+                why_text: document.getElementById('page-why').value.trim() || undefined,
+                help_text: document.getElementById('page-help').value.trim() || undefined,
+                questions: editingPageIdx !== null ? content.pages[editingPageIdx].questions || [] : []
+            };
+            if (!page.title) {
+                toast('Title is required', 'error');
+                return;
+            }
+            if (!content.pages) content.pages = [];
+            if (editingPageIdx !== null) {
+                content.pages[editingPageIdx] = page;
+            } else {
+                content.pages.push(page);
+            }
+            hasChanges = true;
+            renderPages();
+            closeModal('page-modal');
+            toast('Page saved. Remember to save the questionnaire.');
+        }
+
+        function deletePage() {
+            if (editingPageIdx === null) return;
+            if (!confirm('Delete this page and all its questions?')) return;
+            content.pages.splice(editingPageIdx, 1);
+            hasChanges = true;
+            renderPages();
+            closeModal('page-modal');
+            toast('Page deleted.', 'error');
+        }
+
+        // Question editing
+        function addQuestion(pageIdx) {
+            editingPageIdx = pageIdx;
+            editingQuestionIdx = null;
+            modalOptions = [];
+            document.getElementById('question-modal-title').textContent = 'Add Question';
+            document.getElementById('question-type').value = 'MULTI_SELECT';
+            document.getElementById('question-order').value = (content.pages[pageIdx].questions?.length || 0) + 1;
+            document.getElementById('question-min').value = 1;
+            document.getElementById('question-max').value = 5;
+            document.getElementById('delete-question-btn').style.display = 'none';
+            toggleSelectLimits();
+            renderModalOptions();
+            showModal('question-modal');
+        }
+
+        function editQuestion(pageIdx, qIdx) {
+            const q = content.pages[pageIdx].questions[qIdx];
+            editingPageIdx = pageIdx;
+            editingQuestionIdx = qIdx;
+            modalOptions = JSON.parse(JSON.stringify(q.options || []));
+            document.getElementById('question-modal-title').textContent = 'Edit Question';
+            document.getElementById('question-type').value = q.type || 'MULTI_SELECT';
+            document.getElementById('question-order').value = q.order || qIdx + 1;
+            document.getElementById('question-min').value = q.minSelected || 1;
+            document.getElementById('question-max').value = q.maxSelected || 5;
+            document.getElementById('delete-question-btn').style.display = 'inline-flex';
+            toggleSelectLimits();
+            renderModalOptions();
+            showModal('question-modal');
+        }
+
+        function saveQuestion() {
+            const type = document.getElementById('question-type').value;
+            const question = {
+                type,
+                order: parseInt(document.getElementById('question-order').value),
+                visibilityConditions: editingQuestionIdx !== null ?
+                    content.pages[editingPageIdx].questions[editingQuestionIdx].visibilityConditions || [] : [],
+                options: modalOptions.filter(o => o.label.trim())
+            };
+            if (type === 'MULTI_SELECT' || type === 'SINGLE_SELECT') {
+                question.minSelected = parseInt(document.getElementById('question-min').value);
+                question.maxSelected = parseInt(document.getElementById('question-max').value);
+            }
+            if (!content.pages[editingPageIdx].questions) {
+                content.pages[editingPageIdx].questions = [];
+            }
+            if (editingQuestionIdx !== null) {
+                content.pages[editingPageIdx].questions[editingQuestionIdx] = question;
+            } else {
+                content.pages[editingPageIdx].questions.push(question);
+            }
+            hasChanges = true;
+            renderPages();
+            closeModal('question-modal');
+            toast('Question saved. Remember to save the questionnaire.');
+        }
+
+        function deleteQuestion() {
+            if (editingQuestionIdx === null) return;
+            if (!confirm('Delete this question?')) return;
+            content.pages[editingPageIdx].questions.splice(editingQuestionIdx, 1);
+            hasChanges = true;
+            renderPages();
+            closeModal('question-modal');
+            toast('Question deleted.', 'error');
+        }
+
+        // Options
+        function renderModalOptions() {
+            const el = document.getElementById('modal-options');
+            if (!modalOptions.length) {
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:16px;">No options yet.</p>';
+                return;
+            }
+            el.innerHTML = modalOptions.map((o, i) => `
+                <div class="option-edit">
+                    <input type="text" value="${esc(o.label)}" placeholder="Label" onchange="modalOptions[${i}].label=this.value">
+                    <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" style="width:60px;" onchange="modalOptions[${i}].graphic=this.value">
+                    <button class="btn btn-sm btn-outline" onclick="modalOptions.splice(${i},1);renderModalOptions()">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function addOption() {
+            modalOptions.push({ label: '', value: '', graphic: '' });
+            renderModalOptions();
+        }
+
+        // Save
+        async function saveQ() {
+            content.name = document.getElementById('edit-name').value.trim();
+            content.description = document.getElementById('edit-desc').value.trim();
+            const summary = prompt('Describe your changes (optional):', '') || 'Updated';
+            try {
+                const data = await api(`/api/questionnaires/${current.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ content, change_summary: summary })
+                });
+                current = data.questionnaire;
+                content = JSON.parse(JSON.stringify(data.content));
+                hasChanges = false;
+                renderEditor();
+                loadList();
+                toast('Saved successfully!', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        // Create
+        function showCreateModal() {
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-desc').value = '';
+            showModal('create-modal');
+        }
+
+        async function createQ() {
+            const name = document.getElementById('new-name').value.trim();
+            if (!name) { toast('Name is required', 'error'); return; }
+            try {
+                const data = await api('/api/questionnaires', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name,
+                        description: document.getElementById('new-desc').value.trim(),
+                        content: { name, description: document.getElementById('new-desc').value.trim(), pages: [] }
+                    })
+                });
+                closeModal('create-modal');
+                await loadList();
+                await selectQ(data.questionnaire.id);
+                toast('Created!', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        // Import/Export
+        async function importFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            try {
+                const text = await file.text();
+                const json = JSON.parse(text);
+                const data = await api('/api/questionnaires/import', {
+                    method: 'POST',
+                    body: JSON.stringify(json)
+                });
+                await loadList();
+                await selectQ(data.questionnaire.id);
+                toast('Imported successfully!', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+            e.target.value = '';
+        }
+
+        function exportQ() {
+            const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${current.name.replace(/\s+/g, '_').toLowerCase()}_v${current.current_version}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast('Exported!', 'success');
+        }
+
+        // Versions
+        async function showVersions() {
+            try {
+                const data = await api(`/api/questionnaires/${current.id}/versions`);
+                document.getElementById('version-list').innerHTML = data.versions.map(v => `
+                    <div class="version-item ${v.version_number === data.current_version ? 'current' : ''}">
+                        <div>
+                            <div class="version-number">Version ${v.version_number} ${v.version_number === data.current_version ? '(Current)' : ''}</div>
+                            <div class="version-meta">${formatDateTime(v.created_at)}</div>
+                            ${v.change_summary ? `<div style="font-size:13px;color:var(--text-secondary);margin-top:4px;">${esc(v.change_summary)}</div>` : ''}
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-sm btn-outline" onclick="viewVersion(${v.version_number})">View</button>
+                            ${v.version_number !== data.current_version ? `<button class="btn btn-sm btn-secondary" onclick="rollback(${v.version_number})">Restore</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+                showModal('version-modal');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        async function viewVersion(n) {
+            const data = await api(`/api/questionnaires/${current.id}/versions/${n}`);
+            const blob = new Blob([JSON.stringify(data.content, null, 2)], { type: 'application/json' });
+            window.open(URL.createObjectURL(blob), '_blank');
+        }
+
+        async function rollback(n) {
+            if (!confirm(`Restore to version ${n}?`)) return;
+            try {
+                const data = await api(`/api/questionnaires/${current.id}/versions/${n}/rollback`, { method: 'POST' });
+                current = data.questionnaire;
+                content = JSON.parse(JSON.stringify(data.content));
+                hasChanges = false;
+                renderEditor();
+                loadList();
+                closeModal('version-modal');
+                toast(`Restored to version ${n}`, 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        // Modal utils
+        function showModal(id) { document.getElementById(id).classList.add('visible'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
+        document.addEventListener('click', e => {
+            if (e.target.classList.contains('modal')) e.target.classList.remove('visible');
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') document.querySelectorAll('.modal').forEach(m => m.classList.remove('visible'));
+        });
+
+        // Toast
+        function toast(msg, type = 'info') {
+            const el = document.createElement('div');
+            el.className = `toast ${type}`;
+            el.textContent = msg;
+            document.getElementById('toasts').appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+
+        // Utils
+        function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+        function formatDateTime(s) { return s ? new Date(s).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; }
+    </script>
+</body>
+</html>

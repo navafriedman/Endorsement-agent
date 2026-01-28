@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Questionnaire Editor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Questionnaire Editor</h1>
+            </div>
+
+            <div class="sidebar-actions">
+                <button class="btn btn-primary" onclick="showCreateModal()">
+                    + New Questionnaire
+                </button>
+                <label class="btn btn-secondary" for="import-file">
+                    Import JSON
+                </label>
+                <input type="file" id="import-file" accept=".json" onchange="importFile(event)" hidden>
+            </div>
+
+            <div class="filter-section">
+                <h3>Filter By</h3>
+                <div class="filter-group">
+                    <label for="filter-state">State</label>
+                    <select id="filter-state" onchange="filterQuestionnaires()">
+                        <option value="">All States</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-city">City</label>
+                    <input type="text" id="filter-city" placeholder="Filter by city" onkeyup="debounceFilter()">
+                </div>
+                <div class="filter-group">
+                    <label for="filter-date-start">Date Range</label>
+                    <input type="date" id="filter-date-start" onchange="filterQuestionnaires()">
+                    <input type="date" id="filter-date-end" onchange="filterQuestionnaires()">
+                </div>
+            </div>
+
+            <div class="questionnaire-list" id="questionnaire-list">
+                <!-- Populated by JavaScript -->
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="empty-state" class="empty-state">
+                <div class="empty-state-content">
+                    <h2>Welcome to the Questionnaire Editor</h2>
+                    <p>Select a questionnaire from the sidebar or create a new one to get started.</p>
+                    <button class="btn btn-primary" onclick="showCreateModal()">Create New Questionnaire</button>
+                </div>
+            </div>
+
+            <div id="editor-container" class="editor-container" style="display: none;">
+                <!-- Header -->
+                <div class="editor-header">
+                    <div class="editor-title">
+                        <h2 id="questionnaire-name">Questionnaire Name</h2>
+                        <span class="version-badge" id="version-badge">v1</span>
+                    </div>
+                    <div class="editor-actions">
+                        <button class="btn btn-outline" onclick="showVersionHistory()">Version History</button>
+                        <button class="btn btn-outline" onclick="exportQuestionnaire()">Export JSON</button>
+                        <button class="btn btn-secondary" onclick="startCrawl()">Run Crawler</button>
+                        <button class="btn btn-primary" onclick="saveQuestionnaire()">Save Changes</button>
+                    </div>
+                </div>
+
+                <!-- Metadata Section -->
+                <div class="metadata-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-name">Name</label>
+                            <input type="text" id="edit-name" placeholder="Questionnaire name">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-description">Description</label>
+                            <input type="text" id="edit-description" placeholder="Brief description">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Races Section -->
+                <div class="races-section">
+                    <div class="section-header">
+                        <h3>Races</h3>
+                        <button class="btn btn-sm btn-outline" onclick="addRace()">+ Add Race</button>
+                    </div>
+                    <div id="races-container" class="races-container">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Modal -->
+    <div id="create-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Questionnaire</h3>
+                <button class="modal-close" onclick="closeModal('create-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="new-name">Name *</label>
+                    <input type="text" id="new-name" placeholder="e.g., 2026 Primary Races - Fort Worth">
+                </div>
+                <div class="form-group">
+                    <label for="new-description">Description</label>
+                    <textarea id="new-description" placeholder="Brief description of the questionnaire"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new-state">State</label>
+                        <input type="text" id="new-state" placeholder="TX" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-city">City</label>
+                        <input type="text" id="new-city" placeholder="Fort Worth">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="new-primary-date">Primary Date</label>
+                    <input type="date" id="new-primary-date">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('create-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="createQuestionnaire()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Version History Modal -->
+    <div id="version-modal" class="modal" style="display: none;">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>Version History</h3>
+                <button class="modal-close" onclick="closeModal('version-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="version-list" id="version-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Log Modal -->
+    <div id="changes-modal" class="modal" style="display: none;">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>Change History</h3>
+                <button class="modal-close" onclick="closeModal('changes-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="changes-list" id="changes-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Race Editor Modal -->
+    <div id="race-modal" class="modal" style="display: none;">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3 id="race-modal-title">Edit Race</h3>
+                <button class="modal-close" onclick="closeModal('race-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="race-name">Race Name *</label>
+                        <input type="text" id="race-name" placeholder="e.g., US Senate Texas 2026">
+                    </div>
+                    <div class="form-group">
+                        <label for="race-position">Position *</label>
+                        <input type="text" id="race-position" placeholder="e.g., US Senator">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="race-type">Race Type</label>
+                        <select id="race-type">
+                            <option value="federal">Federal</option>
+                            <option value="state">State</option>
+                            <option value="local">Local</option>
+                            <option value="judicial">Judicial</option>
+                            <option value="school_board">School Board</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="race-year">Year</label>
+                        <input type="number" id="race-year" value="2026" min="2024" max="2030">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="race-state">State</label>
+                        <input type="text" id="race-state" placeholder="TX" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="race-city">City</label>
+                        <input type="text" id="race-city" placeholder="Fort Worth">
+                    </div>
+                    <div class="form-group">
+                        <label for="race-district">District</label>
+                        <input type="text" id="race-district" placeholder="e.g., 90">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="race-primary-date">Primary Date</label>
+                        <input type="date" id="race-primary-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="race-general-date">General Date</label>
+                        <input type="date" id="race-general-date">
+                    </div>
+                </div>
+
+                <div class="candidates-section">
+                    <div class="section-header">
+                        <h4>Candidates</h4>
+                        <button class="btn btn-sm btn-outline" onclick="addCandidateToModal()">+ Add Candidate</button>
+                    </div>
+                    <div id="modal-candidates-list" class="candidates-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('race-modal')">Cancel</button>
+                <button class="btn btn-danger" id="delete-race-btn" onclick="deleteCurrentRace()" style="display: none;">Delete Race</button>
+                <button class="btn btn-primary" onclick="saveRace()">Save Race</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
