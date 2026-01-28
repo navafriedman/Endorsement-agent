@@ -318,7 +318,7 @@
             border-top: 1px solid var(--border);
             background: var(--bg);
         }
-        .revision-list { max-height: 200px; overflow-y: auto; }
+        .revision-list { max-height: 400px; overflow-y: auto; }
         .revision-item {
             display: flex;
             justify-content: space-between;
@@ -420,7 +420,6 @@
                 <div class="revision-section">
                     <div class="section-header">
                         <h3>Revision History</h3>
-                        <button class="btn btn-sm btn-outline" onclick="showVersions()">View All</button>
                     </div>
                     <div class="revision-list" id="revisions"></div>
                 </div>
@@ -659,15 +658,17 @@
                     el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:16px;">No revisions yet.</p>';
                     return;
                 }
-                el.innerHTML = data.versions.slice(0, 5).map(v => `
+                el.innerHTML = data.versions.map(v => `
                     <div class="revision-item ${v.version_number === data.current_version ? 'current' : ''}">
                         <div class="rev-info">
                             <span class="rev-num">v${v.version_number}</span>
                             <span class="rev-date">${formatDateTime(v.created_at)}</span>
                             ${v.change_summary ? `<div class="rev-summary">${esc(v.change_summary)}</div>` : ''}
                         </div>
-                        <div>
-                            ${v.version_number !== data.current_version ? `<button class="btn btn-sm btn-outline" onclick="rollback(${v.version_number})">Restore</button>` : '<span style="font-size:11px;color:var(--success);">Current</span>'}
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <button class="btn btn-sm btn-outline" onclick="viewVersion(${v.version_number})" title="View JSON">View</button>
+                            <button class="btn btn-sm btn-outline" onclick="exportVersion(${v.version_number})" title="Download">↓</button>
+                            ${v.version_number !== data.current_version ? `<button class="btn btn-sm btn-secondary" onclick="rollback(${v.version_number})">Restore</button>` : '<span style="font-size:11px;color:var(--success);padding:0 8px;">Current</span>'}
                         </div>
                     </div>
                 `).join('');
@@ -1048,6 +1049,18 @@
             const data = await api(`/api/questionnaires/${current.id}/versions/${n}`);
             const blob = new Blob([JSON.stringify(data.content, null, 2)], { type: 'application/json' });
             window.open(URL.createObjectURL(blob), '_blank');
+        }
+
+        async function exportVersion(n) {
+            const data = await api(`/api/questionnaires/${current.id}/versions/${n}`);
+            const blob = new Blob([JSON.stringify(data.content, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${current.name.replace(/\s+/g, '_').toLowerCase()}_v${n}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast(`Downloaded v${n}`, 'success');
         }
 
         async function rollback(n) {
