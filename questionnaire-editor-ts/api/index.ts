@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import path from 'path';
+import { kv } from '@vercel/kv';
 
 const app = express();
 
@@ -8,24 +8,75 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// In-memory storage for Vercel (serverless = no persistent filesystem)
-let questionnaires: Map<number, any> = new Map();
-let versions: Map<string, any> = new Map(); // key: `${qId}-${versionNum}`
-let changeLogs: any[] = [];
-let nextId = 1;
+// KV Keys
+const QUESTIONNAIRES_KEY = 'questionnaires';
+const VERSIONS_PREFIX = 'version:';
+const NEXT_ID_KEY = 'next_id';
 
-// Types
-interface QuestionnaireContent {
-  name: string;
-  description?: string;
-  races: any[];
+// Helper functions for KV storage
+async function getQuestionnaires(): Promise<Map<number, any>> {
+  try {
+    const data = await kv.get(QUESTIONNAIRES_KEY);
+    if (data && typeof data === 'object') {
+      return new Map(Object.entries(data).map(([k, v]) => [parseInt(k), v]));
+    }
+  } catch (e) {
+    console.error('KV get error:', e);
+  }
+  return new Map();
+}
+
+async function saveQuestionnaires(questionnaires: Map<number, any>): Promise<void> {
+  try {
+    const obj = Object.fromEntries(questionnaires);
+    await kv.set(QUESTIONNAIRES_KEY, obj);
+  } catch (e) {
+    console.error('KV set error:', e);
+  }
+}
+
+async function getVersion(qId: number, versionNum: number): Promise<any> {
+  try {
+    return await kv.get(`${VERSIONS_PREFIX}${qId}-${versionNum}`);
+  } catch (e) {
+    console.error('KV get version error:', e);
+    return null;
+  }
+}
+
+async function saveVersion(qId: number, versionNum: number, version: any): Promise<void> {
+  try {
+    await kv.set(`${VERSIONS_PREFIX}${qId}-${versionNum}`, version);
+  } catch (e) {
+    console.error('KV set version error:', e);
+  }
+}
+
+async function getNextId(): Promise<number> {
+  try {
+    const id = await kv.incr(NEXT_ID_KEY);
+    return id;
+  } catch (e) {
+    console.error('KV incr error:', e);
+    return Date.now(); // Fallback to timestamp
+  }
+}
+
+async function getAllVersionsForQuestionnaire(qId: number, maxVersion: number): Promise<any[]> {
+  const versions = [];
+  for (let i = 1; i <= maxVersion; i++) {
+    const v = await getVersion(qId, i);
+    if (v) versions.push(v);
+  }
+  return versions;
 }
 
 // API Routes
 
 // List all questionnaires
-app.get('/api/questionnaires', (req: Request, res: Response) => {
+app.get('/api/questionnaires', async (req: Request, res: Response) => {
   const { state, city } = req.query;
+  const questionnaires = await getQuestionnaires();
   let results = Array.from(questionnaires.values());
 
   if (state) {
@@ -40,48 +91,39 @@ app.get('/api/questionnaires', (req: Request, res: Response) => {
 });
 
 // Create questionnaire
-app.post('/api/questionnaires', (req: Request, res: Response) => {
+app.post('/api/questionnaires', async (req: Request, res: Response) => {
   const { name, description, state, city, region, primary_date, content } = req.body;
 
   if (!name) {
     return res.status(400).json({ error: 'Name is required' });
   }
 
-  const questionnaireContent: QuestionnaireContent = content || { name, description: description || '', races: [] };
-
-  // Auto-detect state/city from content
-  let detectedState = state;
-  let detectedCity = city;
-  let detectedPrimaryDate = primary_date;
-
-  if (questionnaireContent.races && questionnaireContent.races.length > 0) {
-    const firstRace = questionnaireContent.races[0];
-    detectedState = detectedState || firstRace.state;
-    detectedCity = detectedCity || firstRace.city;
-    detectedPrimaryDate = detectedPrimaryDate || firstRace.primary_date;
-  }
-
-  const id = nextId++;
+  const questionnaireContent = content || { name, description: description || '', pages: [] };
+  const questionnaires = await getQuestionnaires();
+  const id = await getNextId();
   const now = new Date().toISOString();
 
   const questionnaire = {
     id,
     name,
     description: description || questionnaireContent.description || '',
-    state: detectedState,
-    city: detectedCity,
+    state,
+    city,
     region,
-    primary_date: detectedPrimaryDate,
+    primary_date,
     current_version: 1,
     created_at: now,
-    updated_at: now
+    updated_at: now,
+    page_count: questionnaireContent.pages?.length || 0,
+    question_count: questionnaireContent.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0
   };
 
   questionnaires.set(id, questionnaire);
+  await saveQuestionnaires(questionnaires);
 
   // Create initial version
-  versions.set(`${id}-1`, {
-    id: nextId++,
+  await saveVersion(id, 1, {
+    id: await getNextId(),
     questionnaire_id: id,
     version_number: 1,
     content_json: JSON.stringify(questionnaireContent, null, 2),
@@ -89,37 +131,27 @@ app.post('/api/questionnaires', (req: Request, res: Response) => {
     created_at: now
   });
 
-  // Log the change
-  changeLogs.push({
-    id: nextId++,
-    questionnaire_id: id,
-    version_from: null,
-    version_to: 1,
-    change_type: 'create',
-    change_summary: 'Created questionnaire',
-    created_at: now
-  });
-
   res.status(201).json({ questionnaire, content: questionnaireContent });
 });
 
 // Get questionnaire
-app.get('/api/questionnaires/:id', (req: Request, res: Response) => {
+app.get('/api/questionnaires/:id', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
+  const questionnaires = await getQuestionnaires();
   const questionnaire = questionnaires.get(id);
 
   if (!questionnaire) {
     return res.status(404).json({ error: 'Questionnaire not found' });
   }
 
-  const version = versions.get(`${id}-${questionnaire.current_version}`);
+  const version = await getVersion(id, questionnaire.current_version);
   const content = version ? JSON.parse(version.content_json) : null;
 
   res.json({ questionnaire, content });
 });
 
 // Update questionnaire
-app.put('/api/questionnaires/:id', (req: Request, res: Response) => {
+app.put('/api/questionnaires/:id', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
   const { content, change_summary } = req.body;
 
@@ -127,6 +159,7 @@ app.put('/api/questionnaires/:id', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Content is required' });
   }
 
+  const questionnaires = await getQuestionnaires();
   const questionnaire = questionnaires.get(id);
   if (!questionnaire) {
     return res.status(404).json({ error: 'Questionnaire not found' });
@@ -137,8 +170,8 @@ app.put('/api/questionnaires/:id', (req: Request, res: Response) => {
   const now = new Date().toISOString();
 
   // Create new version
-  versions.set(`${id}-${newVersion}`, {
-    id: nextId++,
+  await saveVersion(id, newVersion, {
+    id: await getNextId(),
     questionnaire_id: id,
     version_number: newVersion,
     content_json: JSON.stringify(content, null, 2),
@@ -151,47 +184,37 @@ app.put('/api/questionnaires/:id', (req: Request, res: Response) => {
   questionnaire.name = content.name || questionnaire.name;
   questionnaire.description = content.description || questionnaire.description;
   questionnaire.updated_at = now;
+  questionnaire.page_count = content.pages?.length || 0;
+  questionnaire.question_count = content.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0;
 
-  if (content.races && content.races.length > 0) {
-    const firstRace = content.races[0];
-    questionnaire.state = firstRace.state || questionnaire.state;
-    questionnaire.city = firstRace.city || questionnaire.city;
-    questionnaire.primary_date = firstRace.primary_date || questionnaire.primary_date;
-  }
-
-  // Log the change
-  changeLogs.push({
-    id: nextId++,
-    questionnaire_id: id,
-    version_from: oldVersion,
-    version_to: newVersion,
-    change_type: 'update',
-    change_summary: change_summary || 'Updated',
-    created_at: now
-  });
+  questionnaires.set(id, questionnaire);
+  await saveQuestionnaires(questionnaires);
 
   res.json({ questionnaire, content, version: { version_number: newVersion } });
 });
 
 // Delete questionnaire
-app.delete('/api/questionnaires/:id', (req: Request, res: Response) => {
+app.delete('/api/questionnaires/:id', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
+  const questionnaires = await getQuestionnaires();
   questionnaires.delete(id);
+  await saveQuestionnaires(questionnaires);
   res.json({ message: 'Questionnaire deleted' });
 });
 
 // List versions
-app.get('/api/questionnaires/:id/versions', (req: Request, res: Response) => {
+app.get('/api/questionnaires/:id/versions', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
+  const questionnaires = await getQuestionnaires();
   const questionnaire = questionnaires.get(id);
 
   if (!questionnaire) {
     return res.status(404).json({ error: 'Questionnaire not found' });
   }
 
-  const qVersions = Array.from(versions.entries())
-    .filter(([key]) => key.startsWith(`${id}-`))
-    .map(([, v]) => ({
+  const allVersions = await getAllVersionsForQuestionnaire(id, questionnaire.current_version);
+  const qVersions = allVersions
+    .map(v => ({
       id: v.id,
       questionnaire_id: v.questionnaire_id,
       version_number: v.version_number,
@@ -204,11 +227,11 @@ app.get('/api/questionnaires/:id/versions', (req: Request, res: Response) => {
 });
 
 // Get specific version
-app.get('/api/questionnaires/:id/versions/:versionNumber', (req: Request, res: Response) => {
+app.get('/api/questionnaires/:id/versions/:versionNumber', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
   const versionNumber = parseInt(req.params.versionNumber);
 
-  const version = versions.get(`${id}-${versionNumber}`);
+  const version = await getVersion(id, versionNumber);
   if (!version) {
     return res.status(404).json({ error: 'Version not found' });
   }
@@ -217,16 +240,17 @@ app.get('/api/questionnaires/:id/versions/:versionNumber', (req: Request, res: R
 });
 
 // Rollback to version
-app.post('/api/questionnaires/:id/versions/:versionNumber/rollback', (req: Request, res: Response) => {
+app.post('/api/questionnaires/:id/versions/:versionNumber/rollback', async (req: Request, res: Response) => {
   const id = parseInt(req.params.id);
   const versionNumber = parseInt(req.params.versionNumber);
 
+  const questionnaires = await getQuestionnaires();
   const questionnaire = questionnaires.get(id);
   if (!questionnaire) {
     return res.status(404).json({ error: 'Questionnaire not found' });
   }
 
-  const targetVersion = versions.get(`${id}-${versionNumber}`);
+  const targetVersion = await getVersion(id, versionNumber);
   if (!targetVersion) {
     return res.status(404).json({ error: 'Version not found' });
   }
@@ -237,8 +261,8 @@ app.post('/api/questionnaires/:id/versions/:versionNumber/rollback', (req: Reque
   const now = new Date().toISOString();
 
   // Create new version with old content
-  versions.set(`${id}-${newVersion}`, {
-    id: nextId++,
+  await saveVersion(id, newVersion, {
+    id: await getNextId(),
     questionnaire_id: id,
     version_number: newVersion,
     content_json: targetVersion.content_json,
@@ -248,32 +272,14 @@ app.post('/api/questionnaires/:id/versions/:versionNumber/rollback', (req: Reque
 
   questionnaire.current_version = newVersion;
   questionnaire.updated_at = now;
-
-  // Log the change
-  changeLogs.push({
-    id: nextId++,
-    questionnaire_id: id,
-    version_from: oldVersion,
-    version_to: newVersion,
-    change_type: 'rollback',
-    change_summary: `Rolled back to version ${versionNumber}`,
-    created_at: now
-  });
+  questionnaires.set(id, questionnaire);
+  await saveQuestionnaires(questionnaires);
 
   res.json({ questionnaire, content, version: { version_number: newVersion } });
 });
 
-// Get change history
-app.get('/api/questionnaires/:id/changes', (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const changes = changeLogs
-    .filter(c => c.questionnaire_id === id)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  res.json({ changes });
-});
-
 // Import questionnaire
-app.post('/api/questionnaires/import', (req: Request, res: Response) => {
+app.post('/api/questionnaires/import', async (req: Request, res: Response) => {
   const content = req.body;
 
   // Support both formats:
@@ -283,7 +289,6 @@ app.post('/api/questionnaires/import', (req: Request, res: Response) => {
   let name = content.name;
 
   if (!name && content.pages && content.pages.length > 0) {
-    // Derive name from first page title or use default
     name = content.pages[0].title || 'Imported Questionnaire';
   }
 
@@ -291,7 +296,8 @@ app.post('/api/questionnaires/import', (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Invalid JSON: must have a "name" field or "pages" array' });
   }
 
-  const id = nextId++;
+  const questionnaires = await getQuestionnaires();
+  const id = await getNextId();
   const now = new Date().toISOString();
 
   const questionnaire = {
@@ -310,12 +316,13 @@ app.post('/api/questionnaires/import', (req: Request, res: Response) => {
   };
 
   questionnaires.set(id, questionnaire);
+  await saveQuestionnaires(questionnaires);
 
   // Store full content including pages
   const fullContent = { name, ...content };
 
-  versions.set(`${id}-1`, {
-    id: nextId++,
+  await saveVersion(id, 1, {
+    id: await getNextId(),
     questionnaire_id: id,
     version_number: 1,
     content_json: JSON.stringify(fullContent, null, 2),
@@ -323,21 +330,12 @@ app.post('/api/questionnaires/import', (req: Request, res: Response) => {
     created_at: now
   });
 
-  changeLogs.push({
-    id: nextId++,
-    questionnaire_id: id,
-    version_from: null,
-    version_to: 1,
-    change_type: 'import',
-    change_summary: 'Imported from JSON file',
-    created_at: now
-  });
-
   res.status(201).json({ questionnaire, content: fullContent });
 });
 
 // Get unique states
-app.get('/api/states', (_req: Request, res: Response) => {
+app.get('/api/states', async (_req: Request, res: Response) => {
+  const questionnaires = await getQuestionnaires();
   const states = new Set<string>();
   questionnaires.forEach(q => {
     if (q.state) states.add(q.state);

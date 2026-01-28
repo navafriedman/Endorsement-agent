@@ -279,15 +279,28 @@
         .version-meta { font-size: 12px; color: var(--text-muted); }
         .option-edit {
             display: grid;
-            grid-template-columns: 1fr 70px 70px 32px;
+            grid-template-columns: 50px 1fr 70px 70px 32px;
             gap: 8px;
             align-items: center;
             padding: 8px;
             background: var(--bg);
             border-radius: 4px;
             margin-bottom: 8px;
+            cursor: grab;
         }
+        .option-edit.dragging { opacity: 0.5; background: #dbeafe; }
         .option-edit input { padding: 6px 10px; font-size: 13px; }
+        .drag-buttons { display: flex; flex-direction: column; gap: 2px; }
+        .drag-buttons button {
+            padding: 2px 8px;
+            font-size: 10px;
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .drag-buttons button:hover { background: #e2e8f0; }
+        .drag-buttons button:disabled { opacity: 0.3; cursor: not-allowed; }
         .q-item-actions { display: flex; gap: 4px; margin-top: 8px; }
         .q-item-actions button { padding: 2px 8px; font-size: 11px; }
         .revision-section {
@@ -829,13 +842,58 @@
                 return;
             }
             el.innerHTML = modalOptions.map((o, i) => `
-                <div class="option-edit">
+                <div class="option-edit" draggable="true" data-index="${i}">
+                    <div class="drag-buttons">
+                        <button onclick="moveOption(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+                        <button onclick="moveOption(${i}, 1)" ${i === modalOptions.length - 1 ? 'disabled' : ''}>▼</button>
+                    </div>
                     <input type="text" value="${esc(o.label)}" placeholder="Label" onchange="modalOptions[${i}].label=this.value">
                     <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" onchange="modalOptions[${i}].graphic=this.value">
                     <input type="number" value="${o.number||''}" placeholder="Number" onchange="modalOptions[${i}].number=this.value?parseInt(this.value):undefined">
                     <button class="btn btn-sm btn-outline" onclick="modalOptions.splice(${i},1);renderModalOptions()">&times;</button>
                 </div>
             `).join('');
+
+            // Add drag-and-drop handlers
+            const items = el.querySelectorAll('.option-edit');
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        let dragSrcIndex = null;
+        function handleDragStart(e) {
+            dragSrcIndex = parseInt(this.dataset.index);
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetIndex = parseInt(this.dataset.index);
+            if (dragSrcIndex !== null && dragSrcIndex !== targetIndex) {
+                const item = modalOptions.splice(dragSrcIndex, 1)[0];
+                modalOptions.splice(targetIndex, 0, item);
+                renderModalOptions();
+            }
+        }
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            dragSrcIndex = null;
+        }
+
+        function moveOption(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= modalOptions.length) return;
+            const item = modalOptions.splice(index, 1)[0];
+            modalOptions.splice(newIndex, 0, item);
+            renderModalOptions();
         }
 
         function addOption() {
