@@ -13,6 +13,54 @@ const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Helper: Compute diff between old and new content
+function computeChangeSummary(oldContent: any, newContent: any): string {
+  const changes: string[] = [];
+
+  const oldPages = oldContent?.pages || [];
+  const newPages = newContent?.pages || [];
+
+  // Count pages
+  if (newPages.length > oldPages.length) {
+    changes.push(`+${newPages.length - oldPages.length} page(s)`);
+  } else if (newPages.length < oldPages.length) {
+    changes.push(`-${oldPages.length - newPages.length} page(s)`);
+  }
+
+  // Count questions
+  const oldQCount = oldPages.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0);
+  const newQCount = newPages.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0);
+
+  if (newQCount > oldQCount) {
+    changes.push(`+${newQCount - oldQCount} question(s)`);
+  } else if (newQCount < oldQCount) {
+    changes.push(`-${oldQCount - newQCount} question(s)`);
+  }
+
+  // Count options
+  const countOptions = (pages: any[]) => pages.reduce((acc: number, p: any) =>
+    acc + (p.questions || []).reduce((qacc: number, q: any) => qacc + (q.options?.length || 0), 0), 0);
+
+  const oldOptCount = countOptions(oldPages);
+  const newOptCount = countOptions(newPages);
+
+  if (newOptCount > oldOptCount) {
+    changes.push(`+${newOptCount - oldOptCount} option(s)`);
+  } else if (newOptCount < oldOptCount) {
+    changes.push(`-${oldOptCount - newOptCount} option(s)`);
+  }
+
+  // Check metadata changes
+  if (oldContent?.name !== newContent?.name) {
+    changes.push('renamed');
+  }
+  if (oldContent?.description !== newContent?.description) {
+    changes.push('updated description');
+  }
+
+  return changes.length > 0 ? changes.join(', ') : 'minor changes';
+}
+
 // API Routes
 
 // List all questionnaires
@@ -133,6 +181,22 @@ app.put('/api/questionnaires/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Questionnaire not found' });
     }
 
+    // Get old content for diff
+    const { data: oldVersion } = await supabase
+      .from('versions')
+      .select('content_json')
+      .eq('questionnaire_id', id)
+      .eq('version_number', questionnaire.current_version)
+      .single();
+
+    const oldContent = oldVersion ? JSON.parse(oldVersion.content_json) : null;
+    const autoSummary = computeChangeSummary(oldContent, content);
+
+    // Combine user summary with auto-generated summary
+    const fullSummary = change_summary
+      ? `${change_summary} (${autoSummary})`
+      : autoSummary;
+
     const newVersion = questionnaire.current_version + 1;
     const now = new Date().toISOString();
 
@@ -143,7 +207,7 @@ app.put('/api/questionnaires/:id', async (req: Request, res: Response) => {
         questionnaire_id: id,
         version_number: newVersion,
         content_json: JSON.stringify(content, null, 2),
-        change_summary: change_summary || 'Updated',
+        change_summary: fullSummary,
         created_at: now
       });
 

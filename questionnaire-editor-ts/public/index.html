@@ -6,20 +6,25 @@
     <title>Elections Questionnaire Builder</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --secondary: #64748b;
-            --success: #10b981;
-            --danger: #ef4444;
+            --primary: #E94E4E;
+            --primary-hover: #D43D3D;
+            --secondary: #2DD4BF;
+            --secondary-hover: #14B8A6;
+            --success: #2DD4BF;
+            --danger: #E94E4E;
             --warning: #f59e0b;
             --bg: #f8fafc;
             --bg-white: #ffffff;
             --border: #e2e8f0;
-            --text: #1e293b;
-            --text-secondary: #64748b;
-            --text-muted: #94a3b8;
+            --text: #1E1E2E;
+            --text-secondary: #4a4a5a;
+            --text-muted: #8a8a9a;
             --radius: 8px;
             --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --teal: #2DD4BF;
+            --teal-light: #ccfbf1;
+            --coral: #E94E4E;
+            --coral-light: #fee2e2;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -60,7 +65,7 @@
             transition: background 0.15s;
         }
         .q-item:hover { background: #f1f5f9; }
-        .q-item.active { background: #eff6ff; border: 1px solid #bfdbfe; }
+        .q-item.active { background: var(--coral-light); border: 1px solid var(--coral); }
         .q-item-name { font-weight: 500; margin-bottom: 4px; }
         .q-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; }
         .main { flex: 1; margin-left: 320px; padding: 24px; }
@@ -120,7 +125,7 @@
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(233, 78, 78, 0.1);
         }
         .pages-section { padding: 20px 24px; }
         .section-header {
@@ -167,8 +172,8 @@
             border-radius: 10px;
             font-size: 11px;
             font-weight: 500;
-            background: #dbeafe;
-            color: #1e40af;
+            background: var(--teal-light);
+            color: #0d9488;
             margin-right: 8px;
         }
         .page-body { padding: 16px; }
@@ -212,7 +217,8 @@
         .btn-sm { padding: 4px 10px; font-size: 12px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
-        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-secondary { background: var(--secondary); color: #1E1E2E; }
+        .btn-secondary:hover { background: var(--secondary-hover); }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
         .btn-outline:hover { background: #f1f5f9; }
         .btn-danger { background: var(--danger); color: white; }
@@ -274,7 +280,7 @@
             border: 1px solid var(--border);
             margin-bottom: 8px;
         }
-        .version-item.current { border-color: var(--primary); background: #eff6ff; }
+        .version-item.current { border-color: var(--teal); background: var(--teal-light); }
         .version-number { font-weight: 600; }
         .version-meta { font-size: 12px; color: var(--text-muted); }
         .option-edit {
@@ -288,12 +294,12 @@
             margin-bottom: 8px;
             cursor: grab;
         }
-        .option-edit.dragging { opacity: 0.5; background: #dbeafe; }
+        .option-edit.dragging { opacity: 0.5; background: var(--teal-light); }
         .option-edit input { padding: 6px 10px; font-size: 13px; }
         .signal-input { font-family: monospace; font-size: 11px !important; }
         .visibility-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
         .visibility-badge { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
-        .signal-tag { display: inline-block; background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; }
+        .signal-tag { display: inline-block; background: var(--teal-light); color: #0d9488; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; }
         .drag-buttons { display: flex; flex-direction: column; gap: 2px; }
         .drag-buttons button {
             padding: 2px 8px;
@@ -324,7 +330,7 @@
             margin-bottom: 6px;
             font-size: 13px;
         }
-        .revision-item.current { border-color: var(--primary); background: #eff6ff; }
+        .revision-item.current { border-color: var(--teal); background: var(--teal-light); }
         .revision-item .rev-info { flex: 1; }
         .revision-item .rev-num { font-weight: 600; }
         .revision-item .rev-date { color: var(--text-muted); font-size: 12px; }
