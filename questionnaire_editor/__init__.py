@@ -19,6 +19,9 @@ def create_app(config=None):
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    # Allow all hosts (for development/container environments)
+    app.config['TRUSTED_HOSTS'] = ['*']
+
     # Override with custom config if provided
     if config:
         app.config.update(config)

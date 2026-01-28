@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Election Questionnaire Editor</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text);
+            background: var(--bg);
+        }
+        .app { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--bg-white);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-header h1 { font-size: 18px; font-weight: 600; }
+        .sidebar-actions {
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .filter-section {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .filter-section h3 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+        .filter-group { margin-bottom: 12px; }
+        .filter-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .questionnaire-list { flex: 1; overflow-y: auto; padding: 12px; }
+        .q-item {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 0.15s;
+        }
+        .q-item:hover { background: #f1f5f9; }
+        .q-item.active { background: #eff6ff; border: 1px solid #bfdbfe; }
+        .q-item-name { font-weight: 500; margin-bottom: 4px; }
+        .q-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; }
+
+        /* Main */
+        .main { flex: 1; margin-left: 320px; padding: 24px; }
+        .empty-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 48px);
+            text-align: center;
+        }
+        .empty-state h2 { font-size: 24px; margin-bottom: 12px; }
+        .empty-state p { color: var(--text-secondary); margin-bottom: 24px; }
+
+        .editor {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: none;
+        }
+        .editor.visible { display: block; }
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .editor-title { display: flex; align-items: center; gap: 12px; }
+        .editor-title h2 { font-size: 20px; }
+        .version-badge {
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .editor-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .metadata { padding: 20px 24px; border-bottom: 1px solid var(--border); background: var(--bg); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .races-section { padding: 20px 24px; }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .section-header h3 { font-size: 16px; font-weight: 600; }
+        .races-container { display: flex; flex-direction: column; gap: 12px; }
+
+        /* Race Card */
+        .race-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: box-shadow 0.15s;
+        }
+        .race-card:hover { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .race-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 16px;
+            cursor: pointer;
+        }
+        .race-title { font-weight: 500; margin-bottom: 4px; }
+        .race-meta { font-size: 12px; color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 12px; }
+        .race-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .race-type.federal { background: #dbeafe; color: #1e40af; }
+        .race-type.state { background: #fef3c7; color: #92400e; }
+        .race-type.local { background: #d1fae5; color: #065f46; }
+        .race-type.judicial { background: #ede9fe; color: #5b21b6; }
+        .race-body {
+            padding: 0 16px 16px;
+            border-top: 1px solid var(--border);
+        }
+        .candidates-header {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin: 12px 0 8px;
+        }
+        .candidate-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg);
+            border-radius: 4px;
+            margin-bottom: 4px;
+        }
+        .candidate-name { font-weight: 500; flex: 1; }
+        .candidate-party { font-size: 12px; color: var(--text-secondary); }
+        .candidate-incumbent {
+            font-size: 11px;
+            padding: 2px 6px;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 4px;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { background: #f1f5f9; }
+        .btn-danger { background: var(--danger); color: white; }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.visible { display: flex; }
+        .modal-content {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content.lg { max-width: 700px; }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-header h3 { font-size: 18px; }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .modal-body { padding: 24px; }
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        /* Version list */
+        .version-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg);
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+        .version-item.current { border-color: var(--primary); background: #eff6ff; }
+        .version-number { font-weight: 600; }
+        .version-meta { font-size: 12px; color: var(--text-muted); }
+
+        /* Candidate edit */
+        .candidate-edit {
+            display: grid;
+            grid-template-columns: 1fr 100px 80px 32px;
+            gap: 8px;
+            align-items: center;
+            padding: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .candidate-edit input, .candidate-edit select { padding: 6px 10px; font-size: 13px; }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 2000;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            background: var(--text);
+            color: white;
+            margin-top: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { position: relative; width: 100%; height: auto; max-height: 50vh; }
+            .main { margin-left: 0; }
+            .app { flex-direction: column; }
+            .form-row { grid-template-columns: 1fr; }
+            .candidate-edit { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Questionnaire Editor</h1>
+            </div>
+            <div class="sidebar-actions">
+                <button class="btn btn-primary" onclick="showCreateModal()">+ New Questionnaire</button>
+                <label class="btn btn-secondary" style="text-align:center;">
+                    Import JSON
+                    <input type="file" accept=".json" onchange="importFile(event)" hidden>
+                </label>
+            </div>
+            <div class="filter-section">
+                <h3>Filter By</h3>
+                <div class="filter-group">
+                    <label>State</label>
+                    <select id="filter-state" onchange="loadList()">
+                        <option value="">All States</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>City</label>
+                    <input type="text" id="filter-city" placeholder="Filter by city" onkeyup="debounce(loadList, 300)()">
+                </div>
+            </div>
+            <div class="questionnaire-list" id="list"></div>
+        </aside>
+
+        <main class="main">
+            <div class="empty-state" id="empty">
+                <div>
+                    <h2>Welcome to the Questionnaire Editor</h2>
+                    <p>Select a questionnaire from the sidebar or create a new one.</p>
+                    <button class="btn btn-primary" onclick="showCreateModal()">Create New Questionnaire</button>
+                </div>
+            </div>
+
+            <div class="editor" id="editor">
+                <div class="editor-header">
+                    <div class="editor-title">
+                        <h2 id="q-name">Name</h2>
+                        <span class="version-badge" id="q-version">v1</span>
+                    </div>
+                    <div class="editor-actions">
+                        <button class="btn btn-outline" onclick="showVersions()">Version History</button>
+                        <button class="btn btn-outline" onclick="exportQ()">Export JSON</button>
+                        <button class="btn btn-primary" onclick="saveQ()">Save Changes</button>
+                    </div>
+                </div>
+                <div class="metadata">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="edit-name">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="edit-desc">
+                        </div>
+                    </div>
+                </div>
+                <div class="races-section">
+                    <div class="section-header">
+                        <h3>Races</h3>
+                        <button class="btn btn-sm btn-outline" onclick="addRace()">+ Add Race</button>
+                    </div>
+                    <div class="races-container" id="races"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create Modal -->
+    <div class="modal" id="create-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Questionnaire</h3>
+                <button class="modal-close" onclick="closeModal('create-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Name *</label>
+                    <input type="text" id="new-name" placeholder="e.g., 2026 Primary Races - Fort Worth">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="new-desc" rows="2" placeholder="Brief description"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" id="new-state" placeholder="TX" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="new-city" placeholder="Fort Worth">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('create-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="createQ()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Race Modal -->
+    <div class="modal" id="race-modal">
+        <div class="modal-content lg">
+            <div class="modal-header">
+                <h3 id="race-modal-title">Edit Race</h3>
+                <button class="modal-close" onclick="closeModal('race-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Race Name *</label>
+                        <input type="text" id="race-name" placeholder="e.g., US Senate Texas 2026">
+                    </div>
+                    <div class="form-group">
+                        <label>Position *</label>
+                        <input type="text" id="race-position" placeholder="e.g., US Senator">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Race Type</label>
+                        <select id="race-type">
+                            <option value="federal">Federal</option>
+                            <option value="state">State</option>
+                            <option value="local">Local</option>
+                            <option value="judicial">Judicial</option>
+                            <option value="school_board">School Board</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input type="number" id="race-year" value="2026">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>State</label>
+                        <input type="text" id="race-state" placeholder="TX" maxlength="2">
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="race-city" placeholder="Fort Worth">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>District</label>
+                        <input type="text" id="race-district" placeholder="e.g., 90">
+                    </div>
+                    <div class="form-group">
+                        <label>Primary Date</label>
+                        <input type="date" id="race-primary">
+                    </div>
+                </div>
+                <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+                    <div class="section-header">
+                        <h4 style="font-size:14px;">Candidates</h4>
+                        <button class="btn btn-sm btn-outline" onclick="addCandidate()">+ Add Candidate</button>
+                    </div>
+                    <div id="modal-candidates"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('race-modal')">Cancel</button>
+                <button class="btn btn-danger" id="delete-race-btn" onclick="deleteRace()" style="display:none;">Delete</button>
+                <button class="btn btn-primary" onclick="saveRace()">Save Race</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Version Modal -->
+    <div class="modal" id="version-modal">
+        <div class="modal-content lg">
+            <div class="modal-header">
+                <h3>Version History</h3>
+                <button class="modal-close" onclick="closeModal('version-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="version-list"></div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toasts"></div>
+
+    <script>
+        // State
+        let questionnaires = [];
+        let current = null;
+        let content = null;
+        let editingRaceIdx = null;
+        let modalCandidates = [];
+        let hasChanges = false;
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            loadList();
+            loadStates();
+        });
+
+        // API
+        async function api(url, opts = {}) {
+            const res = await fetch(url, {
+                headers: { 'Content-Type': 'application/json', ...opts.headers },
+                ...opts
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ error: 'Request failed' }));
+                throw new Error(err.error || `HTTP ${res.status}`);
+            }
+            return res.json();
+        }
+
+        // Load list
+        async function loadList() {
+            const state = document.getElementById('filter-state').value;
+            const city = document.getElementById('filter-city').value;
+            const params = new URLSearchParams();
+            if (state) params.append('state', state);
+            if (city) params.append('city', city);
+
+            const data = await api(`/api/questionnaires?${params}`);
+            questionnaires = data.questionnaires;
+            renderList();
+        }
+
+        function renderList() {
+            const el = document.getElementById('list');
+            if (!questionnaires.length) {
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px;">No questionnaires found.</p>';
+                return;
+            }
+            el.innerHTML = questionnaires.map(q => `
+                <div class="q-item ${current?.id === q.id ? 'active' : ''}" onclick="selectQ(${q.id})">
+                    <div class="q-item-name">${esc(q.name)}</div>
+                    <div class="q-item-meta">
+                        ${q.state ? `<span>${q.state}</span>` : ''}
+                        ${q.city ? `<span>${q.city}</span>` : ''}
+                        ${q.primary_date ? `<span>${formatDate(q.primary_date)}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function selectQ(id) {
+            if (hasChanges && !confirm('Discard unsaved changes?')) return;
+            const data = await api(`/api/questionnaires/${id}`);
+            current = data.questionnaire;
+            content = JSON.parse(JSON.stringify(data.content));
+            hasChanges = false;
+            renderEditor();
+            renderList();
+            document.getElementById('empty').style.display = 'none';
+            document.getElementById('editor').classList.add('visible');
+        }
+
+        function renderEditor() {
+            document.getElementById('q-name').textContent = current.name;
+            document.getElementById('q-version').textContent = `v${current.current_version}`;
+            document.getElementById('edit-name').value = content.name || '';
+            document.getElementById('edit-desc').value = content.description || '';
+            renderRaces();
+        }
+
+        function renderRaces() {
+            const el = document.getElementById('races');
+            const races = content.races || [];
+            if (!races.length) {
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px;">No races yet. Click "Add Race" to start.</p>';
+                return;
+            }
+            el.innerHTML = races.map((r, i) => `
+                <div class="race-card">
+                    <div class="race-header" onclick="editRace(${i})">
+                        <div>
+                            <div class="race-title">${esc(r.name)}</div>
+                            <div class="race-meta">
+                                <span class="race-type ${r.race_type}">${r.race_type}</span>
+                                <span>${r.position}</span>
+                                ${r.state ? `<span>${r.state}</span>` : ''}
+                                ${r.city ? `<span>${r.city}</span>` : ''}
+                                ${r.district ? `<span>District ${r.district}</span>` : ''}
+                                ${r.primary_date ? `<span>${formatDate(r.primary_date)}</span>` : ''}
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();editRace(${i})">Edit</button>
+                    </div>
+                    ${r.candidates?.length ? `
+                        <div class="race-body">
+                            <div class="candidates-header">Candidates (${r.candidates.length})</div>
+                            ${r.candidates.map(c => `
+                                <div class="candidate-row">
+                                    <span class="candidate-name">${esc(c.name)}</span>
+                                    ${c.party ? `<span class="candidate-party">${c.party}</span>` : ''}
+                                    ${c.incumbent ? '<span class="candidate-incumbent">Incumbent</span>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Race editing
+        function addRace() {
+            editingRaceIdx = null;
+            modalCandidates = [];
+            document.getElementById('race-modal-title').textContent = 'Add Race';
+            document.getElementById('race-name').value = '';
+            document.getElementById('race-position').value = '';
+            document.getElementById('race-type').value = 'local';
+            document.getElementById('race-year').value = new Date().getFullYear();
+            document.getElementById('race-state').value = current?.state || '';
+            document.getElementById('race-city').value = current?.city || '';
+            document.getElementById('race-district').value = '';
+            document.getElementById('race-primary').value = '';
+            document.getElementById('delete-race-btn').style.display = 'none';
+            renderModalCandidates();
+            showModal('race-modal');
+        }
+
+        function editRace(idx) {
+            const r = content.races[idx];
+            editingRaceIdx = idx;
+            modalCandidates = JSON.parse(JSON.stringify(r.candidates || []));
+            document.getElementById('race-modal-title').textContent = 'Edit Race';
+            document.getElementById('race-name').value = r.name || '';
+            document.getElementById('race-position').value = r.position || '';
+            document.getElementById('race-type').value = r.race_type || 'local';
+            document.getElementById('race-year').value = r.year || new Date().getFullYear();
+            document.getElementById('race-state').value = r.state || '';
+            document.getElementById('race-city').value = r.city || '';
+            document.getElementById('race-district').value = r.district || '';
+            document.getElementById('race-primary').value = r.primary_date || '';
+            document.getElementById('delete-race-btn').style.display = 'inline-flex';
+            renderModalCandidates();
+            showModal('race-modal');
+        }
+
+        function saveRace() {
+            const race = {
+                name: document.getElementById('race-name').value.trim(),
+                position: document.getElementById('race-position').value.trim(),
+                race_type: document.getElementById('race-type').value,
+                year: parseInt(document.getElementById('race-year').value),
+                state: document.getElementById('race-state').value.trim().toUpperCase(),
+                city: document.getElementById('race-city').value.trim(),
+                district: document.getElementById('race-district').value.trim() || undefined,
+                primary_date: document.getElementById('race-primary').value || undefined,
+                candidates: modalCandidates.filter(c => c.name.trim())
+            };
+            if (!race.name || !race.position) {
+                toast('Name and position are required', 'error');
+                return;
+            }
+            if (!content.races) content.races = [];
+            if (editingRaceIdx !== null) {
+                content.races[editingRaceIdx] = race;
+            } else {
+                content.races.push(race);
+            }
+            hasChanges = true;
+            renderRaces();
+            closeModal('race-modal');
+            toast('Race saved. Remember to save the questionnaire.');
+        }
+
+        function deleteRace() {
+            if (editingRaceIdx === null) return;
+            if (!confirm('Delete this race?')) return;
+            content.races.splice(editingRaceIdx, 1);
+            hasChanges = true;
+            renderRaces();
+            closeModal('race-modal');
+            toast('Race deleted.', 'error');
+        }
+
+        // Candidates
+        function renderModalCandidates() {
+            const el = document.getElementById('modal-candidates');
+            if (!modalCandidates.length) {
+                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:16px;">No candidates yet.</p>';
+                return;
+            }
+            el.innerHTML = modalCandidates.map((c, i) => `
+                <div class="candidate-edit">
+                    <input type="text" value="${esc(c.name)}" placeholder="Name" onchange="modalCandidates[${i}].name=this.value">
+                    <input type="text" value="${esc(c.party||'')}" placeholder="Party" onchange="modalCandidates[${i}].party=this.value">
+                    <select onchange="modalCandidates[${i}].incumbent=this.value==='true'">
+                        <option value="false" ${!c.incumbent?'selected':''}>No</option>
+                        <option value="true" ${c.incumbent?'selected':''}>Inc.</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline" onclick="modalCandidates.splice(${i},1);renderModalCandidates()">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        function addCandidate() {
+            modalCandidates.push({ name: '', party: '', incumbent: false });
+            renderModalCandidates();
+        }
+
+        // Save
+        async function saveQ() {
+            content.name = document.getElementById('edit-name').value.trim();
+            content.description = document.getElementById('edit-desc').value.trim();
+            const summary = prompt('Describe your changes (optional):', '') || 'Updated';
+            try {
+                const data = await api(`/api/questionnaires/${current.id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ content, change_summary: summary })
+                });
+                current = data.questionnaire;
+                content = JSON.parse(JSON.stringify(data.content));
+                hasChanges = false;
+                renderEditor();
+                loadList();
+                toast('Saved successfully!', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        // Create
+        function showCreateModal() {
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-desc').value = '';
+            document.getElementById('new-state').value = '';
+            document.getElementById('new-city').value = '';
+            showModal('create-modal');
+        }
+
+        async function createQ() {
+            const name = document.getElementById('new-name').value.trim();
+            if (!name) { toast('Name is required', 'error'); return; }
+            try {
+                const data = await api('/api/questionnaires', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name,
+                        description: document.getElementById('new-desc').value.trim(),
+                        state: document.getElementById('new-state').value.trim().toUpperCase(),
+                        city: document.getElementById('new-city').value.trim(),
+                        content: { name, description: document.getElementById('new-desc').value.trim(), races: [] }
+                    })
+                });
+                closeModal('create-modal');
+                await loadList();
+                await selectQ(data.questionnaire.id);
+                toast('Created!', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        // Import/Export
+        async function importFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            try {
+                const text = await file.text();
+                const json = JSON.parse(text);
+                const data = await api('/api/questionnaires/import', {
+                    method: 'POST',
+                    body: JSON.stringify(json)
+                });
+                await loadList();
+                await selectQ(data.questionnaire.id);
+                toast('Imported!', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+            e.target.value = '';
+        }
+
+        function exportQ() {
+            const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${current.name.replace(/\s+/g, '_').toLowerCase()}_v${current.current_version}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast('Exported!', 'success');
+        }
+
+        // Versions
+        async function showVersions() {
+            const data = await api(`/api/questionnaires/${current.id}/versions`);
+            document.getElementById('version-list').innerHTML = data.versions.map(v => `
+                <div class="version-item ${v.version_number === data.current_version ? 'current' : ''}">
+                    <div>
+                        <div class="version-number">Version ${v.version_number} ${v.version_number === data.current_version ? '(Current)' : ''}</div>
+                        <div class="version-meta">${formatDateTime(v.created_at)}</div>
+                        ${v.change_summary ? `<div style="font-size:13px;color:var(--text-secondary);margin-top:4px;">${esc(v.change_summary)}</div>` : ''}
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-sm btn-outline" onclick="viewVersion(${v.version_number})">View</button>
+                        ${v.version_number !== data.current_version ? `<button class="btn btn-sm btn-secondary" onclick="rollback(${v.version_number})">Restore</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            showModal('version-modal');
+        }
+
+        async function viewVersion(n) {
+            const data = await api(`/api/questionnaires/${current.id}/versions/${n}`);
+            const blob = new Blob([JSON.stringify(data.content, null, 2)], { type: 'application/json' });
+            window.open(URL.createObjectURL(blob), '_blank');
+        }
+
+        async function rollback(n) {
+            if (!confirm(`Restore to version ${n}?`)) return;
+            try {
+                const data = await api(`/api/questionnaires/${current.id}/versions/${n}/rollback`, { method: 'POST' });
+                current = data.questionnaire;
+                content = JSON.parse(JSON.stringify(data.content));
+                hasChanges = false;
+                renderEditor();
+                loadList();
+                closeModal('version-modal');
+                toast(`Restored to version ${n}`, 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        // States
+        async function loadStates() {
+            try {
+                const data = await api('/api/states');
+                const sel = document.getElementById('filter-state');
+                data.states.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s;
+                    opt.textContent = s;
+                    sel.appendChild(opt);
+                });
+            } catch (e) {}
+        }
+
+        // Modal utils
+        function showModal(id) { document.getElementById(id).classList.add('visible'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
+        document.addEventListener('click', e => {
+            if (e.target.classList.contains('modal')) e.target.classList.remove('visible');
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') document.querySelectorAll('.modal').forEach(m => m.classList.remove('visible'));
+        });
+
+        // Toast
+        function toast(msg, type = 'info') {
+            const el = document.createElement('div');
+            el.className = `toast ${type}`;
+            el.textContent = msg;
+            document.getElementById('toasts').appendChild(el);
+            setTimeout(() => el.remove(), 4000);
+        }
+
+        // Utils
+        function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+        function formatDate(s) { return s ? new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''; }
+        function formatDateTime(s) { return s ? new Date(s).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; }
+        function debounce(fn, ms) { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; }
+    </script>
+</body>
+</html>
