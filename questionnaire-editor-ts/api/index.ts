@@ -609,12 +609,15 @@ PAGE 3 - TOP ISSUES (category: "top_issues")
 - One MULTI_SELECT question
 - 6-9 LOCALLY RELEVANT issues for the specific city
 - Each option has: graphic (emoji), label, and signal (format: ISSUE_TOPIC)
+- BASE ISSUES ON CURRENT LOCAL NEWS, recent legislation, ballot measures, and community debates
 
 PAGES 4+ - ISSUE PROBES (category: "issue_probe")
 - One page for EACH Top Issues option
 - visibilityConditions: [{ "requiredSignal": "ISSUE_XXX" }] matching the signal
 - Title is the issue name
 - One SINGLE_SELECT question about priorities within that issue
+- EXACTLY 3 options per probe, each with graphic (emoji) and label
+- Options should reflect CURRENT local debates and perspectives on that issue
 
 EXACT JSON EXAMPLE:
 {
@@ -705,10 +708,9 @@ EXACT JSON EXAMPLE:
         "text": "What concerns you most about property taxes?",
         "order": 1,
         "options": [
-          { "label": "Tax rates are too high" },
-          { "label": "Appraisal values rising too fast" },
-          { "label": "How tax revenue is being spent" },
-          { "label": "Exemptions and relief programs" }
+          { "graphic": "📈", "label": "Appraisal values rising too fast" },
+          { "graphic": "💸", "label": "Tax rates are too high" },
+          { "graphic": "🏛️", "label": "How tax revenue is being spent" }
         ]
       }]
     }
@@ -718,18 +720,22 @@ EXACT JSON EXAMPLE:
 CRITICAL RULES:
 1. Identity page uses the EXACT standard options shown above (same for all cities, just change city name in title)
 2. Ideology page uses EXACTLY two LIKERT questions as shown (Economic Issues, Social Issues)
-3. Top Issues should be LOCALLY RELEVANT - research what matters in this specific city
-4. Create one issue probe page for EACH Top Issues option with matching signal`;
+3. Top Issues should be HIGHLY LOCALLY RELEVANT - based on current news, recent legislation, ballot measures, and community debates in this specific city
+4. Create one issue probe page for EACH Top Issues option with matching signal
+5. Issue probes must have EXACTLY 3 options, each with a graphic (emoji) and label
+6. All options throughout should reflect current local context and debates`;
 
     const userPrompt = `Create a voter education questionnaire for ${city}, ${state} (${electionType || 'Primary'}${electionDate ? ` on ${electionDate}` : ''}).
+
+Based on your knowledge of ${city}, ${state}, create a questionnaire that reflects CURRENT local issues - recent news, laws passed or debated, ballot measures, community concerns, and ongoing local debates.
 
 IMPORTANT - Follow the EXACT structure:
 1. Identity page - use the STANDARD options from system prompt, just change "${city}" in the title
 2. Ideology page - use EXACTLY the two LIKERT questions shown (Economic Issues, Social Issues)
-3. Top Issues page - create 6-9 issues relevant to ${city}, ${state} with emojis and signals
-4+. Issue Probe pages - one per Top Issue with matching visibilityConditions
+3. Top Issues page - create 6-9 issues SPECIFIC to ${city}, ${state} based on current local news and debates, with emojis and signals
+4+. Issue Probe pages - one per Top Issue, EXACTLY 3 options each with emojis, reflecting current local perspectives on that issue
 
-For Top Issues, consider what matters locally in ${city}: property taxes, public safety, housing, education, transportation, water/infrastructure, immigration, growth/development, local government, etc.
+Make this questionnaire feel relevant and timely for a ${city} resident. Reference specific local context where possible (e.g., specific infrastructure projects, recent legislation, local ballot measures, neighborhood concerns).
 
 Return ONLY valid JSON.`;
 
