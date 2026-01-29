@@ -578,52 +578,115 @@ app.post('/api/questionnaires/generate', async (req: Request, res: Response) => 
   try {
     const systemPrompt = `You are a civic education researcher helping create onboarding questionnaires for a non-partisan voter education app.
 
-Your task: Based on focused research from credible sources (local government websites, election offices, and local news outlets), create a set of onboarding questions that help voters in a specific location understand their priorities and find relevant information.
+Your task: Create a set of onboarding questions that help voters understand their priorities. Follow this EXACT structure:
 
-The questionnaire must follow this EXACT structure with these categories (pages):
+PAGE 1 - IDENTITY (category: "identity")
+- Questions about the voter's connection to their community
+- Example: "How long have you lived in [City]?" with options like "Less than 1 year", "1-5 years", etc.
 
-1. IDENTITY - Questions about the voter's connection to their community (how long they've lived there, neighborhood, etc.)
-2. IDEOLOGY - A standard political spectrum question (this should be the same regardless of location)
-3. TOP ISSUES - What topics matter most to this voter (options should reflect locally-relevant issues for this specific geo)
-4. ISSUE PROBES - Follow-up questions for each top issue (conditional on what issues they selected)
+PAGE 2 - IDEOLOGY (category: "ideology")
+- Standard political spectrum question (same for all locations)
+- Question: "Generally speaking, how would you describe your political views?"
+- Options: "Very progressive", "Progressive", "Moderate", "Conservative", "Very conservative"
 
-STRUCTURAL REQUIREMENTS:
-- Each page has: title, category, order, questions array
-- Each question has: type (SINGLE_SELECT or MULTI_SELECT), text, order, options array
-- Each option has: label, signal (optional, used for conditional logic)
-- Issue probe pages have visibilityConditions with requiredSignal matching the signal from Top Issues options
+PAGE 3 - TOP ISSUES (category: "top_issues")
+- MULTI_SELECT question asking which issues matter most
+- Each option MUST have a signal like "ISSUE_HOUSING", "ISSUE_SAFETY", etc.
+- Include 6-8 locally relevant issues for the specific city
 
-OUTPUT FORMAT - Return valid JSON only:
+PAGES 4+ - ISSUE PROBES (category: "issue_probe")
+- ONE PAGE PER ISSUE from the Top Issues list
+- Each probe page has visibilityConditions: [{ "requiredSignal": "ISSUE_XXX" }] matching the signal from Top Issues
+- Ask a follow-up question that helps understand their priority within that issue
+
+EXACT JSON STRUCTURE REQUIRED:
 {
-  "name": "City Name Election Type Questions",
-  "description": "Voter onboarding for City, ST election",
+  "name": "City Election Questions",
+  "description": "...",
   "pages": [
     {
       "title": "About You",
       "category": "identity",
       "order": 1,
-      "questions": [...]
+      "questions": [{
+        "type": "SINGLE_SELECT",
+        "text": "How long have you lived in [City]?",
+        "order": 1,
+        "options": [
+          { "label": "Less than 1 year" },
+          { "label": "1-5 years" },
+          { "label": "5-10 years" },
+          { "label": "More than 10 years" }
+        ]
+      }]
     },
-    ...
+    {
+      "title": "Your Views",
+      "category": "ideology",
+      "order": 2,
+      "questions": [{
+        "type": "SINGLE_SELECT",
+        "text": "Generally speaking, how would you describe your political views?",
+        "order": 1,
+        "options": [
+          { "label": "Very progressive" },
+          { "label": "Progressive" },
+          { "label": "Moderate" },
+          { "label": "Conservative" },
+          { "label": "Very conservative" }
+        ]
+      }]
+    },
+    {
+      "title": "What Matters to You",
+      "category": "top_issues",
+      "order": 3,
+      "questions": [{
+        "type": "MULTI_SELECT",
+        "text": "Which issues matter most to you in this election? (Select all that apply)",
+        "order": 1,
+        "minSelected": 1,
+        "maxSelected": 5,
+        "options": [
+          { "label": "Housing affordability", "signal": "ISSUE_HOUSING" },
+          { "label": "Public safety", "signal": "ISSUE_SAFETY" },
+          { "label": "Transportation", "signal": "ISSUE_TRANSPORTATION" }
+        ]
+      }]
+    },
+    {
+      "title": "Housing",
+      "category": "issue_probe",
+      "order": 4,
+      "visibilityConditions": [{ "requiredSignal": "ISSUE_HOUSING" }],
+      "questions": [{
+        "type": "SINGLE_SELECT",
+        "text": "What aspect of housing concerns you most?",
+        "order": 1,
+        "options": [
+          { "label": "Rising rents and home prices" },
+          { "label": "Availability of affordable housing" },
+          { "label": "Homelessness" },
+          { "label": "Zoning and development" }
+        ]
+      }]
+    }
   ]
 }
 
-Focus on creating questions that help voters reflect on what matters to THEM - not on pushing any particular viewpoint. The goal is voter empowerment through self-reflection.`;
+IMPORTANT: Create one issue probe page for EACH option in the Top Issues question. The signals must match exactly.`;
 
-    const userPrompt = `Create a voter education onboarding questionnaire for:
+    const userPrompt = `Create a voter education questionnaire for ${city}, ${state} (${electionType || 'Primary'}${electionDate ? ` on ${electionDate}` : ''}).
 
-**Location:** ${city}, ${state}
-**Election:** ${electionType || 'Primary'} ${electionDate ? `on ${electionDate}` : ''}
+Follow the exact structure from the system prompt:
+1. Identity page (1 question about connection to ${city})
+2. Ideology page (standard political spectrum - use exactly as shown)
+3. Top Issues page (6-8 issues relevant to ${city}, ${state} - each with a signal)
+4-10+. Issue Probe pages (one per Top Issue, with matching visibilityConditions)
 
-Based on research about this specific location, create questions that:
-1. Help voters identify their connection to the community (identity)
-2. Understand their general political orientation (ideology - use standard left/right spectrum)
-3. Identify which local issues matter most to them (top issues - make these specific to ${city})
-4. Dive deeper into their priorities on each issue (issue probes)
+Make the Top Issues locally relevant to ${city}. Consider: housing, public safety, transportation, schools, economic development, taxes, environment, infrastructure, etc.
 
-For the Top Issues, consider what's currently relevant in ${city}, ${state} - things like local infrastructure, housing, public safety, schools, economic development, etc. Make the options specific and locally relevant.
-
-Return the complete questionnaire as valid JSON.`;
+Return ONLY valid JSON, no other text.`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
