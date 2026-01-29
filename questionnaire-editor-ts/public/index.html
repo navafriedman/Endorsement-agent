@@ -646,6 +646,7 @@
         let editingQuestionIdx = null;
         let modalOptions = [];
         let hasChanges = false;
+        let evalInProgressForId = null; // Track which questionnaire is being evaluated
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
@@ -726,6 +727,7 @@
             document.getElementById('edit-desc').value = content.description || '';
             renderPages();
             loadRevisions();
+            updateEvalButton(); // Update eval button state for current questionnaire
         }
 
         async function loadRevisions() {
@@ -1194,9 +1196,9 @@
         // AI Eval
         async function runEval() {
             if (!current) return;
-            const btn = document.getElementById('eval-btn');
-            btn.classList.add('btn-loading');
-            btn.textContent = '⏳ Analyzing...';
+            const evalId = current.id;
+            evalInProgressForId = evalId;
+            updateEvalButton();
 
             // Show modal with loading state
             document.getElementById('eval-loading').style.display = 'block';
@@ -1205,13 +1207,32 @@
             showModal('eval-modal');
 
             try {
-                const data = await api(`/api/questionnaires/${current.id}/eval`, { method: 'POST' });
-                renderEvalResults(data);
+                const data = await api(`/api/questionnaires/${evalId}/eval`, { method: 'POST' });
+                // Only show results if we're still on the same questionnaire
+                if (current && current.id === evalId) {
+                    renderEvalResults(data);
+                }
             } catch (e) {
-                document.getElementById('eval-loading').style.display = 'none';
-                document.getElementById('eval-error').style.display = 'block';
-                document.getElementById('eval-error-msg').textContent = e.message || 'Failed to analyze questionnaire';
+                if (current && current.id === evalId) {
+                    document.getElementById('eval-loading').style.display = 'none';
+                    document.getElementById('eval-error').style.display = 'block';
+                    document.getElementById('eval-error-msg').textContent = e.message || 'Failed to analyze questionnaire';
+                }
             } finally {
+                if (evalInProgressForId === evalId) {
+                    evalInProgressForId = null;
+                }
+                updateEvalButton();
+            }
+        }
+
+        function updateEvalButton() {
+            const btn = document.getElementById('eval-btn');
+            if (!btn) return;
+            if (evalInProgressForId && current && evalInProgressForId === current.id) {
+                btn.classList.add('btn-loading');
+                btn.textContent = '⏳ Analyzing...';
+            } else {
                 btn.classList.remove('btn-loading');
                 btn.textContent = '✨ AI Eval';
             }
