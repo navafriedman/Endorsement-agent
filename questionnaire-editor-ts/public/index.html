@@ -647,6 +647,7 @@
         let modalOptions = [];
         let hasChanges = false;
         let evalInProgressForId = null; // Track which questionnaire is being evaluated
+        let evalResultsCache = {}; // Store eval results per questionnaire ID
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
@@ -1194,7 +1195,26 @@
         }
 
         // AI Eval
-        async function runEval() {
+        function runEval() {
+            if (!current) return;
+            const evalId = current.id;
+
+            // Check if we have cached results for this questionnaire
+            if (evalResultsCache[evalId]) {
+                // Show cached results
+                document.getElementById('eval-loading').style.display = 'none';
+                document.getElementById('eval-results').style.display = 'block';
+                document.getElementById('eval-error').style.display = 'none';
+                renderEvalResults(evalResultsCache[evalId]);
+                showModal('eval-modal');
+                return;
+            }
+
+            // No cached results, run fresh eval
+            runFreshEval();
+        }
+
+        async function runFreshEval() {
             if (!current) return;
             const evalId = current.id;
             evalInProgressForId = evalId;
@@ -1208,6 +1228,8 @@
 
             try {
                 const data = await api(`/api/questionnaires/${evalId}/eval`, { method: 'POST' });
+                // Cache the results
+                evalResultsCache[evalId] = data;
                 // Only show results if we're still on the same questionnaire
                 if (current && current.id === evalId) {
                     renderEvalResults(data);
@@ -1248,12 +1270,16 @@
             const suggestions = data.suggestions || [];
             currentSuggestions = suggestions; // Store for apply functionality
 
+            const generatedAt = data.generated_at ? new Date(data.generated_at).toLocaleString() : '';
+
             if (!suggestions.length) {
                 resultsEl.innerHTML = `
                     <div style="text-align:center;padding:40px;">
                         <div style="font-size:48px;margin-bottom:16px;">✅</div>
                         <h4>Looking Good!</h4>
                         <p style="color:var(--text-muted);margin-top:8px;">No suggestions at this time. Your questionnaire appears well-structured.</p>
+                        ${generatedAt ? `<p style="font-size:11px;color:var(--text-muted);margin-top:16px;">Analyzed: ${generatedAt}</p>` : ''}
+                        <button class="btn btn-outline" style="margin-top:16px;" onclick="runFreshEval()">🔄 Re-run Evaluation</button>
                     </div>
                 `;
                 return;
@@ -1265,13 +1291,17 @@
             const low = suggestions.filter(s => s.priority === 'low');
 
             resultsEl.innerHTML = `
-                <div class="eval-summary">
-                    <h4>📊 Analysis Summary</h4>
-                    <p>${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'} found:
+                <div class="eval-summary" style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div>
+                        <h4>📊 Analysis Summary</h4>
+                        <p>${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'} found:
                         ${high.length ? `<span class="priority-badge high">${high.length} High</span> ` : ''}
                         ${medium.length ? `<span class="priority-badge medium">${medium.length} Medium</span> ` : ''}
                         ${low.length ? `<span class="priority-badge low">${low.length} Low</span>` : ''}
                     </p>
+                        ${generatedAt ? `<p style="font-size:11px;color:var(--text-muted);margin-top:4px;">Analyzed: ${generatedAt}</p>` : ''}
+                    </div>
+                    <button class="btn btn-sm btn-outline" onclick="runFreshEval()">🔄 Re-run</button>
                 </div>
                 ${suggestions.map((s, idx) => `
                     <div class="eval-suggestion priority-${s.priority || 'low'}" id="suggestion-${idx}">
