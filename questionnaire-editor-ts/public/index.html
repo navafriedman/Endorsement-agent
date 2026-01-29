@@ -1238,12 +1238,16 @@
             }
         }
 
+        let currentSuggestions = []; // Store suggestions for applying
+
         function renderEvalResults(data) {
             document.getElementById('eval-loading').style.display = 'none';
             const resultsEl = document.getElementById('eval-results');
             resultsEl.style.display = 'block';
 
             const suggestions = data.suggestions || [];
+            currentSuggestions = suggestions; // Store for apply functionality
+
             if (!suggestions.length) {
                 resultsEl.innerHTML = `
                     <div style="text-align:center;padding:40px;">
@@ -1269,20 +1273,120 @@
                         ${low.length ? `<span class="priority-badge low">${low.length} Low</span>` : ''}
                     </p>
                 </div>
-                ${suggestions.map(s => `
-                    <div class="eval-suggestion priority-${s.priority || 'low'}">
+                ${suggestions.map((s, idx) => `
+                    <div class="eval-suggestion priority-${s.priority || 'low'}" id="suggestion-${idx}">
                         <div class="eval-header">
                             <span class="eval-title">${esc(s.title)}</span>
-                            <div style="display:flex;gap:6px;">
+                            <div style="display:flex;gap:6px;align-items:center;">
                                 <span class="eval-type ${s.type || 'update'}">${s.type || 'suggestion'}</span>
                                 <span class="priority-badge ${s.priority || 'low'}">${s.priority || 'low'}</span>
                             </div>
                         </div>
                         <div class="eval-description">${esc(s.description)}</div>
+                        ${s.suggestedContent ? `
+                            <div class="eval-suggested-content">
+                                <strong>Suggested change:</strong>
+                                <pre style="background:#f1f5f9;padding:8px;border-radius:4px;font-size:12px;overflow-x:auto;margin-top:4px;">${esc(JSON.stringify(s.suggestedContent, null, 2))}</pre>
+                            </div>
+                        ` : ''}
                         ${s.rationale ? `<div class="eval-rationale">💡 ${esc(s.rationale)}</div>` : ''}
+                        ${s.suggestedContent ? `
+                            <div style="margin-top:12px;display:flex;gap:8px;">
+                                <button class="btn btn-sm btn-primary" onclick="applySuggestion(${idx})">✓ Apply Change</button>
+                                <button class="btn btn-sm btn-outline" onclick="dismissSuggestion(${idx})">Dismiss</button>
+                            </div>
+                        ` : ''}
                     </div>
                 `).join('')}
             `;
+        }
+
+        function applySuggestion(idx) {
+            const s = currentSuggestions[idx];
+            if (!s || !s.suggestedContent) return;
+
+            try {
+                const pageIdx = s.pageIndex;
+                const qIdx = s.questionIndex;
+                const optIdx = s.optionIndex;
+
+                switch (s.type) {
+                    case 'add_question':
+                        if (pageIdx !== undefined && content.pages[pageIdx]) {
+                            if (!content.pages[pageIdx].questions) content.pages[pageIdx].questions = [];
+                            const newQ = {
+                                ...s.suggestedContent,
+                                order: content.pages[pageIdx].questions.length + 1
+                            };
+                            content.pages[pageIdx].questions.push(newQ);
+                        }
+                        break;
+
+                    case 'modify_question':
+                    case 'reword':
+                        if (pageIdx !== undefined && qIdx !== undefined &&
+                            content.pages[pageIdx]?.questions?.[qIdx]) {
+                            Object.assign(content.pages[pageIdx].questions[qIdx], s.suggestedContent);
+                        }
+                        break;
+
+                    case 'add_option':
+                        if (pageIdx !== undefined && qIdx !== undefined &&
+                            content.pages[pageIdx]?.questions?.[qIdx]) {
+                            if (!content.pages[pageIdx].questions[qIdx].options) {
+                                content.pages[pageIdx].questions[qIdx].options = [];
+                            }
+                            content.pages[pageIdx].questions[qIdx].options.push(s.suggestedContent);
+                        }
+                        break;
+
+                    case 'modify_option':
+                        if (pageIdx !== undefined && qIdx !== undefined && optIdx !== undefined &&
+                            content.pages[pageIdx]?.questions?.[qIdx]?.options?.[optIdx]) {
+                            Object.assign(content.pages[pageIdx].questions[qIdx].options[optIdx], s.suggestedContent);
+                        }
+                        break;
+
+                    case 'remove':
+                        if (pageIdx !== undefined) {
+                            if (optIdx !== undefined && qIdx !== undefined) {
+                                // Remove option
+                                content.pages[pageIdx].questions[qIdx].options.splice(optIdx, 1);
+                            } else if (qIdx !== undefined) {
+                                // Remove question
+                                content.pages[pageIdx].questions.splice(qIdx, 1);
+                            }
+                        }
+                        break;
+                }
+
+                hasChanges = true;
+                renderPages();
+
+                // Mark suggestion as applied
+                const el = document.getElementById(`suggestion-${idx}`);
+                if (el) {
+                    el.style.opacity = '0.5';
+                    el.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="color:var(--success);font-size:18px;">✓</span>
+                            <span><strong>${esc(s.title)}</strong> - Applied</span>
+                        </div>
+                    `;
+                }
+
+                toast('Change applied! Remember to save.', 'success');
+            } catch (e) {
+                console.error('Failed to apply suggestion:', e);
+                toast('Failed to apply suggestion', 'error');
+            }
+        }
+
+        function dismissSuggestion(idx) {
+            const el = document.getElementById(`suggestion-${idx}`);
+            if (el) {
+                el.style.display = 'none';
+            }
         }
 
         // Utils

@@ -487,15 +487,22 @@ Your task is to review election questionnaires and suggest improvements based on
 
 Always be non-partisan and focus on helping voters make informed decisions.
 
-Respond with a JSON array of suggestions. Each suggestion should have:
-- "type": one of "add_question", "modify_question", "add_option", "modify_option", "remove", "general"
+Respond with a JSON array of suggestions. Each suggestion MUST have:
+- "type": one of "add_question", "modify_question", "add_option", "modify_option", "remove", "reword"
 - "priority": "high", "medium", or "low"
 - "title": short summary (max 50 chars)
 - "description": detailed explanation of the suggestion
 - "rationale": why this change would help voters
-- "pageIndex": (optional) which page this applies to (0-indexed)
-- "questionIndex": (optional) which question this applies to (0-indexed)
-- "suggestedContent": (optional) the actual content to add/change
+- "pageIndex": which page this applies to (0-indexed, required for all except general suggestions)
+- "questionIndex": which question this applies to (0-indexed, if applicable)
+- "optionIndex": which option this applies to (0-indexed, if applicable for modify_option)
+- "suggestedContent": REQUIRED - the specific content to apply. Must be an object with the exact fields to change:
+  - For add_question: { "type": "SINGLE_SELECT", "text": "...", "options": [{"label": "...", "signal": "..."}] }
+  - For modify_question: { "text": "new text" } (only fields to change)
+  - For add_option: { "label": "...", "signal": "..." }
+  - For modify_option: { "label": "new label" }
+  - For reword: { "text": "reworded text" }
+  - For remove: {} (empty object)
 
 Only respond with valid JSON array, no other text.`;
 
@@ -504,8 +511,22 @@ Only respond with valid JSON array, no other text.`;
 **Questionnaire Name:** ${content.name}
 **Description:** ${content.description || 'No description'}
 
-**Current Content:**
-${JSON.stringify(content.pages, null, 2)}
+**Current Content (with indices for reference):**
+${JSON.stringify(content.pages.map((p: any, pi: number) => ({
+  pageIndex: pi,
+  title: p.title,
+  category: p.category,
+  questions: (p.questions || []).map((q: any, qi: number) => ({
+    questionIndex: qi,
+    type: q.type,
+    text: q.text,
+    options: (q.options || []).map((o: any, oi: number) => ({
+      optionIndex: oi,
+      label: o.label,
+      signal: o.signal
+    }))
+  }))
+})), null, 2)}
 
 Based on current events and best practices for voter education, what improvements would you suggest? Consider:
 - Are there important local/state/national issues missing?
@@ -513,7 +534,7 @@ Based on current events and best practices for voter education, what improvement
 - Are the response options comprehensive and balanced?
 - Is anything potentially outdated?
 
-Provide 3-7 actionable suggestions as a JSON array.`;
+Provide 3-7 actionable suggestions as a JSON array. IMPORTANT: Each suggestion must include "suggestedContent" with the specific change to apply.`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
