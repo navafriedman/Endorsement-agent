@@ -576,117 +576,162 @@ app.post('/api/questionnaires/generate', async (req: Request, res: Response) => 
   }
 
   try {
-    const systemPrompt = `You are a civic education researcher helping create onboarding questionnaires for a non-partisan voter education app.
+    const systemPrompt = `You are a civic education researcher creating onboarding questionnaires for a non-partisan voter education app.
 
-Your task: Create a set of onboarding questions that help voters understand their priorities. Follow this EXACT structure:
+Create a questionnaire with this EXACT structure:
 
 PAGE 1 - IDENTITY (category: "identity")
-- Questions about the voter's connection to their community
-- Example: "How long have you lived in [City]?" with options like "Less than 1 year", "1-5 years", etc.
+- Title: "Which of the following best describe you in [City]?"
+- One MULTI_SELECT question with text "Select all that apply"
+- Use these STANDARD options (same for all cities) with graphic (emoji) and label:
+  { "graphic": "👨‍👩‍👧", "label": "I'm a parent or guardian" }
+  { "graphic": "🏠", "label": "I'm a homeowner" }
+  { "graphic": "🔑", "label": "I'm a renter" }
+  { "graphic": "🏢", "label": "I'm a small business owner" }
+  { "graphic": "👴", "label": "I'm a senior (65+)" }
+  { "graphic": "🎖", "label": "I'm a veteran or military family" }
+  { "graphic": "🎓", "label": "I'm a student" }
+  { "graphic": "🚌", "label": "I use public transit" }
+  { "graphic": "🌍", "label": "I'm an immigrant or from an immigrant family" }
+  { "graphic": "🏥", "label": "I work in healthcare" }
+  { "graphic": "📚", "label": "I work in education" }
+  { "graphic": "🚒", "label": "I'm a first responder" }
 
 PAGE 2 - IDEOLOGY (category: "ideology")
-- Standard political spectrum question (same for all locations)
-- Question: "Generally speaking, how would you describe your political views?"
-- Options: "Very progressive", "Progressive", "Moderate", "Conservative", "Very conservative"
+- Title: "How would you describe yourself politically?"
+- TWO questions, both type "LIKERT" (not SINGLE_SELECT)
+- Q1: graphic "💰", text "Economic Issues"
+- Q2: graphic "🤝", text "Social Issues"
+- Both use same 5-point scale: Progressive, "", Middle of the Road, "", Conservative
 
 PAGE 3 - TOP ISSUES (category: "top_issues")
-- MULTI_SELECT question asking which issues matter most
-- Each option MUST have a signal like "ISSUE_HOUSING", "ISSUE_SAFETY", etc.
-- Include 6-8 locally relevant issues for the specific city
+- Title: "What are the most important issues to you this election?"
+- One MULTI_SELECT question
+- 6-9 LOCALLY RELEVANT issues for the specific city
+- Each option has: graphic (emoji), label, and signal (format: ISSUE_TOPIC)
 
 PAGES 4+ - ISSUE PROBES (category: "issue_probe")
-- ONE PAGE PER ISSUE from the Top Issues list
-- Each probe page has visibilityConditions: [{ "requiredSignal": "ISSUE_XXX" }] matching the signal from Top Issues
-- Ask a follow-up question that helps understand their priority within that issue
+- One page for EACH Top Issues option
+- visibilityConditions: [{ "requiredSignal": "ISSUE_XXX" }] matching the signal
+- Title is the issue name
+- One SINGLE_SELECT question about priorities within that issue
 
-EXACT JSON STRUCTURE REQUIRED:
+EXACT JSON EXAMPLE:
 {
-  "name": "City Election Questions",
-  "description": "...",
+  "name": "City Primary Questions",
+  "description": "Voter onboarding questionnaire",
   "pages": [
     {
-      "title": "About You",
+      "title": "Which of the following best describe you in Fort Worth?",
       "category": "identity",
       "order": 1,
       "questions": [{
-        "type": "SINGLE_SELECT",
-        "text": "How long have you lived in [City]?",
+        "type": "MULTI_SELECT",
+        "text": "Select all that apply",
         "order": 1,
         "options": [
-          { "label": "Less than 1 year" },
-          { "label": "1-5 years" },
-          { "label": "5-10 years" },
-          { "label": "More than 10 years" }
+          { "graphic": "👨‍👩‍👧", "label": "I'm a parent or guardian" },
+          { "graphic": "🏠", "label": "I'm a homeowner" },
+          { "graphic": "🔑", "label": "I'm a renter" },
+          { "graphic": "🏢", "label": "I'm a small business owner" },
+          { "graphic": "👴", "label": "I'm a senior (65+)" },
+          { "graphic": "🎖", "label": "I'm a veteran or military family" },
+          { "graphic": "🎓", "label": "I'm a student" },
+          { "graphic": "🚌", "label": "I use public transit" },
+          { "graphic": "🌍", "label": "I'm an immigrant or from an immigrant family" },
+          { "graphic": "🏥", "label": "I work in healthcare" },
+          { "graphic": "📚", "label": "I work in education" },
+          { "graphic": "🚒", "label": "I'm a first responder" }
         ]
       }]
     },
     {
-      "title": "Your Views",
+      "title": "How would you describe yourself politically?",
       "category": "ideology",
       "order": 2,
-      "questions": [{
-        "type": "SINGLE_SELECT",
-        "text": "Generally speaking, how would you describe your political views?",
-        "order": 1,
-        "options": [
-          { "label": "Very progressive" },
-          { "label": "Progressive" },
-          { "label": "Moderate" },
-          { "label": "Conservative" },
-          { "label": "Very conservative" }
-        ]
-      }]
+      "questions": [
+        {
+          "type": "LIKERT",
+          "graphic": "💰",
+          "text": "Economic Issues",
+          "order": 1,
+          "options": [
+            { "label": "Progressive" },
+            { "label": "" },
+            { "label": "Middle of the Road" },
+            { "label": "" },
+            { "label": "Conservative" }
+          ]
+        },
+        {
+          "type": "LIKERT",
+          "graphic": "🤝",
+          "text": "Social Issues",
+          "order": 2,
+          "options": [
+            { "label": "Progressive" },
+            { "label": "" },
+            { "label": "Middle of the Road" },
+            { "label": "" },
+            { "label": "Conservative" }
+          ]
+        }
+      ]
     },
     {
-      "title": "What Matters to You",
+      "title": "What are the most important issues to you this election?",
       "category": "top_issues",
       "order": 3,
       "questions": [{
         "type": "MULTI_SELECT",
-        "text": "Which issues matter most to you in this election? (Select all that apply)",
+        "text": "Select the issues that matter most to you",
         "order": 1,
         "minSelected": 1,
         "maxSelected": 5,
         "options": [
-          { "label": "Housing affordability", "signal": "ISSUE_HOUSING" },
-          { "label": "Public safety", "signal": "ISSUE_SAFETY" },
-          { "label": "Transportation", "signal": "ISSUE_TRANSPORTATION" }
+          { "graphic": "💰", "label": "Property taxes and appraisals", "signal": "ISSUE_PROPERTY_TAX" },
+          { "graphic": "🚔", "label": "Public safety and policing", "signal": "ISSUE_PUBLIC_SAFETY" },
+          { "graphic": "🏠", "label": "Housing costs and affordability", "signal": "ISSUE_HOUSING" }
         ]
       }]
     },
     {
-      "title": "Housing",
+      "title": "Property Taxes",
       "category": "issue_probe",
       "order": 4,
-      "visibilityConditions": [{ "requiredSignal": "ISSUE_HOUSING" }],
+      "visibilityConditions": [{ "requiredSignal": "ISSUE_PROPERTY_TAX" }],
       "questions": [{
         "type": "SINGLE_SELECT",
-        "text": "What aspect of housing concerns you most?",
+        "text": "What concerns you most about property taxes?",
         "order": 1,
         "options": [
-          { "label": "Rising rents and home prices" },
-          { "label": "Availability of affordable housing" },
-          { "label": "Homelessness" },
-          { "label": "Zoning and development" }
+          { "label": "Tax rates are too high" },
+          { "label": "Appraisal values rising too fast" },
+          { "label": "How tax revenue is being spent" },
+          { "label": "Exemptions and relief programs" }
         ]
       }]
     }
   ]
 }
 
-IMPORTANT: Create one issue probe page for EACH option in the Top Issues question. The signals must match exactly.`;
+CRITICAL RULES:
+1. Identity page uses the EXACT standard options shown above (same for all cities, just change city name in title)
+2. Ideology page uses EXACTLY two LIKERT questions as shown (Economic Issues, Social Issues)
+3. Top Issues should be LOCALLY RELEVANT - research what matters in this specific city
+4. Create one issue probe page for EACH Top Issues option with matching signal`;
 
     const userPrompt = `Create a voter education questionnaire for ${city}, ${state} (${electionType || 'Primary'}${electionDate ? ` on ${electionDate}` : ''}).
 
-Follow the exact structure from the system prompt:
-1. Identity page (1 question about connection to ${city})
-2. Ideology page (standard political spectrum - use exactly as shown)
-3. Top Issues page (6-8 issues relevant to ${city}, ${state} - each with a signal)
-4-10+. Issue Probe pages (one per Top Issue, with matching visibilityConditions)
+IMPORTANT - Follow the EXACT structure:
+1. Identity page - use the STANDARD options from system prompt, just change "${city}" in the title
+2. Ideology page - use EXACTLY the two LIKERT questions shown (Economic Issues, Social Issues)
+3. Top Issues page - create 6-9 issues relevant to ${city}, ${state} with emojis and signals
+4+. Issue Probe pages - one per Top Issue with matching visibilityConditions
 
-Make the Top Issues locally relevant to ${city}. Consider: housing, public safety, transportation, schools, economic development, taxes, environment, infrastructure, etc.
+For Top Issues, consider what matters locally in ${city}: property taxes, public safety, housing, education, transportation, water/infrastructure, immigration, growth/development, local government, etc.
 
-Return ONLY valid JSON, no other text.`;
+Return ONLY valid JSON.`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
