@@ -850,7 +850,7 @@
                 order: parseInt(document.getElementById('question-order').value),
                 visibilityConditions: editingQuestionIdx !== null ?
                     content.pages[editingPageIdx].questions[editingQuestionIdx].visibilityConditions || [] : [],
-                options: modalOptions.filter(o => o.label.trim())
+                options: modalOptions
             };
             if (type === 'MULTI_SELECT' || type === 'SINGLE_SELECT') {
                 question.minSelected = parseInt(document.getElementById('question-min').value);
