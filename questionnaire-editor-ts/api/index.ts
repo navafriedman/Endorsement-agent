@@ -487,6 +487,17 @@ Your task is to review election questionnaires and suggest improvements based on
 
 Always be non-partisan and focus on helping voters make informed decisions.
 
+CRITICAL STRUCTURAL RULE - Issue Pairing:
+These questionnaires have a specific structure where "Top Issues" questions (asking which issues matter most to voters) are paired with "Issue Probe" questions (follow-up questions that dive deeper into specific issues). The pairing works via signals:
+- Each option in a "Top Issues" question has a signal like "ISSUE_HOUSING" or "ISSUE_TAXES"
+- Each "Issue Probe" question has a visibilityCondition with requiredSignal matching that signal
+- This means the probe only shows if the user selected that issue as important
+
+When suggesting changes:
+- If you recommend adding a NEW ISSUE OPTION to a "Top Issues" question, you MUST also include a suggestion to add the corresponding "Issue Probe" question (with matching signal in visibilityConditions)
+- If you recommend adding a NEW ISSUE PROBE question, you MUST also include a suggestion to add the corresponding option to the "Top Issues" question (with matching signal)
+- Always pair these suggestions together - never suggest one without the other
+
 Respond with a JSON array of suggestions. Each suggestion MUST have:
 - "type": one of "add_question", "modify_question", "add_option", "modify_option", "remove", "reword"
 - "priority": "high", "medium", or "low"
@@ -497,7 +508,7 @@ Respond with a JSON array of suggestions. Each suggestion MUST have:
 - "questionIndex": which question this applies to (0-indexed, if applicable)
 - "optionIndex": which option this applies to (0-indexed, if applicable for modify_option)
 - "suggestedContent": REQUIRED - the specific content to apply. Must be an object with the exact fields to change:
-  - For add_question: { "type": "SINGLE_SELECT", "text": "...", "options": [{"label": "...", "signal": "..."}] }
+  - For add_question: { "type": "SINGLE_SELECT", "text": "...", "options": [{"label": "...", "signal": "..."}], "visibilityConditions": [{"requiredSignal": "..."}] }
   - For modify_question: { "text": "new text" } (only fields to change)
   - For add_option: { "label": "...", "signal": "..." }
   - For modify_option: { "label": "new label" }
@@ -516,10 +527,12 @@ ${JSON.stringify(content.pages.map((p: any, pi: number) => ({
   pageIndex: pi,
   title: p.title,
   category: p.category,
+  visibilityConditions: p.visibilityConditions,
   questions: (p.questions || []).map((q: any, qi: number) => ({
     questionIndex: qi,
     type: q.type,
     text: q.text,
+    visibilityConditions: q.visibilityConditions,
     options: (q.options || []).map((o: any, oi: number) => ({
       optionIndex: oi,
       label: o.label,
