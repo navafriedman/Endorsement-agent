@@ -498,7 +498,7 @@
 
     <!-- Create Modal -->
     <div class="modal" id="create-modal">
-        <div class="modal-content">
+        <div class="modal-content lg">
             <div class="modal-header">
                 <h3>Create New Questionnaire</h3>
                 <button class="modal-close" onclick="closeModal('create-modal')">&times;</button>
@@ -506,16 +506,58 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Name *</label>
-                    <input type="text" id="new-name" placeholder="e.g., Fort Worth 2026 Primary Questions">
+                    <input type="text" id="new-name" placeholder="e.g., Charlotte 2026 Primary Questions">
                 </div>
                 <div class="form-group">
                     <label>Description</label>
                     <textarea id="new-desc" rows="2" placeholder="Brief description"></textarea>
                 </div>
+
+                <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:16px;">
+                    <div style="font-weight:600;margin-bottom:12px;">Election Details</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div class="form-group" style="margin:0;">
+                            <label>City *</label>
+                            <input type="text" id="new-city" placeholder="e.g., Charlotte">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label>State *</label>
+                            <input type="text" id="new-state" placeholder="e.g., NC" maxlength="2" style="text-transform:uppercase;">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label>Election Date</label>
+                            <input type="date" id="new-election-date">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label>Election Type</label>
+                            <select id="new-election-type">
+                                <option value="Primary">Primary</option>
+                                <option value="General">General</option>
+                                <option value="Special">Special</option>
+                                <option value="Municipal">Municipal</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:16px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" id="new-ai-generate" onchange="toggleAiGenerate()">
+                        <span style="font-weight:600;">✨ Generate with AI</span>
+                    </label>
+                    <p style="font-size:12px;color:var(--text-muted);margin:8px 0 0 24px;">
+                        AI will research this location and create tailored onboarding questions (identity, ideology, top issues, issue probes)
+                    </p>
+                </div>
+
+                <div id="ai-generate-loading" style="display:none;text-align:center;padding:20px;">
+                    <div class="eval-spinner"></div>
+                    <p style="margin-top:12px;color:var(--text-muted);">Researching and generating questionnaire...</p>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('create-modal')">Cancel</button>
-                <button class="btn btn-primary" onclick="createQ()">Create</button>
+                <button class="btn btn-primary" id="create-btn" onclick="createQ()">Create</button>
             </div>
         </div>
     </div>
@@ -1067,27 +1109,92 @@
         function showCreateModal() {
             document.getElementById('new-name').value = '';
             document.getElementById('new-desc').value = '';
+            document.getElementById('new-city').value = '';
+            document.getElementById('new-state').value = '';
+            document.getElementById('new-election-date').value = '';
+            document.getElementById('new-election-type').value = 'Primary';
+            document.getElementById('new-ai-generate').checked = false;
+            document.getElementById('ai-generate-loading').style.display = 'none';
+            document.getElementById('create-btn').disabled = false;
+            document.getElementById('create-btn').textContent = 'Create';
             showModal('create-modal');
+        }
+
+        function toggleAiGenerate() {
+            const checked = document.getElementById('new-ai-generate').checked;
+            const btn = document.getElementById('create-btn');
+            btn.textContent = checked ? 'Generate & Create' : 'Create';
         }
 
         async function createQ() {
             const name = document.getElementById('new-name').value.trim();
+            const city = document.getElementById('new-city').value.trim();
+            const state = document.getElementById('new-state').value.trim().toUpperCase();
+            const electionDate = document.getElementById('new-election-date').value;
+            const electionType = document.getElementById('new-election-type').value;
+            const useAi = document.getElementById('new-ai-generate').checked;
+
             if (!name) { toast('Name is required', 'error'); return; }
+            if (useAi && (!city || !state)) {
+                toast('City and State are required for AI generation', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('create-btn');
+            const loadingEl = document.getElementById('ai-generate-loading');
+
             try {
+                let questionnaireContent = {
+                    name,
+                    description: document.getElementById('new-desc').value.trim(),
+                    pages: []
+                };
+
+                // If AI generation is enabled, call the generate endpoint first
+                if (useAi) {
+                    btn.disabled = true;
+                    btn.textContent = 'Generating...';
+                    loadingEl.style.display = 'block';
+
+                    try {
+                        const genData = await api('/api/questionnaires/generate', {
+                            method: 'POST',
+                            body: JSON.stringify({ city, state, electionDate, electionType })
+                        });
+                        questionnaireContent = genData.questionnaire;
+                        // Ensure name matches what user entered
+                        questionnaireContent.name = name;
+                        if (document.getElementById('new-desc').value.trim()) {
+                            questionnaireContent.description = document.getElementById('new-desc').value.trim();
+                        }
+                    } catch (genError) {
+                        loadingEl.style.display = 'none';
+                        btn.disabled = false;
+                        btn.textContent = 'Generate & Create';
+                        toast('AI generation failed: ' + genError.message, 'error');
+                        return;
+                    }
+                }
+
+                // Create the questionnaire
                 const data = await api('/api/questionnaires', {
                     method: 'POST',
                     body: JSON.stringify({
                         name,
-                        description: document.getElementById('new-desc').value.trim(),
-                        content: { name, description: document.getElementById('new-desc').value.trim(), pages: [] }
+                        description: questionnaireContent.description || '',
+                        content: questionnaireContent
                     })
                 });
                 closeModal('create-modal');
                 await loadList();
                 await selectQ(data.questionnaire.id);
-                toast('Created!', 'success');
+                toast(useAi ? 'Generated and created!' : 'Created!', 'success');
             } catch (e) {
                 toast(e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = document.getElementById('new-ai-generate').checked ? 'Generate & Create' : 'Create';
+                loadingEl.style.display = 'none';
             }
         }
 

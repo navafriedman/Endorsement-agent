@@ -562,4 +562,99 @@ Suggest 3-5 UX writing improvements. Focus on clarity, neutral phrasing, and rea
   }
 });
 
+// AI Generate - Create questionnaire content for voter education
+app.post('/api/questionnaires/generate', async (req: Request, res: Response) => {
+  const { city, state, electionDate, electionType } = req.body;
+  const client = getAnthropic();
+
+  if (!client) {
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+  }
+
+  if (!city || !state) {
+    return res.status(400).json({ error: 'City and state are required' });
+  }
+
+  try {
+    const systemPrompt = `You are a civic education researcher helping create onboarding questionnaires for a non-partisan voter education app.
+
+Your task: Based on focused research from credible sources (local government websites, election offices, and local news outlets), create a set of onboarding questions that help voters in a specific location understand their priorities and find relevant information.
+
+The questionnaire must follow this EXACT structure with these categories (pages):
+
+1. IDENTITY - Questions about the voter's connection to their community (how long they've lived there, neighborhood, etc.)
+2. IDEOLOGY - A standard political spectrum question (this should be the same regardless of location)
+3. TOP ISSUES - What topics matter most to this voter (options should reflect locally-relevant issues for this specific geo)
+4. ISSUE PROBES - Follow-up questions for each top issue (conditional on what issues they selected)
+
+STRUCTURAL REQUIREMENTS:
+- Each page has: title, category, order, questions array
+- Each question has: type (SINGLE_SELECT or MULTI_SELECT), text, order, options array
+- Each option has: label, signal (optional, used for conditional logic)
+- Issue probe pages have visibilityConditions with requiredSignal matching the signal from Top Issues options
+
+OUTPUT FORMAT - Return valid JSON only:
+{
+  "name": "City Name Election Type Questions",
+  "description": "Voter onboarding for City, ST election",
+  "pages": [
+    {
+      "title": "About You",
+      "category": "identity",
+      "order": 1,
+      "questions": [...]
+    },
+    ...
+  ]
+}
+
+Focus on creating questions that help voters reflect on what matters to THEM - not on pushing any particular viewpoint. The goal is voter empowerment through self-reflection.`;
+
+    const userPrompt = `Create a voter education onboarding questionnaire for:
+
+**Location:** ${city}, ${state}
+**Election:** ${electionType || 'Primary'} ${electionDate ? `on ${electionDate}` : ''}
+
+Based on research about this specific location, create questions that:
+1. Help voters identify their connection to the community (identity)
+2. Understand their general political orientation (ideology - use standard left/right spectrum)
+3. Identify which local issues matter most to them (top issues - make these specific to ${city})
+4. Dive deeper into their priorities on each issue (issue probes)
+
+For the Top Issues, consider what's currently relevant in ${city}, ${state} - things like local infrastructure, housing, public safety, schools, economic development, etc. Make the options specific and locally relevant.
+
+Return the complete questionnaire as valid JSON.`;
+
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8192,
+      messages: [
+        { role: 'user', content: userPrompt }
+      ],
+      system: systemPrompt
+    });
+
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+
+    // Parse the JSON response
+    let questionnaire;
+    try {
+      questionnaire = JSON.parse(responseText);
+    } catch {
+      // Try to extract JSON from the response
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        questionnaire = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Failed to parse AI response as JSON');
+      }
+    }
+
+    res.json({ questionnaire });
+  } catch (e: any) {
+    console.error('Generate error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 export default app;
