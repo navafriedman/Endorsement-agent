@@ -182,9 +182,9 @@
             background: var(--bg);
             border-radius: 4px;
             margin-bottom: 8px;
-            cursor: pointer;
+            border: 1px solid var(--border);
         }
-        .question-item:hover { background: #e2e8f0; }
+        .question-item:hover { background: #f8fafc; }
         .question-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .question-type {
             font-size: 10px;
@@ -503,6 +503,10 @@
                 <button class="modal-close" onclick="closeModal('question-modal')">&times;</button>
             </div>
             <div class="modal-body">
+                <div class="form-group">
+                    <label>Question Text *</label>
+                    <textarea id="question-text" rows="2" placeholder="e.g., Which of the following best describes your views on property taxes?"></textarea>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Question Type *</label>
@@ -514,6 +518,10 @@
                             <option value="SCALE">Scale</option>
                             <option value="LIKERT">Likert</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Emoji (optional)</label>
+                        <input type="text" id="question-graphic" placeholder="e.g., 🏠">
                     </div>
                     <div class="form-group">
                         <label>Order</label>
@@ -702,15 +710,22 @@
                     </div>
                     <div class="page-body">
                         ${(p.questions || []).map((q, qi) => `
-                            <div class="question-item" onclick="editQuestion(${i}, ${qi})">
+                            <div class="question-item">
                                 <div class="question-header">
-                                    <span class="question-type">${q.type}</span>
-                                    <span style="font-size:11px;color:var(--text-muted);">Q${q.order || qi+1}</span>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        ${q.graphic ? `<span style="font-size:18px;">${q.graphic}</span>` : ''}
+                                        <span class="question-type">${q.type}</span>
+                                        <span style="font-size:11px;color:var(--text-muted);">Q${q.order || qi+1}</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline" onclick="editQuestion(${i}, ${qi})">Edit</button>
                                 </div>
+                                ${q.text ? `<div class="question-text" style="font-weight:500;margin:8px 0;">${esc(q.text)}</div>` : ''}
                                 ${q.options?.length ? `
-                                    <ul class="options-preview">
-                                        ${q.options.slice(0,3).map(o => `<li>${o.graphic || ''} ${esc(o.label)}</li>`).join('')}
-                                        ${q.options.length > 3 ? `<li>... and ${q.options.length - 3} more</li>` : ''}
+                                    <ul class="options-preview" style="margin-top:8px;">
+                                        ${q.options.map(o => `<li style="margin-bottom:4px;">
+                                            ${o.graphic || ''} ${esc(o.label)}
+                                            ${o.signal ? `<span class="signal-tag" style="margin-left:8px;">${o.signal}</span>` : ''}
+                                        </li>`).join('')}
                                     </ul>
                                 ` : ''}
                             </div>
@@ -794,6 +809,8 @@
             editingQuestionIdx = null;
             modalOptions = [];
             document.getElementById('question-modal-title').textContent = 'Add Question';
+            document.getElementById('question-text').value = '';
+            document.getElementById('question-graphic').value = '';
             document.getElementById('question-type').value = 'MULTI_SELECT';
             document.getElementById('question-order').value = (content.pages[pageIdx].questions?.length || 0) + 1;
             document.getElementById('question-min').value = 1;
@@ -810,6 +827,8 @@
             editingQuestionIdx = qIdx;
             modalOptions = JSON.parse(JSON.stringify(q.options || []));
             document.getElementById('question-modal-title').textContent = 'Edit Question';
+            document.getElementById('question-text').value = q.text || '';
+            document.getElementById('question-graphic').value = q.graphic || '';
             document.getElementById('question-type').value = q.type || 'MULTI_SELECT';
             document.getElementById('question-order').value = q.order || qIdx + 1;
             document.getElementById('question-min').value = q.minSelected || 1;
@@ -822,8 +841,12 @@
 
         function saveQuestion() {
             const type = document.getElementById('question-type').value;
+            const text = document.getElementById('question-text').value.trim();
+            const graphic = document.getElementById('question-graphic').value.trim();
             const question = {
                 type,
+                text: text || undefined,
+                graphic: graphic || undefined,
                 order: parseInt(document.getElementById('question-order').value),
                 visibilityConditions: editingQuestionIdx !== null ?
                     content.pages[editingPageIdx].questions[editingQuestionIdx].visibilityConditions || [] : [],
