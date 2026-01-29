@@ -476,79 +476,54 @@ app.post('/api/questionnaires/:id/eval', async (req: Request, res: Response) => 
     const content = JSON.parse(version.content_json);
 
     // Build the prompt
-    const systemPrompt = `You are a survey design specialist helping improve questionnaire structure and clarity for change.vote, a non-partisan civic education platform that helps voters understand their own priorities.
+    const systemPrompt = `You are a UX writing specialist who reviews survey forms for clarity and usability.
 
-Your task is to review questionnaires and suggest improvements based on SURVEY METHODOLOGY best practices:
-1. Question clarity - Are questions easy to understand? Free of jargon or ambiguity?
-2. Neutral wording - Are questions free from leading language or bias in either direction?
-3. Response option balance - Are answer choices comprehensive, balanced, and mutually exclusive?
-4. Logical flow - Does the questionnaire structure make sense? Are related questions grouped appropriately?
-5. Accessibility - Is the language accessible to a general audience?
+Your task is to review this survey and suggest improvements based on form design best practices:
+1. Question clarity - Is the wording easy to understand? Free of jargon?
+2. Neutral phrasing - Are questions free from leading or loaded language?
+3. Response options - Are choices clear, balanced, and mutually exclusive?
+4. Form flow - Is the structure logical? Are related items grouped?
+5. Readability - Is language accessible to a general audience?
 
-IMPORTANT: Your role is purely about SURVEY DESIGN QUALITY - question structure, wording clarity, and user experience. You are NOT providing political analysis or suggesting what topics should matter to voters. Focus only on making existing content clearer and more methodologically sound.
+SCOPE: Focus ONLY on UX writing and form usability. Do NOT suggest new topics or content - only improve the clarity and structure of EXISTING content.
 
-CRITICAL STRUCTURAL RULE - Issue Pairing:
-These questionnaires have a specific structure where "Top Issues" questions (asking which issues matter most to voters) are paired with "Issue Probe" questions (follow-up questions that dive deeper into specific issues). The pairing works via signals:
-- Each option in a "Top Issues" question has a signal like "ISSUE_HOUSING" or "ISSUE_TAXES"
-- Each "Issue Probe" question has a visibilityCondition with requiredSignal matching that signal
-- This means the probe only shows if the user selected that issue as important
-
-When suggesting changes:
-- If you recommend adding a NEW ISSUE OPTION to a "Top Issues" question, you MUST also include a suggestion to add the corresponding "Issue Probe" question (with matching signal in visibilityConditions)
-- If you recommend adding a NEW ISSUE PROBE question, you MUST also include a suggestion to add the corresponding option to the "Top Issues" question (with matching signal)
-- Always pair these suggestions together - never suggest one without the other
+STRUCTURAL NOTE - Conditional Logic:
+This survey uses conditional display logic. Some questions have a "visibilityCondition" with a "requiredSignal" that links to a "signal" on an option elsewhere. When suggesting rewording, preserve these signal values exactly.
 
 Respond with a JSON array of suggestions. Each suggestion MUST have:
-- "type": one of "add_question", "modify_question", "add_option", "modify_option", "remove", "reword"
+- "type": one of "modify_question", "modify_option", "reword"
 - "priority": "high", "medium", or "low"
 - "title": short summary (max 50 chars)
-- "description": detailed explanation of the suggestion
-- "rationale": why this change would help voters
-- "pageIndex": which page this applies to (0-indexed, required for all except general suggestions)
-- "questionIndex": which question this applies to (0-indexed, if applicable)
-- "optionIndex": which option this applies to (0-indexed, if applicable for modify_option)
-- "suggestedContent": REQUIRED - the specific content to apply. Must be an object with the exact fields to change:
-  - For add_question: { "type": "SINGLE_SELECT", "text": "...", "options": [{"label": "...", "signal": "..."}], "visibilityConditions": [{"requiredSignal": "..."}] }
-  - For modify_question: { "text": "new text" } (only fields to change)
-  - For add_option: { "label": "...", "signal": "..." }
-  - For modify_option: { "label": "new label" }
-  - For reword: { "text": "reworded text" }
-  - For remove: {} (empty object)
+- "description": what to change and why
+- "rationale": how this improves usability
+- "pageIndex": which page (0-indexed)
+- "questionIndex": which question (0-indexed, if applicable)
+- "optionIndex": which option (0-indexed, if applicable)
+- "suggestedContent": the specific change as an object:
+  - For modify_question/reword: { "text": "improved text" }
+  - For modify_option: { "label": "improved label" }
 
 Only respond with valid JSON array, no other text.`;
 
-    const userPrompt = `Please review this election questionnaire and provide suggestions for improvements:
+    const userPrompt = `Review this survey form for UX writing improvements:
 
-**Questionnaire Name:** ${content.name}
-**Description:** ${content.description || 'No description'}
+**Form Name:** ${content.name}
 
-**Current Content (with indices for reference):**
+**Structure:**
 ${JSON.stringify(content.pages.map((p: any, pi: number) => ({
   pageIndex: pi,
   title: p.title,
-  category: p.category,
-  visibilityConditions: p.visibilityConditions,
   questions: (p.questions || []).map((q: any, qi: number) => ({
     questionIndex: qi,
-    type: q.type,
     text: q.text,
-    visibilityConditions: q.visibilityConditions,
     options: (q.options || []).map((o: any, oi: number) => ({
       optionIndex: oi,
-      label: o.label,
-      signal: o.signal
+      label: o.label
     }))
   }))
 })), null, 2)}
 
-Based on survey design best practices, what improvements would you suggest? Consider:
-- Are questions worded clearly and free of ambiguity?
-- Are questions neutral and non-leading?
-- Are response options comprehensive, balanced, and mutually exclusive?
-- Is the questionnaire structure logical and easy to follow?
-- Is the language accessible to a general audience?
-
-Provide 3-7 actionable suggestions as a JSON array focused on CLARITY and METHODOLOGY improvements. IMPORTANT: Each suggestion must include "suggestedContent" with the specific change to apply.`;
+Suggest 3-5 UX writing improvements. Focus on clarity, neutral phrasing, and readability. Return JSON array only.`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
