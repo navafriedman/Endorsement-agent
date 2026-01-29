@@ -476,16 +476,16 @@ app.post('/api/questionnaires/:id/eval', async (req: Request, res: Response) => 
     const content = JSON.parse(version.content_json);
 
     // Build the prompt
-    const systemPrompt = `You are an expert elections analyst helping improve voter questionnaires for change.vote, a non-partisan voter guide platform.
+    const systemPrompt = `You are a survey design specialist helping improve questionnaire structure and clarity for change.vote, a non-partisan civic education platform that helps voters understand their own priorities.
 
-Your task is to review election questionnaires and suggest improvements based on:
-1. Current political issues and debates
-2. Upcoming elections and races
-3. Question clarity and bias-free wording
-4. Missing important topics voters should consider
-5. Outdated or incorrect information
+Your task is to review questionnaires and suggest improvements based on SURVEY METHODOLOGY best practices:
+1. Question clarity - Are questions easy to understand? Free of jargon or ambiguity?
+2. Neutral wording - Are questions free from leading language or bias in either direction?
+3. Response option balance - Are answer choices comprehensive, balanced, and mutually exclusive?
+4. Logical flow - Does the questionnaire structure make sense? Are related questions grouped appropriately?
+5. Accessibility - Is the language accessible to a general audience?
 
-Always be non-partisan and focus on helping voters make informed decisions.
+IMPORTANT: Your role is purely about SURVEY DESIGN QUALITY - question structure, wording clarity, and user experience. You are NOT providing political analysis or suggesting what topics should matter to voters. Focus only on making existing content clearer and more methodologically sound.
 
 CRITICAL STRUCTURAL RULE - Issue Pairing:
 These questionnaires have a specific structure where "Top Issues" questions (asking which issues matter most to voters) are paired with "Issue Probe" questions (follow-up questions that dive deeper into specific issues). The pairing works via signals:
@@ -541,13 +541,14 @@ ${JSON.stringify(content.pages.map((p: any, pi: number) => ({
   }))
 })), null, 2)}
 
-Based on current events and best practices for voter education, what improvements would you suggest? Consider:
-- Are there important local/state/national issues missing?
-- Are questions worded in a neutral, non-leading way?
-- Are the response options comprehensive and balanced?
-- Is anything potentially outdated?
+Based on survey design best practices, what improvements would you suggest? Consider:
+- Are questions worded clearly and free of ambiguity?
+- Are questions neutral and non-leading?
+- Are response options comprehensive, balanced, and mutually exclusive?
+- Is the questionnaire structure logical and easy to follow?
+- Is the language accessible to a general audience?
 
-Provide 3-7 actionable suggestions as a JSON array. IMPORTANT: Each suggestion must include "suggestedContent" with the specific change to apply.`;
+Provide 3-7 actionable suggestions as a JSON array focused on CLARITY and METHODOLOGY improvements. IMPORTANT: Each suggestion must include "suggestedContent" with the specific change to apply.`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
