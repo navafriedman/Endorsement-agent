@@ -9,6 +9,7 @@
     "dev": "ts-node src/server.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
     "@supabase/supabase-js": "^2.39.0",
     "better-sqlite3": "^11.0.0",
     "cors": "^2.8.5",

@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { createClient } from '@supabase/supabase-js';
+import Anthropic from '@anthropic-ai/sdk';
 
 const app = express();
 
@@ -12,6 +13,15 @@ app.use(express.json({ limit: '10mb' }));
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Anthropic client (lazy init)
+let anthropic: Anthropic | null = null;
+function getAnthropic() {
+  if (!anthropic && process.env.ANTHROPIC_API_KEY) {
+    anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
+  return anthropic;
+}
 
 // Helper: Compute diff between old and new content
 function computeChangeSummary(oldContent: any, newContent: any): string {
@@ -431,6 +441,113 @@ app.get('/api/states', async (_req: Request, res: Response) => {
     res.json({ states });
   } catch (e: any) {
     console.error('States error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// AI Eval - Analyze questionnaire and suggest improvements
+app.post('/api/questionnaires/:id/eval', async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const client = getAnthropic();
+
+  if (!client) {
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+  }
+
+  try {
+    // Get questionnaire content
+    const { data: questionnaire, error: qError } = await supabase
+      .from('questionnaires')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (qError) throw qError;
+
+    const { data: version, error: vError } = await supabase
+      .from('versions')
+      .select('content_json')
+      .eq('questionnaire_id', id)
+      .eq('version_number', questionnaire.current_version)
+      .single();
+
+    if (vError) throw vError;
+
+    const content = JSON.parse(version.content_json);
+
+    // Build the prompt
+    const systemPrompt = `You are an expert elections analyst helping improve voter questionnaires for change.vote, a non-partisan voter guide platform.
+
+Your task is to review election questionnaires and suggest improvements based on:
+1. Current political issues and debates
+2. Upcoming elections and races
+3. Question clarity and bias-free wording
+4. Missing important topics voters should consider
+5. Outdated or incorrect information
+
+Always be non-partisan and focus on helping voters make informed decisions.
+
+Respond with a JSON array of suggestions. Each suggestion should have:
+- "type": one of "add_question", "modify_question", "add_option", "modify_option", "remove", "general"
+- "priority": "high", "medium", or "low"
+- "title": short summary (max 50 chars)
+- "description": detailed explanation of the suggestion
+- "rationale": why this change would help voters
+- "pageIndex": (optional) which page this applies to (0-indexed)
+- "questionIndex": (optional) which question this applies to (0-indexed)
+- "suggestedContent": (optional) the actual content to add/change
+
+Only respond with valid JSON array, no other text.`;
+
+    const userPrompt = `Please review this election questionnaire and provide suggestions for improvements:
+
+**Questionnaire Name:** ${content.name}
+**Description:** ${content.description || 'No description'}
+
+**Current Content:**
+${JSON.stringify(content.pages, null, 2)}
+
+Based on current events and best practices for voter education, what improvements would you suggest? Consider:
+- Are there important local/state/national issues missing?
+- Are questions worded in a neutral, non-leading way?
+- Are the response options comprehensive and balanced?
+- Is anything potentially outdated?
+
+Provide 3-7 actionable suggestions as a JSON array.`;
+
+    const message = await client.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      messages: [
+        { role: 'user', content: userPrompt }
+      ],
+      system: systemPrompt
+    });
+
+    // Parse the response
+    const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
+
+    // Try to extract JSON from the response
+    let suggestions = [];
+    try {
+      // Try direct parse first
+      suggestions = JSON.parse(responseText);
+    } catch {
+      // Try to find JSON array in the response
+      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        suggestions = JSON.parse(jsonMatch[0]);
+      }
+    }
+
+    res.json({
+      questionnaire_id: id,
+      questionnaire_name: content.name,
+      suggestions,
+      generated_at: new Date().toISOString()
+    });
+  } catch (e: any) {
+    console.error('Eval error:', e);
     res.status(500).json({ error: e.message });
   }
 });
