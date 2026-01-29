@@ -396,6 +396,27 @@
         .eval-summary { padding: 16px; background: var(--bg); border-radius: var(--radius); margin-bottom: 16px; }
         .eval-summary h4 { margin-bottom: 8px; }
         .btn-loading { opacity: 0.7; pointer-events: none; }
+        /* Loading spinner animation */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .eval-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        .eval-loading-text {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
     </style>
 </head>
 <body>
@@ -622,8 +643,8 @@
             </div>
             <div class="modal-body" id="eval-content">
                 <div id="eval-loading" style="text-align:center;padding:40px;">
-                    <div style="font-size:24px;margin-bottom:12px;">🔍</div>
-                    <p>Analyzing your questionnaire...</p>
+                    <div class="eval-spinner"></div>
+                    <p class="eval-loading-text" style="font-weight:500;">Analyzing your questionnaire...</p>
                     <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">This may take a moment</p>
                 </div>
                 <div id="eval-results" style="display:none;"></div>
@@ -1315,8 +1336,10 @@
                         <div class="eval-description">${esc(s.description)}</div>
                         ${s.suggestedContent ? `
                             <div class="eval-suggested-content">
-                                <strong>Suggested change:</strong>
-                                <pre style="background:#f1f5f9;padding:8px;border-radius:4px;font-size:12px;overflow-x:auto;margin-top:4px;">${esc(JSON.stringify(s.suggestedContent, null, 2))}</pre>
+                                <strong>Suggested change:</strong> <span style="font-size:11px;color:var(--text-muted);">(edit before applying)</span>
+                                <textarea id="suggestion-content-${idx}"
+                                    style="width:100%;min-height:80px;background:#f1f5f9;padding:8px;border-radius:4px;font-size:12px;font-family:monospace;margin-top:4px;border:1px solid var(--border);resize:vertical;"
+                                >${esc(JSON.stringify(s.suggestedContent, null, 2))}</textarea>
                             </div>
                         ` : ''}
                         ${s.rationale ? `<div class="eval-rationale">💡 ${esc(s.rationale)}</div>` : ''}
@@ -1335,6 +1358,18 @@
             const s = currentSuggestions[idx];
             if (!s || !s.suggestedContent) return;
 
+            // Get edited content from textarea
+            const textarea = document.getElementById(`suggestion-content-${idx}`);
+            let editedContent;
+            try {
+                editedContent = JSON.parse(textarea.value);
+            } catch (parseErr) {
+                toast('Invalid JSON in suggested change. Please fix the syntax.', 'error');
+                textarea.style.borderColor = 'var(--danger)';
+                return;
+            }
+            textarea.style.borderColor = 'var(--border)';
+
             try {
                 const pageIdx = s.pageIndex;
                 const qIdx = s.questionIndex;
@@ -1345,7 +1380,7 @@
                         if (pageIdx !== undefined && content.pages[pageIdx]) {
                             if (!content.pages[pageIdx].questions) content.pages[pageIdx].questions = [];
                             const newQ = {
-                                ...s.suggestedContent,
+                                ...editedContent,
                                 order: content.pages[pageIdx].questions.length + 1
                             };
                             content.pages[pageIdx].questions.push(newQ);
@@ -1356,7 +1391,7 @@
                     case 'reword':
                         if (pageIdx !== undefined && qIdx !== undefined &&
                             content.pages[pageIdx]?.questions?.[qIdx]) {
-                            Object.assign(content.pages[pageIdx].questions[qIdx], s.suggestedContent);
+                            Object.assign(content.pages[pageIdx].questions[qIdx], editedContent);
                         }
                         break;
 
@@ -1366,14 +1401,14 @@
                             if (!content.pages[pageIdx].questions[qIdx].options) {
                                 content.pages[pageIdx].questions[qIdx].options = [];
                             }
-                            content.pages[pageIdx].questions[qIdx].options.push(s.suggestedContent);
+                            content.pages[pageIdx].questions[qIdx].options.push(editedContent);
                         }
                         break;
 
                     case 'modify_option':
                         if (pageIdx !== undefined && qIdx !== undefined && optIdx !== undefined &&
                             content.pages[pageIdx]?.questions?.[qIdx]?.options?.[optIdx]) {
-                            Object.assign(content.pages[pageIdx].questions[qIdx].options[optIdx], s.suggestedContent);
+                            Object.assign(content.pages[pageIdx].questions[qIdx].options[optIdx], editedContent);
                         }
                         break;
 
