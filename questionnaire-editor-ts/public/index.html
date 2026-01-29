@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Questionnaire Editor</title>
+    <title>Elections Survey Builder</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23F06449'/%3E%3Cpath d='M8 10h16M8 16h12M8 22h14' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='24' cy='22' r='3' fill='%232DD4BF'/%3E%3C/svg%3E">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --secondary: #64748b;
-            --success: #10b981;
-            --danger: #ef4444;
+            --primary: #F06449;
+            --primary-hover: #E05339;
+            --secondary: #2DD4BF;
+            --secondary-hover: #14B8A6;
+            --success: #2DD4BF;
+            --danger: #F06449;
             --warning: #f59e0b;
             --bg: #f8fafc;
             --bg-white: #ffffff;
             --border: #e2e8f0;
-            --text: #1e293b;
-            --text-secondary: #64748b;
-            --text-muted: #94a3b8;
+            --text: #1E1E2E;
+            --text-secondary: #4a4a5a;
+            --text-muted: #8a8a9a;
             --radius: 8px;
             --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --teal: #2DD4BF;
+            --teal-light: #ccfbf1;
+            --coral: #F06449;
+            --coral-light: #fef2f0;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -60,7 +66,7 @@
             transition: background 0.15s;
         }
         .q-item:hover { background: #f1f5f9; }
-        .q-item.active { background: #eff6ff; border: 1px solid #bfdbfe; }
+        .q-item.active { background: var(--coral-light); border: 1px solid var(--coral); }
         .q-item-name { font-weight: 500; margin-bottom: 4px; }
         .q-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; }
         .main { flex: 1; margin-left: 320px; padding: 24px; }
@@ -120,7 +126,7 @@
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            box-shadow: 0 0 0 3px rgba(240, 100, 73, 0.1);
         }
         .pages-section { padding: 20px 24px; }
         .section-header {
@@ -167,8 +173,8 @@
             border-radius: 10px;
             font-size: 11px;
             font-weight: 500;
-            background: #dbeafe;
-            color: #1e40af;
+            background: var(--teal-light);
+            color: #0d9488;
             margin-right: 8px;
         }
         .page-body { padding: 16px; }
@@ -177,9 +183,9 @@
             background: var(--bg);
             border-radius: 4px;
             margin-bottom: 8px;
-            cursor: pointer;
+            border: 1px solid var(--border);
         }
-        .question-item:hover { background: #e2e8f0; }
+        .question-item:hover { background: #f8fafc; }
         .question-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .question-type {
             font-size: 10px;
@@ -212,7 +218,8 @@
         .btn-sm { padding: 4px 10px; font-size: 12px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-hover); }
-        .btn-secondary { background: var(--secondary); color: white; }
+        .btn-secondary { background: var(--secondary); color: #1E1E2E; }
+        .btn-secondary:hover { background: var(--secondary-hover); }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
         .btn-outline:hover { background: #f1f5f9; }
         .btn-danger { background: var(--danger); color: white; }
@@ -274,20 +281,61 @@
             border: 1px solid var(--border);
             margin-bottom: 8px;
         }
-        .version-item.current { border-color: var(--primary); background: #eff6ff; }
+        .version-item.current { border-color: var(--teal); background: var(--teal-light); }
         .version-number { font-weight: 600; }
         .version-meta { font-size: 12px; color: var(--text-muted); }
         .option-edit {
             display: grid;
-            grid-template-columns: 1fr 80px 32px;
+            grid-template-columns: 50px 1fr 70px 70px 120px 32px;
             gap: 8px;
             align-items: center;
             padding: 8px;
             background: var(--bg);
             border-radius: 4px;
             margin-bottom: 8px;
+            cursor: grab;
         }
+        .option-edit.dragging { opacity: 0.5; background: var(--teal-light); }
         .option-edit input { padding: 6px 10px; font-size: 13px; }
+        .signal-input { font-family: monospace; font-size: 11px !important; }
+        .visibility-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+        .visibility-badge { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+        .signal-tag { display: inline-block; background: var(--teal-light); color: #0d9488; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; }
+        .drag-buttons { display: flex; flex-direction: column; gap: 2px; }
+        .drag-buttons button {
+            padding: 2px 8px;
+            font-size: 10px;
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .drag-buttons button:hover { background: #e2e8f0; }
+        .drag-buttons button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .q-item-actions { display: flex; gap: 4px; margin-top: 8px; }
+        .q-item-actions button { padding: 2px 8px; font-size: 11px; }
+        .revision-section {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        .revision-list { max-height: 400px; overflow-y: auto; }
+        .revision-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .revision-item.current { border-color: var(--teal); background: var(--teal-light); }
+        .revision-item .rev-info { flex: 1; }
+        .revision-item .rev-num { font-weight: 600; }
+        .revision-item .rev-date { color: var(--text-muted); font-size: 12px; }
+        .revision-item .rev-summary { color: var(--text-secondary); font-size: 12px; margin-top: 2px; }
         .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 2000; }
         .toast {
             padding: 12px 20px;
@@ -309,13 +357,59 @@
             .app { flex-direction: column; }
             .form-row { grid-template-columns: 1fr; }
         }
+        /* AI Eval styles */
+        .eval-suggestion {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            background: var(--bg-white);
+        }
+        .eval-suggestion.priority-high { border-left: 4px solid var(--danger); }
+        .eval-suggestion.priority-medium { border-left: 4px solid var(--warning); }
+        .eval-suggestion.priority-low { border-left: 4px solid var(--teal); }
+        .eval-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .eval-title { font-weight: 600; font-size: 15px; }
+        .eval-type {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+        .eval-type.add { background: #dcfce7; color: #166534; }
+        .eval-type.update { background: #fef3c7; color: #92400e; }
+        .eval-type.remove { background: #fee2e2; color: #991b1b; }
+        .eval-type.reorder { background: #e0e7ff; color: #3730a3; }
+        .eval-type.clarify { background: #f3e8ff; color: #6b21a8; }
+        .eval-description { font-size: 14px; color: var(--text); margin-bottom: 8px; }
+        .eval-rationale { font-size: 12px; color: var(--text-muted); font-style: italic; padding: 8px; background: var(--bg); border-radius: 4px; }
+        .priority-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        .priority-badge.high { background: #fee2e2; color: #991b1b; }
+        .priority-badge.medium { background: #fef3c7; color: #92400e; }
+        .priority-badge.low { background: var(--teal-light); color: #0d9488; }
+        .eval-summary { padding: 16px; background: var(--bg); border-radius: var(--radius); margin-bottom: 16px; }
+        .eval-summary h4 { margin-bottom: 8px; }
+        .btn-loading { opacity: 0.7; pointer-events: none; }
     </style>
 </head>
 <body>
     <div class="app">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h1>Questionnaire Editor</h1>
+                <h1 style="display:flex;align-items:center;gap:10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28">
+                        <rect width="32" height="32" rx="6" fill="#F06449"/>
+                        <path d="M8 10h16M8 16h12M8 22h14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <circle cx="24" cy="22" r="3" fill="#2DD4BF"/>
+                    </svg>
+                    Elections Survey Builder
+                </h1>
             </div>
             <div class="sidebar-actions">
                 <button class="btn btn-primary" onclick="showCreateModal()">+ New Questionnaire</button>
@@ -330,7 +424,7 @@
         <main class="main">
             <div class="empty-state" id="empty">
                 <div>
-                    <h2>Welcome to the Questionnaire Editor</h2>
+                    <h2>Welcome to Elections Survey Builder</h2>
                     <p>Import a JSON questionnaire or create a new one to get started.</p>
                     <label class="btn btn-primary" style="cursor:pointer;">
                         Import JSON File
@@ -346,6 +440,7 @@
                         <span class="version-badge" id="q-version">v1</span>
                     </div>
                     <div class="editor-actions">
+                        <button class="btn btn-outline" onclick="runEval()" id="eval-btn">✨ AI Eval</button>
                         <button class="btn btn-outline" onclick="showVersions()">Version History</button>
                         <button class="btn btn-outline" onclick="exportQ()">Export JSON</button>
                         <button class="btn btn-primary" onclick="saveQ()">Save Changes</button>
@@ -369,6 +464,12 @@
                         <button class="btn btn-sm btn-outline" onclick="addPage()">+ Add Page</button>
                     </div>
                     <div class="pages-container" id="pages"></div>
+                </div>
+                <div class="revision-section">
+                    <div class="section-header">
+                        <h3>Revision History</h3>
+                    </div>
+                    <div class="revision-list" id="revisions"></div>
                 </div>
             </div>
         </main>
@@ -428,6 +529,11 @@
                     <label>Help Text</label>
                     <input type="text" id="page-help" placeholder="e.g., Select all that apply">
                 </div>
+                <div class="visibility-section">
+                    <label>Visibility Condition (optional)</label>
+                    <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Only show this page if user selected an option with this signal</p>
+                    <input type="text" id="page-required-signal" class="signal-input" placeholder="e.g., ISSUE_PROPERTY_TAX">
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-outline" onclick="closeModal('page-modal')">Cancel</button>
@@ -445,6 +551,10 @@
                 <button class="modal-close" onclick="closeModal('question-modal')">&times;</button>
             </div>
             <div class="modal-body">
+                <div class="form-group">
+                    <label>Question Text *</label>
+                    <textarea id="question-text" rows="2" placeholder="e.g., Which of the following best describes your views on property taxes?"></textarea>
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Question Type *</label>
@@ -454,7 +564,12 @@
                             <option value="TEXT">Text Input</option>
                             <option value="RANKING">Ranking</option>
                             <option value="SCALE">Scale</option>
+                            <option value="LIKERT">Likert</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Emoji (optional)</label>
+                        <input type="text" id="question-graphic" placeholder="e.g., 🏠">
                     </div>
                     <div class="form-group">
                         <label>Order</label>
@@ -498,6 +613,28 @@
         </div>
     </div>
 
+    <!-- AI Eval Modal -->
+    <div class="modal" id="eval-modal">
+        <div class="modal-content xl">
+            <div class="modal-header">
+                <h3>✨ AI Evaluation</h3>
+                <button class="modal-close" onclick="closeModal('eval-modal')">&times;</button>
+            </div>
+            <div class="modal-body" id="eval-content">
+                <div id="eval-loading" style="text-align:center;padding:40px;">
+                    <div style="font-size:24px;margin-bottom:12px;">🔍</div>
+                    <p>Analyzing your questionnaire...</p>
+                    <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">This may take a moment</p>
+                </div>
+                <div id="eval-results" style="display:none;"></div>
+                <div id="eval-error" style="display:none;text-align:center;padding:40px;">
+                    <div style="font-size:24px;margin-bottom:12px;">⚠️</div>
+                    <p id="eval-error-msg" style="color:var(--danger);"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="toast-container" id="toasts"></div>
 
     <script>
@@ -509,6 +646,8 @@
         let editingQuestionIdx = null;
         let modalOptions = [];
         let hasChanges = false;
+        let evalInProgressForId = null; // Track which questionnaire is being evaluated
+        let evalResultsCache = {}; // Store eval results per questionnaire ID
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
@@ -559,6 +698,9 @@
                         <span>${q.page_count || 0} pages</span>
                         <span>${q.question_count || 0} questions</span>
                     </div>
+                    <div class="q-item-actions">
+                        <button class="btn btn-sm btn-outline btn-danger" onclick="event.stopPropagation();deleteQ(${q.id})" title="Delete">Delete</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -585,6 +727,35 @@
             document.getElementById('edit-name').value = content.name || '';
             document.getElementById('edit-desc').value = content.description || '';
             renderPages();
+            loadRevisions();
+            updateEvalButton(); // Update eval button state for current questionnaire
+        }
+
+        async function loadRevisions() {
+            try {
+                const data = await api(`/api/questionnaires/${current.id}/versions`);
+                const el = document.getElementById('revisions');
+                if (!data.versions.length) {
+                    el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:16px;">No revisions yet.</p>';
+                    return;
+                }
+                el.innerHTML = data.versions.map(v => `
+                    <div class="revision-item ${v.version_number === data.current_version ? 'current' : ''}">
+                        <div class="rev-info">
+                            <span class="rev-num">v${v.version_number}</span>
+                            <span class="rev-date">${formatDateTime(v.created_at)}</span>
+                            ${v.change_summary ? `<div class="rev-summary">${esc(v.change_summary)}</div>` : ''}
+                        </div>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <button class="btn btn-sm btn-outline" onclick="viewVersion(${v.version_number})" title="View JSON">View</button>
+                            <button class="btn btn-sm btn-outline" onclick="exportVersion(${v.version_number})" title="Download">↓</button>
+                            ${v.version_number !== data.current_version ? `<button class="btn btn-sm btn-secondary" onclick="rollback(${v.version_number})">Restore</button>` : '<span style="font-size:11px;color:var(--success);padding:0 8px;">Current</span>'}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error(e);
+            }
         }
 
         function renderPages() {
@@ -603,6 +774,7 @@
                                 <div class="page-title">${esc(p.title)}</div>
                                 <div class="page-meta">
                                     ${p.category ? `<span class="category-badge">${p.category}</span>` : ''}
+                                    ${p.visibilityConditions?.[0]?.requiredSignal ? `<span class="visibility-badge">Requires: ${p.visibilityConditions[0].requiredSignal}</span>` : ''}
                                     <span>${p.questions?.length || 0} questions</span>
                                 </div>
                             </div>
@@ -611,15 +783,22 @@
                     </div>
                     <div class="page-body">
                         ${(p.questions || []).map((q, qi) => `
-                            <div class="question-item" onclick="editQuestion(${i}, ${qi})">
+                            <div class="question-item">
                                 <div class="question-header">
-                                    <span class="question-type">${q.type}</span>
-                                    <span style="font-size:11px;color:var(--text-muted);">Q${q.order || qi+1}</span>
+                                    <div style="display:flex;align-items:center;gap:8px;">
+                                        ${q.graphic ? `<span style="font-size:18px;">${q.graphic}</span>` : ''}
+                                        <span class="question-type">${q.type}</span>
+                                        <span style="font-size:11px;color:var(--text-muted);">Q${q.order || qi+1}</span>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline" onclick="editQuestion(${i}, ${qi})">Edit</button>
                                 </div>
+                                ${q.text ? `<div class="question-text" style="font-weight:500;margin:8px 0;">${esc(q.text)}</div>` : ''}
                                 ${q.options?.length ? `
-                                    <ul class="options-preview">
-                                        ${q.options.slice(0,3).map(o => `<li>${o.graphic || ''} ${esc(o.label)}</li>`).join('')}
-                                        ${q.options.length > 3 ? `<li>... and ${q.options.length - 3} more</li>` : ''}
+                                    <ul class="options-preview" style="margin-top:8px;">
+                                        ${q.options.map(o => `<li style="margin-bottom:4px;">
+                                            ${o.graphic || ''} ${esc(o.label)}
+                                            ${o.signal ? `<span class="signal-tag" style="margin-left:8px;">${o.signal}</span>` : ''}
+                                        </li>`).join('')}
                                     </ul>
                                 ` : ''}
                             </div>
@@ -639,6 +818,7 @@
             document.getElementById('page-order').value = (content.pages?.length || 0) + 1;
             document.getElementById('page-why').value = '';
             document.getElementById('page-help').value = '';
+            document.getElementById('page-required-signal').value = '';
             document.getElementById('delete-page-btn').style.display = 'none';
             showModal('page-modal');
         }
@@ -652,17 +832,22 @@
             document.getElementById('page-order').value = p.order || idx + 1;
             document.getElementById('page-why').value = p.why_text || '';
             document.getElementById('page-help').value = p.help_text || '';
+            // Get required signal from visibility conditions
+            const reqSignal = p.visibilityConditions?.[0]?.requiredSignal || '';
+            document.getElementById('page-required-signal').value = reqSignal;
             document.getElementById('delete-page-btn').style.display = 'inline-flex';
             showModal('page-modal');
         }
 
         function savePage() {
+            const requiredSignal = document.getElementById('page-required-signal').value.trim();
             const page = {
                 title: document.getElementById('page-title').value.trim(),
                 category: document.getElementById('page-category').value.trim() || undefined,
                 order: parseInt(document.getElementById('page-order').value),
                 why_text: document.getElementById('page-why').value.trim() || undefined,
                 help_text: document.getElementById('page-help').value.trim() || undefined,
+                visibilityConditions: requiredSignal ? [{ requiredSignal }] : undefined,
                 questions: editingPageIdx !== null ? content.pages[editingPageIdx].questions || [] : []
             };
             if (!page.title) {
@@ -697,6 +882,8 @@
             editingQuestionIdx = null;
             modalOptions = [];
             document.getElementById('question-modal-title').textContent = 'Add Question';
+            document.getElementById('question-text').value = '';
+            document.getElementById('question-graphic').value = '';
             document.getElementById('question-type').value = 'MULTI_SELECT';
             document.getElementById('question-order').value = (content.pages[pageIdx].questions?.length || 0) + 1;
             document.getElementById('question-min').value = 1;
@@ -713,6 +900,8 @@
             editingQuestionIdx = qIdx;
             modalOptions = JSON.parse(JSON.stringify(q.options || []));
             document.getElementById('question-modal-title').textContent = 'Edit Question';
+            document.getElementById('question-text').value = q.text || '';
+            document.getElementById('question-graphic').value = q.graphic || '';
             document.getElementById('question-type').value = q.type || 'MULTI_SELECT';
             document.getElementById('question-order').value = q.order || qIdx + 1;
             document.getElementById('question-min').value = q.minSelected || 1;
@@ -725,12 +914,16 @@
 
         function saveQuestion() {
             const type = document.getElementById('question-type').value;
+            const text = document.getElementById('question-text').value.trim();
+            const graphic = document.getElementById('question-graphic').value.trim();
             const question = {
                 type,
+                text: text || undefined,
+                graphic: graphic || undefined,
                 order: parseInt(document.getElementById('question-order').value),
                 visibilityConditions: editingQuestionIdx !== null ?
                     content.pages[editingPageIdx].questions[editingQuestionIdx].visibilityConditions || [] : [],
-                options: modalOptions.filter(o => o.label.trim())
+                options: modalOptions
             };
             if (type === 'MULTI_SELECT' || type === 'SINGLE_SELECT') {
                 question.minSelected = parseInt(document.getElementById('question-min').value);
@@ -768,16 +961,63 @@
                 return;
             }
             el.innerHTML = modalOptions.map((o, i) => `
-                <div class="option-edit">
+                <div class="option-edit" draggable="true" data-index="${i}">
+                    <div class="drag-buttons">
+                        <button onclick="moveOption(${i}, -1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+                        <button onclick="moveOption(${i}, 1)" ${i === modalOptions.length - 1 ? 'disabled' : ''}>▼</button>
+                    </div>
                     <input type="text" value="${esc(o.label)}" placeholder="Label" onchange="modalOptions[${i}].label=this.value">
-                    <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" style="width:60px;" onchange="modalOptions[${i}].graphic=this.value">
+                    <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" onchange="modalOptions[${i}].graphic=this.value">
+                    <input type="number" value="${o.number||''}" placeholder="Num" onchange="modalOptions[${i}].number=this.value?parseInt(this.value):undefined">
+                    <input type="text" class="signal-input" value="${esc(o.signal||'')}" placeholder="Signal" onchange="modalOptions[${i}].signal=this.value||undefined">
                     <button class="btn btn-sm btn-outline" onclick="modalOptions.splice(${i},1);renderModalOptions()">&times;</button>
                 </div>
             `).join('');
+
+            // Add drag-and-drop handlers
+            const items = el.querySelectorAll('.option-edit');
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        let dragSrcIndex = null;
+        function handleDragStart(e) {
+            dragSrcIndex = parseInt(this.dataset.index);
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetIndex = parseInt(this.dataset.index);
+            if (dragSrcIndex !== null && dragSrcIndex !== targetIndex) {
+                const item = modalOptions.splice(dragSrcIndex, 1)[0];
+                modalOptions.splice(targetIndex, 0, item);
+                renderModalOptions();
+            }
+        }
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+            dragSrcIndex = null;
+        }
+
+        function moveOption(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex < 0 || newIndex >= modalOptions.length) return;
+            const item = modalOptions.splice(index, 1)[0];
+            modalOptions.splice(newIndex, 0, item);
+            renderModalOptions();
         }
 
         function addOption() {
-            modalOptions.push({ label: '', value: '', graphic: '' });
+            modalOptions.push({ label: '', value: '', graphic: '', number: undefined });
             renderModalOptions();
         }
 
@@ -825,6 +1065,23 @@
                 await loadList();
                 await selectQ(data.questionnaire.id);
                 toast('Created!', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        async function deleteQ(id) {
+            if (!confirm('Are you sure you want to delete this questionnaire? This cannot be undone.')) return;
+            try {
+                await api(`/api/questionnaires/${id}`, { method: 'DELETE' });
+                if (current?.id === id) {
+                    current = null;
+                    content = null;
+                    document.getElementById('editor').classList.remove('visible');
+                    document.getElementById('empty').style.display = 'flex';
+                }
+                await loadList();
+                toast('Questionnaire deleted', 'success');
             } catch (e) {
                 toast(e.message, 'error');
             }
@@ -890,6 +1147,18 @@
             window.open(URL.createObjectURL(blob), '_blank');
         }
 
+        async function exportVersion(n) {
+            const data = await api(`/api/questionnaires/${current.id}/versions/${n}`);
+            const blob = new Blob([JSON.stringify(data.content, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${current.name.replace(/\s+/g, '_').toLowerCase()}_v${n}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast(`Downloaded v${n}`, 'success');
+        }
+
         async function rollback(n) {
             if (!confirm(`Restore to version ${n}?`)) return;
             try {
@@ -923,6 +1192,231 @@
             el.textContent = msg;
             document.getElementById('toasts').appendChild(el);
             setTimeout(() => el.remove(), 4000);
+        }
+
+        // AI Eval
+        function runEval() {
+            if (!current) return;
+            const evalId = current.id;
+
+            // Check if we have cached results for this questionnaire
+            if (evalResultsCache[evalId]) {
+                // Show cached results
+                document.getElementById('eval-loading').style.display = 'none';
+                document.getElementById('eval-results').style.display = 'block';
+                document.getElementById('eval-error').style.display = 'none';
+                renderEvalResults(evalResultsCache[evalId]);
+                showModal('eval-modal');
+                return;
+            }
+
+            // No cached results, run fresh eval
+            runFreshEval();
+        }
+
+        async function runFreshEval() {
+            if (!current) return;
+            const evalId = current.id;
+            evalInProgressForId = evalId;
+            updateEvalButton();
+
+            // Show modal with loading state
+            document.getElementById('eval-loading').style.display = 'block';
+            document.getElementById('eval-results').style.display = 'none';
+            document.getElementById('eval-error').style.display = 'none';
+            showModal('eval-modal');
+
+            try {
+                const data = await api(`/api/questionnaires/${evalId}/eval`, { method: 'POST' });
+                // Cache the results
+                evalResultsCache[evalId] = data;
+                // Only show results if we're still on the same questionnaire
+                if (current && current.id === evalId) {
+                    renderEvalResults(data);
+                }
+            } catch (e) {
+                if (current && current.id === evalId) {
+                    document.getElementById('eval-loading').style.display = 'none';
+                    document.getElementById('eval-error').style.display = 'block';
+                    document.getElementById('eval-error-msg').textContent = e.message || 'Failed to analyze questionnaire';
+                }
+            } finally {
+                if (evalInProgressForId === evalId) {
+                    evalInProgressForId = null;
+                }
+                updateEvalButton();
+            }
+        }
+
+        function updateEvalButton() {
+            const btn = document.getElementById('eval-btn');
+            if (!btn) return;
+            if (evalInProgressForId && current && evalInProgressForId === current.id) {
+                btn.classList.add('btn-loading');
+                btn.textContent = '⏳ Analyzing...';
+            } else {
+                btn.classList.remove('btn-loading');
+                btn.textContent = '✨ AI Eval';
+            }
+        }
+
+        let currentSuggestions = []; // Store suggestions for applying
+
+        function renderEvalResults(data) {
+            document.getElementById('eval-loading').style.display = 'none';
+            const resultsEl = document.getElementById('eval-results');
+            resultsEl.style.display = 'block';
+
+            const suggestions = data.suggestions || [];
+            currentSuggestions = suggestions; // Store for apply functionality
+
+            const generatedAt = data.generated_at ? new Date(data.generated_at).toLocaleString() : '';
+
+            if (!suggestions.length) {
+                resultsEl.innerHTML = `
+                    <div style="text-align:center;padding:40px;">
+                        <div style="font-size:48px;margin-bottom:16px;">✅</div>
+                        <h4>Looking Good!</h4>
+                        <p style="color:var(--text-muted);margin-top:8px;">No suggestions at this time. Your questionnaire appears well-structured.</p>
+                        ${generatedAt ? `<p style="font-size:11px;color:var(--text-muted);margin-top:16px;">Analyzed: ${generatedAt}</p>` : ''}
+                        <button class="btn btn-outline" style="margin-top:16px;" onclick="runFreshEval()">🔄 Re-run Evaluation</button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Group by priority
+            const high = suggestions.filter(s => s.priority === 'high');
+            const medium = suggestions.filter(s => s.priority === 'medium');
+            const low = suggestions.filter(s => s.priority === 'low');
+
+            resultsEl.innerHTML = `
+                <div class="eval-summary" style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div>
+                        <h4>📊 Analysis Summary</h4>
+                        <p>${suggestions.length} suggestion${suggestions.length === 1 ? '' : 's'} found:
+                        ${high.length ? `<span class="priority-badge high">${high.length} High</span> ` : ''}
+                        ${medium.length ? `<span class="priority-badge medium">${medium.length} Medium</span> ` : ''}
+                        ${low.length ? `<span class="priority-badge low">${low.length} Low</span>` : ''}
+                    </p>
+                        ${generatedAt ? `<p style="font-size:11px;color:var(--text-muted);margin-top:4px;">Analyzed: ${generatedAt}</p>` : ''}
+                    </div>
+                    <button class="btn btn-sm btn-outline" onclick="runFreshEval()">🔄 Re-run</button>
+                </div>
+                ${suggestions.map((s, idx) => `
+                    <div class="eval-suggestion priority-${s.priority || 'low'}" id="suggestion-${idx}">
+                        <div class="eval-header">
+                            <span class="eval-title">${esc(s.title)}</span>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                <span class="eval-type ${s.type || 'update'}">${s.type || 'suggestion'}</span>
+                                <span class="priority-badge ${s.priority || 'low'}">${s.priority || 'low'}</span>
+                            </div>
+                        </div>
+                        <div class="eval-description">${esc(s.description)}</div>
+                        ${s.suggestedContent ? `
+                            <div class="eval-suggested-content">
+                                <strong>Suggested change:</strong>
+                                <pre style="background:#f1f5f9;padding:8px;border-radius:4px;font-size:12px;overflow-x:auto;margin-top:4px;">${esc(JSON.stringify(s.suggestedContent, null, 2))}</pre>
+                            </div>
+                        ` : ''}
+                        ${s.rationale ? `<div class="eval-rationale">💡 ${esc(s.rationale)}</div>` : ''}
+                        ${s.suggestedContent ? `
+                            <div style="margin-top:12px;display:flex;gap:8px;">
+                                <button class="btn btn-sm btn-primary" onclick="applySuggestion(${idx})">✓ Apply Change</button>
+                                <button class="btn btn-sm btn-outline" onclick="dismissSuggestion(${idx})">Dismiss</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function applySuggestion(idx) {
+            const s = currentSuggestions[idx];
+            if (!s || !s.suggestedContent) return;
+
+            try {
+                const pageIdx = s.pageIndex;
+                const qIdx = s.questionIndex;
+                const optIdx = s.optionIndex;
+
+                switch (s.type) {
+                    case 'add_question':
+                        if (pageIdx !== undefined && content.pages[pageIdx]) {
+                            if (!content.pages[pageIdx].questions) content.pages[pageIdx].questions = [];
+                            const newQ = {
+                                ...s.suggestedContent,
+                                order: content.pages[pageIdx].questions.length + 1
+                            };
+                            content.pages[pageIdx].questions.push(newQ);
+                        }
+                        break;
+
+                    case 'modify_question':
+                    case 'reword':
+                        if (pageIdx !== undefined && qIdx !== undefined &&
+                            content.pages[pageIdx]?.questions?.[qIdx]) {
+                            Object.assign(content.pages[pageIdx].questions[qIdx], s.suggestedContent);
+                        }
+                        break;
+
+                    case 'add_option':
+                        if (pageIdx !== undefined && qIdx !== undefined &&
+                            content.pages[pageIdx]?.questions?.[qIdx]) {
+                            if (!content.pages[pageIdx].questions[qIdx].options) {
+                                content.pages[pageIdx].questions[qIdx].options = [];
+                            }
+                            content.pages[pageIdx].questions[qIdx].options.push(s.suggestedContent);
+                        }
+                        break;
+
+                    case 'modify_option':
+                        if (pageIdx !== undefined && qIdx !== undefined && optIdx !== undefined &&
+                            content.pages[pageIdx]?.questions?.[qIdx]?.options?.[optIdx]) {
+                            Object.assign(content.pages[pageIdx].questions[qIdx].options[optIdx], s.suggestedContent);
+                        }
+                        break;
+
+                    case 'remove':
+                        if (pageIdx !== undefined) {
+                            if (optIdx !== undefined && qIdx !== undefined) {
+                                // Remove option
+                                content.pages[pageIdx].questions[qIdx].options.splice(optIdx, 1);
+                            } else if (qIdx !== undefined) {
+                                // Remove question
+                                content.pages[pageIdx].questions.splice(qIdx, 1);
+                            }
+                        }
+                        break;
+                }
+
+                hasChanges = true;
+                renderPages();
+
+                // Mark suggestion as applied
+                const el = document.getElementById(`suggestion-${idx}`);
+                if (el) {
+                    el.style.opacity = '0.5';
+                    el.innerHTML = `
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="color:var(--success);font-size:18px;">✓</span>
+                            <span><strong>${esc(s.title)}</strong> - Applied</span>
+                        </div>
+                    `;
+                }
+
+                toast('Change applied! Remember to save.', 'success');
+            } catch (e) {
+                console.error('Failed to apply suggestion:', e);
+                toast('Failed to apply suggestion', 'error');
+            }
+        }
+
+        function dismissSuggestion(idx) {
+            const el = document.getElementById(`suggestion-${idx}`);
+            if (el) {
+                el.style.display = 'none';
+            }
         }
 
         // Utils
