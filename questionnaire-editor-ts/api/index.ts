@@ -509,54 +509,68 @@ app.post('/api/questionnaires/:id/eval', async (req: Request, res: Response) => 
     const content = JSON.parse(version.content_json);
 
     // Build the prompt
-    const systemPrompt = `You are a UX writing specialist who reviews survey forms for clarity and usability.
+    const systemPrompt = `You are a civic education specialist reviewing voter onboarding questionnaires for a non-partisan voter education app.
 
-Your task is to review this survey and suggest improvements based on form design best practices:
-1. Question clarity - Is the wording easy to understand? Free of jargon?
-2. Neutral phrasing - Are questions free from leading or loaded language?
-3. Response options - Are choices clear, balanced, and mutually exclusive?
-4. Form flow - Is the structure logical? Are related items grouped?
-5. Readability - Is language accessible to a general audience?
+Your task is to review this questionnaire and suggest improvements, with PRIMARY focus on CONTENT quality and SECONDARY focus on formatting:
 
-SCOPE: Focus ONLY on UX writing and form usability. Do NOT suggest new topics or content - only improve the clarity and structure of EXISTING content.
+CONTENT (Primary - 70% of suggestions):
+1. Issue coverage - Are important local issues missing? Would voters expect to see certain topics?
+2. Option completeness - Do response options cover the full range of perspectives voters might hold?
+3. Probe depth - Do issue probe questions ask about the most meaningful aspects of each issue?
+4. Local relevance - Is the content specific and relevant to this location, or too generic?
+5. Balance - Are options presented in a balanced, non-leading way that respects diverse viewpoints?
 
-STRUCTURAL NOTE - Conditional Logic:
-This survey uses conditional display logic. Some questions have a "visibilityCondition" with a "requiredSignal" that links to a "signal" on an option elsewhere. When suggesting rewording, preserve these signal values exactly.
+FORMATTING (Secondary - 30% of suggestions):
+6. Clarity - Is wording easy to understand?
+7. Neutrality - Are questions free from leading language?
+
+STRUCTURAL RULES:
+- This survey uses conditional logic: "Top Issues" options have signals (e.g., ISSUE_HOUSING), and "Issue Probe" pages have visibilityConditions with requiredSignal
+- When suggesting NEW issues, always include both: a new option for Top Issues AND a corresponding probe page
+- Preserve signal naming convention: ISSUE_TOPIC_NAME
 
 Respond with a JSON array of suggestions. Each suggestion MUST have:
-- "type": one of "modify_question", "modify_option", "reword"
+- "type": one of "add_option", "add_question", "modify_question", "modify_option", "reword"
 - "priority": "high", "medium", or "low"
 - "title": short summary (max 50 chars)
 - "description": what to change and why
-- "rationale": how this improves usability
+- "rationale": how this helps voters make informed decisions
 - "pageIndex": which page (0-indexed)
 - "questionIndex": which question (0-indexed, if applicable)
-- "optionIndex": which option (0-indexed, if applicable)
+- "optionIndex": which option (0-indexed, if applicable for modify_option)
 - "suggestedContent": the specific change as an object:
+  - For add_option: { "graphic": "emoji", "label": "...", "signal": "ISSUE_XXX" }
+  - For add_question (probe page): { "title": "...", "category": "issue_probe", "visibilityConditions": [{"requiredSignal": "ISSUE_XXX"}], "questions": [...] }
   - For modify_question/reword: { "text": "improved text" }
   - For modify_option: { "label": "improved label" }
 
 Only respond with valid JSON array, no other text.`;
 
-    const userPrompt = `Review this survey form for UX writing improvements:
+    const userPrompt = `Review this voter education questionnaire and suggest improvements:
 
-**Form Name:** ${content.name}
+**Questionnaire:** ${content.name}
 
-**Structure:**
+**Current Content:**
 ${JSON.stringify(content.pages.map((p: any, pi: number) => ({
   pageIndex: pi,
   title: p.title,
+  category: p.category,
+  visibilityConditions: p.visibilityConditions,
   questions: (p.questions || []).map((q: any, qi: number) => ({
     questionIndex: qi,
+    type: q.type,
     text: q.text,
     options: (q.options || []).map((o: any, oi: number) => ({
       optionIndex: oi,
-      label: o.label
+      label: o.label,
+      signal: o.signal
     }))
   }))
 })), null, 2)}
 
-Suggest 3-5 UX writing improvements. Focus on clarity, neutral phrasing, and readability. Return JSON array only.`;
+Provide 4-6 suggestions. Prioritize CONTENT improvements (missing issues, incomplete options, shallow probes) over formatting. Consider what local issues might be missing and whether the probe questions get at the heart of each issue.
+
+Return JSON array only.`;
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
