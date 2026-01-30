@@ -76,10 +76,18 @@ function computeChangeSummary(oldContent: any, newContent: any): string {
 // List all questionnaires
 app.get('/api/questionnaires', async (req: Request, res: Response) => {
   try {
-    const { data, error } = await supabase
+    const includeArchived = req.query.includeArchived === 'true';
+
+    let query = supabase
       .from('questionnaires')
       .select('*')
       .order('updated_at', { ascending: false });
+
+    if (!includeArchived) {
+      query = query.or('archived.is.null,archived.eq.false');
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     res.json({ questionnaires: data || [], count: data?.length || 0 });
@@ -262,6 +270,28 @@ app.delete('/api/questionnaires/:id', async (req: Request, res: Response) => {
     res.json({ message: 'Questionnaire deleted' });
   } catch (e: any) {
     console.error('Delete error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Archive/unarchive questionnaire
+app.patch('/api/questionnaires/:id/archive', async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const { archived } = req.body;
+
+  try {
+    const { data, error } = await supabase
+      .from('questionnaires')
+      .update({ archived: archived ?? true })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({ questionnaire: data });
+  } catch (e: any) {
+    console.error('Archive error:', e);
     res.status(500).json({ error: e.message });
   }
 });

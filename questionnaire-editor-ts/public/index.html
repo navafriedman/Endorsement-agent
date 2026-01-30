@@ -67,7 +67,9 @@
         }
         .q-item:hover { background: #f1f5f9; }
         .q-item.active { background: var(--coral-light); border: 1px solid var(--coral); }
-        .q-item-name { font-weight: 500; margin-bottom: 4px; }
+        .q-item.archived { opacity: 0.6; }
+        .q-item.archived:hover { opacity: 0.8; }
+        .q-item-name { font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; flex-wrap: wrap; }
         .q-item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; }
         .main { flex: 1; margin-left: 320px; padding: 24px; }
         .empty-state {
@@ -439,6 +441,12 @@
                     <input type="file" accept=".json" onchange="importFile(event)" hidden>
                 </label>
             </div>
+            <div style="padding:0 16px 8px;display:flex;align-items:center;gap:8px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;">
+                    <input type="checkbox" id="show-archived" onchange="toggleShowArchived()">
+                    Show archived
+                </label>
+            </div>
             <div class="questionnaire-list" id="list"></div>
         </aside>
 
@@ -738,9 +746,12 @@
         }
 
         // Load list
+        let showArchived = false;
+
         async function loadList() {
             try {
-                const data = await api('/api/questionnaires');
+                const url = showArchived ? '/api/questionnaires?includeArchived=true' : '/api/questionnaires';
+                const data = await api(url);
                 questionnaires = data.questionnaires;
                 renderList();
             } catch (e) {
@@ -748,20 +759,55 @@
             }
         }
 
+        function toggleShowArchived() {
+            showArchived = document.getElementById('show-archived').checked;
+            loadList();
+        }
+
+        async function archiveQ(id, archived) {
+            try {
+                await api(`/api/questionnaires/${id}/archive`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ archived })
+                });
+                // If we just archived the current questionnaire, deselect it
+                if (archived && current?.id === id) {
+                    current = null;
+                    content = null;
+                    document.getElementById('editor').classList.remove('visible');
+                    document.getElementById('empty').style.display = 'flex';
+                }
+                await loadList();
+                toast(archived ? 'Archived' : 'Restored', 'success');
+            } catch (e) {
+                toast(e.message, 'error');
+            }
+        }
+
         function renderList() {
             const el = document.getElementById('list');
             if (!questionnaires.length) {
-                el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:20px;">No questionnaires yet.<br>Import a JSON file to get started.</p>';
+                const msg = showArchived
+                    ? 'No questionnaires found.'
+                    : 'No questionnaires yet.<br>Import a JSON file to get started.';
+                el.innerHTML = `<p style="text-align:center;color:var(--text-muted);padding:20px;">${msg}</p>`;
                 return;
             }
             el.innerHTML = questionnaires.map(q => `
-                <div class="q-item ${current?.id === q.id ? 'active' : ''}" onclick="selectQ(${q.id})">
-                    <div class="q-item-name">${esc(q.name)}</div>
+                <div class="q-item ${current?.id === q.id ? 'active' : ''} ${q.archived ? 'archived' : ''}" onclick="selectQ(${q.id})">
+                    <div class="q-item-name">
+                        ${esc(q.name)}
+                        ${q.archived ? '<span style="font-size:10px;background:var(--border);color:var(--text-muted);padding:2px 6px;border-radius:4px;margin-left:6px;">Archived</span>' : ''}
+                    </div>
                     <div class="q-item-meta">
                         <span>${q.page_count || 0} pages</span>
                         <span>${q.question_count || 0} questions</span>
                     </div>
                     <div class="q-item-actions">
+                        ${q.archived
+                            ? `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();archiveQ(${q.id}, false)" title="Restore">Restore</button>`
+                            : `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();archiveQ(${q.id}, true)" title="Archive">Archive</button>`
+                        }
                         <button class="btn btn-sm btn-outline btn-danger" onclick="event.stopPropagation();deleteQ(${q.id})" title="Delete">Delete</button>
                     </div>
                 </div>
