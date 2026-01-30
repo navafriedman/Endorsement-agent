@@ -84,7 +84,8 @@ app.get('/api/questionnaires', async (req: Request, res: Response) => {
       .order('updated_at', { ascending: false });
 
     if (!includeArchived) {
-      query = query.or('archived.is.null,archived.eq.false');
+      // Filter out archived questionnaires (archived = false OR archived is null)
+      query = query.neq('archived', true);
     }
 
     const { data, error } = await query;
@@ -117,6 +118,7 @@ app.post('/api/questionnaires', async (req: Request, res: Response) => {
         current_version: 1,
         page_count: questionnaireContent.pages?.length || 0,
         question_count: questionnaireContent.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0,
+        archived: false,
         created_at: now,
         updated_at: now
       })
@@ -430,6 +432,7 @@ app.post('/api/questionnaires/import', async (req: Request, res: Response) => {
         current_version: 1,
         page_count: content.pages?.length || 0,
         question_count: content.pages?.reduce((acc: number, p: any) => acc + (p.questions?.length || 0), 0) || 0,
+        archived: false,
         created_at: now,
         updated_at: now
       })
