@@ -478,38 +478,71 @@ app.get('/api/states', async (_req: Request, res: Response) => {
   }
 });
 
-// AI Eval - Analyze questionnaire and suggest improvements
-app.post('/api/questionnaires/:id/eval', async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
-  const client = getAnthropic();
+// Settings API - Get all settings
+app.get('/api/settings', async (req: Request, res: Response) => {
+  try {
+    const { data, error } = await supabase
+      .from('settings')
+      .select('*');
 
-  if (!client) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+    if (error) throw error;
+
+    // Convert array to object
+    const settings: Record<string, string> = {};
+    (data || []).forEach((row: any) => {
+      settings[row.key] = row.value;
+    });
+
+    res.json({ settings });
+  } catch (e: any) {
+    console.error('Settings get error:', e);
+    res.status(500).json({ error: e.message });
   }
+});
+
+// Settings API - Update a setting
+app.put('/api/settings/:key', async (req: Request, res: Response) => {
+  const { key } = req.params;
+  const { value } = req.body;
 
   try {
-    // Get questionnaire content
-    const { data: questionnaire, error: qError } = await supabase
-      .from('questionnaires')
-      .select('*')
-      .eq('id', id)
+    const { data, error } = await supabase
+      .from('settings')
+      .upsert({
+        key,
+        value: value || '',
+        updated_at: new Date().toISOString()
+      })
+      .select()
       .single();
 
-    if (qError) throw qError;
+    if (error) throw error;
 
-    const { data: version, error: vError } = await supabase
-      .from('versions')
-      .select('content_json')
-      .eq('questionnaire_id', id)
-      .eq('version_number', questionnaire.current_version)
+    res.json({ setting: data });
+  } catch (e: any) {
+    console.error('Settings update error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Helper function to get a setting with fallback
+async function getSetting(key: string, fallback: string): Promise<string> {
+  try {
+    const { data, error } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', key)
       .single();
 
-    if (vError) throw vError;
+    if (error || !data?.value) return fallback;
+    return data.value;
+  } catch {
+    return fallback;
+  }
+}
 
-    const content = JSON.parse(version.content_json);
-
-    // Build the prompt
-    const systemPrompt = `You are a civic education specialist reviewing voter onboarding questionnaires for a non-partisan voter education app.
+// Default prompts for AI Eval
+const DEFAULT_EVAL_SYSTEM_PROMPT = `You are a civic education specialist reviewing voter onboarding questionnaires for a non-partisan voter education app.
 
 Your task is to review this questionnaire and suggest improvements, with PRIMARY focus on CONTENT quality and SECONDARY focus on formatting:
 
@@ -546,31 +579,73 @@ Respond with a JSON array of suggestions. Each suggestion MUST have:
 
 Only respond with valid JSON array, no other text.`;
 
-    const userPrompt = `Review this voter education questionnaire and suggest improvements:
+const DEFAULT_EVAL_USER_PROMPT = `Review this voter education questionnaire and suggest improvements:
 
-**Questionnaire:** ${content.name}
+**Questionnaire:** {questionnaireName}
 
 **Current Content:**
-${JSON.stringify(content.pages.map((p: any, pi: number) => ({
-  pageIndex: pi,
-  title: p.title,
-  category: p.category,
-  visibilityConditions: p.visibilityConditions,
-  questions: (p.questions || []).map((q: any, qi: number) => ({
-    questionIndex: qi,
-    type: q.type,
-    text: q.text,
-    options: (q.options || []).map((o: any, oi: number) => ({
-      optionIndex: oi,
-      label: o.label,
-      signal: o.signal
-    }))
-  }))
-})), null, 2)}
+{content}
 
 Provide 4-6 suggestions. Prioritize CONTENT improvements (missing issues, incomplete options, shallow probes) over formatting. Consider what local issues might be missing and whether the probe questions get at the heart of each issue.
 
 Return JSON array only.`;
+
+// AI Eval - Analyze questionnaire and suggest improvements
+app.post('/api/questionnaires/:id/eval', async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const client = getAnthropic();
+
+  if (!client) {
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+  }
+
+  try {
+    // Get questionnaire content
+    const { data: questionnaire, error: qError } = await supabase
+      .from('questionnaires')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (qError) throw qError;
+
+    const { data: version, error: vError } = await supabase
+      .from('versions')
+      .select('content_json')
+      .eq('questionnaire_id', id)
+      .eq('version_number', questionnaire.current_version)
+      .single();
+
+    if (vError) throw vError;
+
+    const content = JSON.parse(version.content_json);
+
+    // Get custom prompts or use defaults
+    const systemPrompt = await getSetting('eval_system_prompt', DEFAULT_EVAL_SYSTEM_PROMPT);
+    const userPromptTemplate = await getSetting('eval_user_prompt', DEFAULT_EVAL_USER_PROMPT);
+
+    // Build the content JSON for the prompt
+    const contentJson = JSON.stringify(content.pages.map((p: any, pi: number) => ({
+      pageIndex: pi,
+      title: p.title,
+      category: p.category,
+      visibilityConditions: p.visibilityConditions,
+      questions: (p.questions || []).map((q: any, qi: number) => ({
+        questionIndex: qi,
+        type: q.type,
+        text: q.text,
+        options: (q.options || []).map((o: any, oi: number) => ({
+          optionIndex: oi,
+          label: o.label,
+          signal: o.signal
+        }))
+      }))
+    })), null, 2);
+
+    // Replace placeholders in user prompt
+    const userPrompt = userPromptTemplate
+      .replace('{questionnaireName}', content.name)
+      .replace('{content}', contentJson);
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -609,21 +684,8 @@ Return JSON array only.`;
   }
 });
 
-// AI Generate - Create questionnaire content for voter education
-app.post('/api/questionnaires/generate', async (req: Request, res: Response) => {
-  const { city, state, electionDate, electionType } = req.body;
-  const client = getAnthropic();
-
-  if (!client) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
-  }
-
-  if (!city || !state) {
-    return res.status(400).json({ error: 'City and state are required' });
-  }
-
-  try {
-    const systemPrompt = `You are a civic education researcher creating onboarding questionnaires for a non-partisan voter education app.
+// Default prompts for AI Generator
+const DEFAULT_GENERATOR_SYSTEM_PROMPT = `You are a civic education researcher creating onboarding questionnaires for a non-partisan voter education app.
 
 Create a questionnaire with this EXACT structure:
 
@@ -666,125 +728,54 @@ PAGES 4+ - ISSUE PROBES (category: "issue_probe")
 - EXACTLY 3 options per probe, each with graphic (emoji) and label
 - Options should reflect CURRENT local debates and perspectives on that issue
 
-EXACT JSON EXAMPLE:
-{
-  "name": "City Primary Questions",
-  "description": "Voter onboarding questionnaire",
-  "pages": [
-    {
-      "title": "Which of the following best describe you in Fort Worth?",
-      "category": "identity",
-      "order": 1,
-      "questions": [{
-        "type": "MULTI_SELECT",
-        "text": "Select all that apply",
-        "order": 1,
-        "options": [
-          { "graphic": "👨‍👩‍👧", "label": "I'm a parent or guardian" },
-          { "graphic": "🏠", "label": "I'm a homeowner" },
-          { "graphic": "🔑", "label": "I'm a renter" },
-          { "graphic": "🏢", "label": "I'm a small business owner" },
-          { "graphic": "👴", "label": "I'm a senior (65+)" },
-          { "graphic": "🎖", "label": "I'm a veteran or military family" },
-          { "graphic": "🎓", "label": "I'm a student" },
-          { "graphic": "🚌", "label": "I use public transit" },
-          { "graphic": "🌍", "label": "I'm an immigrant or from an immigrant family" },
-          { "graphic": "🏥", "label": "I work in healthcare" },
-          { "graphic": "📚", "label": "I work in education" },
-          { "graphic": "🚒", "label": "I'm a first responder" }
-        ]
-      }]
-    },
-    {
-      "title": "How would you describe yourself politically?",
-      "category": "ideology",
-      "order": 2,
-      "questions": [
-        {
-          "type": "LIKERT",
-          "graphic": "💰",
-          "text": "Economic Issues",
-          "order": 1,
-          "options": [
-            { "label": "Progressive" },
-            { "label": "" },
-            { "label": "Middle of the Road" },
-            { "label": "" },
-            { "label": "Conservative" }
-          ]
-        },
-        {
-          "type": "LIKERT",
-          "graphic": "🤝",
-          "text": "Social Issues",
-          "order": 2,
-          "options": [
-            { "label": "Progressive" },
-            { "label": "" },
-            { "label": "Middle of the Road" },
-            { "label": "" },
-            { "label": "Conservative" }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "What are the most important issues to you this election?",
-      "category": "top_issues",
-      "order": 3,
-      "questions": [{
-        "type": "MULTI_SELECT",
-        "text": "Select the issues that matter most to you",
-        "order": 1,
-        "minSelected": 1,
-        "maxSelected": 5,
-        "options": [
-          { "graphic": "💰", "label": "Property taxes and appraisals", "signal": "ISSUE_PROPERTY_TAX" },
-          { "graphic": "🚔", "label": "Public safety and policing", "signal": "ISSUE_PUBLIC_SAFETY" },
-          { "graphic": "🏠", "label": "Housing costs and affordability", "signal": "ISSUE_HOUSING" }
-        ]
-      }]
-    },
-    {
-      "title": "Property Taxes",
-      "category": "issue_probe",
-      "order": 4,
-      "visibilityConditions": [{ "requiredSignal": "ISSUE_PROPERTY_TAX" }],
-      "questions": [{
-        "type": "SINGLE_SELECT",
-        "text": "What concerns you most about property taxes?",
-        "order": 1,
-        "options": [
-          { "graphic": "📈", "label": "Appraisal values rising too fast" },
-          { "graphic": "💸", "label": "Tax rates are too high" },
-          { "graphic": "🏛️", "label": "How tax revenue is being spent" }
-        ]
-      }]
-    }
-  ]
-}
-
 CRITICAL RULES:
 1. Identity page uses the EXACT standard options shown above (same for all cities, just change city name in title)
 2. Ideology page uses EXACTLY two LIKERT questions as shown (Economic Issues, Social Issues)
 3. Top Issues should be HIGHLY LOCALLY RELEVANT - based on current news, recent legislation, ballot measures, and community debates in this specific city
 4. Create one issue probe page for EACH Top Issues option with matching signal
 5. Issue probes must have EXACTLY 3 options, each with a graphic (emoji) and label
-6. All options throughout should reflect current local context and debates`;
-
-    const userPrompt = `Create a voter education questionnaire for ${city}, ${state} (${electionType || 'Primary'}${electionDate ? ` on ${electionDate}` : ''}).
-
-Based on your knowledge of ${city}, ${state}, create a questionnaire that reflects CURRENT local issues - recent news, laws passed or debated, ballot measures, community concerns, and ongoing local debates.
-
-IMPORTANT - Follow the EXACT structure:
-1. Identity page - use the STANDARD options from system prompt, just change "${city}" in the title
-2. Ideology page - use EXACTLY the two LIKERT questions shown (Economic Issues, Social Issues)
-3. Top Issues page - create 6-9 issues SPECIFIC to ${city}, ${state} based on current local news and debates, with emojis and signals
-4+. Issue Probe pages - one per Top Issue, EXACTLY 3 options each with emojis, reflecting current local perspectives on that issue
-
-Make this questionnaire feel relevant and timely for a ${city} resident. Reference specific local context where possible (e.g., specific infrastructure projects, recent legislation, local ballot measures, neighborhood concerns).
+6. All options throughout should reflect current local context and debates
 
 Return ONLY valid JSON.`;
+
+const DEFAULT_GENERATOR_USER_PROMPT = `Create a voter education questionnaire for {city}, {state} ({electionType}{electionDate}).
+
+Based on your knowledge of {city}, {state}, create a questionnaire that reflects CURRENT local issues - recent news, laws passed or debated, ballot measures, community concerns, and ongoing local debates.
+
+IMPORTANT - Follow the EXACT structure:
+1. Identity page - use the STANDARD options from system prompt, just change "{city}" in the title
+2. Ideology page - use EXACTLY the two LIKERT questions shown (Economic Issues, Social Issues)
+3. Top Issues page - create 6-9 issues SPECIFIC to {city}, {state} based on current local news and debates, with emojis and signals
+4+. Issue Probe pages - one per Top Issue, EXACTLY 3 options each with emojis, reflecting current local perspectives on that issue
+
+Make this questionnaire feel relevant and timely for a {city} resident. Reference specific local context where possible (e.g., specific infrastructure projects, recent legislation, local ballot measures, neighborhood concerns).
+
+Return ONLY valid JSON.`;
+
+// AI Generate - Create questionnaire content for voter education
+app.post('/api/questionnaires/generate', async (req: Request, res: Response) => {
+  const { city, state, electionDate, electionType } = req.body;
+  const client = getAnthropic();
+
+  if (!client) {
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY not configured' });
+  }
+
+  if (!city || !state) {
+    return res.status(400).json({ error: 'City and state are required' });
+  }
+
+  try {
+    // Get custom prompts or use defaults
+    const systemPrompt = await getSetting('generator_system_prompt', DEFAULT_GENERATOR_SYSTEM_PROMPT);
+    const userPromptTemplate = await getSetting('generator_user_prompt', DEFAULT_GENERATOR_USER_PROMPT);
+
+    // Replace placeholders in user prompt
+    const userPrompt = userPromptTemplate
+      .replace(/{city}/g, city)
+      .replace(/{state}/g, state)
+      .replace(/{electionType}/g, electionType || 'Primary')
+      .replace(/{electionDate}/g, electionDate ? ` on ${electionDate}` : '');
 
     const message = await client.messages.create({
       model: 'claude-sonnet-4-20250514',

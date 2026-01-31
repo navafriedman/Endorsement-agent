@@ -441,11 +441,14 @@
                     <input type="file" accept=".json" onchange="importFile(event)" hidden>
                 </label>
             </div>
-            <div style="padding:0 16px 8px;display:flex;align-items:center;gap:8px;">
+            <div style="padding:0 16px 8px;display:flex;align-items:center;justify-content:space-between;">
                 <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;">
                     <input type="checkbox" id="show-archived" onchange="toggleShowArchived()">
                     Show archived
                 </label>
+                <button class="btn btn-sm btn-outline" onclick="showSettingsModal()" title="AI Prompt Settings" style="padding:4px 8px;">
+                    ⚙️ Prompts
+                </button>
             </div>
             <div class="questionnaire-list" id="list"></div>
         </aside>
@@ -702,6 +705,58 @@
                     <div style="font-size:24px;margin-bottom:12px;">⚠️</div>
                     <p id="eval-error-msg" style="color:var(--danger);"></p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content xl">
+            <div class="modal-header">
+                <h3>⚙️ AI Prompt Settings</h3>
+                <button class="modal-close" onclick="closeModal('settings-modal')">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+                <p style="color:var(--text-muted);margin-bottom:16px;">
+                    Customize the AI prompts used for questionnaire generation and evaluation.
+                    Leave blank to use defaults. Use <code>{city}</code>, <code>{state}</code>, <code>{electionType}</code>, <code>{electionDate}</code> as placeholders in generator prompts.
+                </p>
+
+                <div style="margin-bottom:24px;">
+                    <h4 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                        <span style="background:var(--coral-light);color:var(--coral);padding:2px 8px;border-radius:4px;font-size:12px;">Generator</span>
+                        System Prompt
+                    </h4>
+                    <textarea id="setting-generator-system" rows="8" style="width:100%;font-family:monospace;font-size:12px;" placeholder="Leave blank to use default..."></textarea>
+                </div>
+
+                <div style="margin-bottom:24px;">
+                    <h4 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                        <span style="background:var(--coral-light);color:var(--coral);padding:2px 8px;border-radius:4px;font-size:12px;">Generator</span>
+                        User Prompt
+                    </h4>
+                    <textarea id="setting-generator-user" rows="6" style="width:100%;font-family:monospace;font-size:12px;" placeholder="Leave blank to use default..."></textarea>
+                </div>
+
+                <div style="margin-bottom:24px;">
+                    <h4 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                        <span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:4px;font-size:12px;">Eval</span>
+                        System Prompt
+                    </h4>
+                    <textarea id="setting-eval-system" rows="8" style="width:100%;font-family:monospace;font-size:12px;" placeholder="Leave blank to use default..."></textarea>
+                </div>
+
+                <div style="margin-bottom:24px;">
+                    <h4 style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                        <span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:4px;font-size:12px;">Eval</span>
+                        User Prompt
+                    </h4>
+                    <textarea id="setting-eval-user" rows="6" style="width:100%;font-family:monospace;font-size:12px;" placeholder="Leave blank to use default..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('settings-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
             </div>
         </div>
     </div>
@@ -1358,6 +1413,43 @@
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') document.querySelectorAll('.modal').forEach(m => m.classList.remove('visible'));
         });
+
+        // Settings
+        async function showSettingsModal() {
+            try {
+                const data = await api('/api/settings');
+                const settings = data.settings || {};
+                document.getElementById('setting-generator-system').value = settings.generator_system_prompt || '';
+                document.getElementById('setting-generator-user').value = settings.generator_user_prompt || '';
+                document.getElementById('setting-eval-system').value = settings.eval_system_prompt || '';
+                document.getElementById('setting-eval-user').value = settings.eval_user_prompt || '';
+                showModal('settings-modal');
+            } catch (e) {
+                toast('Failed to load settings: ' + e.message, 'error');
+            }
+        }
+
+        async function saveSettings() {
+            const settings = {
+                generator_system_prompt: document.getElementById('setting-generator-system').value,
+                generator_user_prompt: document.getElementById('setting-generator-user').value,
+                eval_system_prompt: document.getElementById('setting-eval-system').value,
+                eval_user_prompt: document.getElementById('setting-eval-user').value
+            };
+
+            try {
+                for (const [key, value] of Object.entries(settings)) {
+                    await api(`/api/settings/${key}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ value })
+                    });
+                }
+                closeModal('settings-modal');
+                toast('Settings saved!', 'success');
+            } catch (e) {
+                toast('Failed to save settings: ' + e.message, 'error');
+            }
+        }
 
         // Toast
         function toast(msg, type = 'info') {
