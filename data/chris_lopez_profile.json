@@ -1,0 +1,175 @@
+{
+  "name": "Chris Lopez",
+  "district": "3",
+  "jurisdiction": "Monterey County",
+  "state": "CA",
+  "title": "Supervisor",
+  "photo_url": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "official_page_url": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "email": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "phone": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "term_start": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "term_end": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "first_elected": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "is_incumbent": true,
+  "votes": [],
+  "vote_summary": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "meeting_attendance": [],
+  "attendance_rate": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "sponsored_legislation": [],
+  "legislation_count": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "committees": [],
+  "committee_count": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "budget_items": [],
+  "budget_summary": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": "County budgets are published as PDF documents, not machine-readable data. Budget is organized by department, not by supervisor district. Parsing requires OCR/PDF extraction. See: https://www.countyofmonterey.gov/government/departments-a-h/administrative-office/budget-analysis",
+    "fetched_at": "2026-02-12T22:01:23.932625"
+  },
+  "public_statements": [],
+  "news_mention_count": {
+    "value": 0,
+    "availability": "found",
+    "source_url": null,
+    "source_name": "DuckDuckGo search",
+    "notes": "Count of unique news/web mentions found via search",
+    "fetched_at": "2026-02-12T22:01:17.904382"
+  },
+  "campaign_finance": [],
+  "total_contributions": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": "No campaign finance data found via web search. Check Cal-Access directly.",
+    "fetched_at": "2026-02-12T22:01:23.932214"
+  },
+  "top_donors": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": null,
+    "fetched_at": null
+  },
+  "constituent_response_time": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": "Not publicly tracked. Would require FOIA/CPRA request for internal correspondence logs, or a constituent survey.",
+    "fetched_at": "2026-02-12T22:01:23.932501"
+  },
+  "town_halls_held": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": "Not systematically tracked in any public database. Could be partially inferred from Legistar 'Special Meeting' types or news searches, but town halls are often informal and unrecorded.",
+    "fetched_at": "2026-02-12T22:01:23.932589"
+  },
+  "public_comment_engagement": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": "Meeting minutes sometimes record who spoke during public comment, but supervisor responses are rarely transcribed. Video archives exist but require manual review.",
+    "fetched_at": "2026-02-12T22:01:23.932607"
+  },
+  "social_media_responsiveness": {
+    "value": null,
+    "availability": "not_found",
+    "source_url": null,
+    "source_name": null,
+    "notes": "Would require Twitter/Facebook/Instagram API access to measure reply rates and engagement. Platform APIs are increasingly restricted.",
+    "fetched_at": "2026-02-12T22:01:23.932616"
+  },
+  "profile_generated_at": "2026-02-12T22:01:23.932667",
+  "data_sources_used": [],
+  "data_sources_failed": [
+    "Legistar API (RetryError: RetryError[<Future at 0x7efaa366edd0 state=finished raised ProxyError>])",
+    "County website (could not reach)",
+    "DuckDuckGo (\"Chris Lopez\" Monterey County supervisor)",
+    "DuckDuckGo (\"Chris Lopez\" Monterey County county board)"
+  ]
+}

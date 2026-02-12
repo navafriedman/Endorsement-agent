@@ -1,0 +1,200 @@
+{
+  "_README": "This is a SAMPLE profile showing what the prototype can populate from public sources. Generated from web research, not live API calls (which are blocked in sandboxed environments). Run the CLI tool against a live network to get real data.",
+  "name": "Chris Lopez",
+  "district": "3",
+  "jurisdiction": "Monterey County",
+  "state": "CA",
+  "title": "Supervisor",
+  "photo_url": {
+    "value": null,
+    "availability": "not_found",
+    "notes": "County website has a photo but no stable direct image URL in Legistar"
+  },
+  "official_page_url": {
+    "value": "https://www.countyofmonterey.gov/government/board-of-supervisors/district-3-chris-lopez",
+    "availability": "found",
+    "source_name": "County website"
+  },
+  "email": {
+    "value": "district3@countyofmonterey.gov",
+    "availability": "found",
+    "source_url": "https://www.countyofmonterey.gov/how-do-i/contact-the-board-of-supervisors",
+    "source_name": "County website"
+  },
+  "phone": {
+    "value": "(831) 755-5033",
+    "availability": "found",
+    "source_url": "https://www.countyofmonterey.gov/how-do-i/contact-the-board-of-supervisors",
+    "source_name": "County website"
+  },
+  "term_start": {
+    "value": "2023-01-01",
+    "availability": "found",
+    "source_name": "Wikipedia / County website",
+    "notes": "Reelected June 2022, current term started January 2023"
+  },
+  "term_end": {
+    "value": "2026-12-31",
+    "availability": "found",
+    "source_name": "Wikipedia",
+    "notes": "4-year term"
+  },
+  "first_elected": {
+    "value": "2018-06",
+    "availability": "found",
+    "source_name": "News articles / County website",
+    "notes": "Elected June 2018, took office January 2019. Succeeded Simon Salinas."
+  },
+  "is_incumbent": true,
+
+  "votes": [
+    {
+      "_comment": "SAMPLE - In production, this would contain hundreds of individual vote records from Legistar",
+      "matter_id": 0,
+      "matter_title": "FY 2024-25 County Budget Approval",
+      "vote_value": "Aye",
+      "event_date": "2024-06-20",
+      "event_id": 0,
+      "body_name": "Board of Supervisors"
+    },
+    {
+      "matter_id": 0,
+      "matter_title": "Hiring Freeze Implementation",
+      "vote_value": "Aye",
+      "event_date": "2024-10-01",
+      "event_id": 0,
+      "body_name": "Board of Supervisors"
+    }
+  ],
+  "vote_summary": {
+    "value": {
+      "total_votes_sample": 2,
+      "note": "Legistar API would return full vote history from 2019-present. Monterey Legistar has records from 2009+."
+    },
+    "availability": "partial",
+    "source_name": "Legistar Web API",
+    "source_url": "https://webapi.legistar.com/v1/monterey/events",
+    "notes": "Legistar stores individual roll-call votes per agenda item. Full extraction requires iterating events -> event items -> votes, which is slow but comprehensive."
+  },
+  "meeting_attendance": [],
+  "attendance_rate": {
+    "value": null,
+    "availability": "partial",
+    "source_name": "Legistar (derived)",
+    "notes": "Attendance can be inferred from vote records (if a supervisor voted, they were present). However, Legistar does not have an explicit attendance field. Must iterate all meetings."
+  },
+  "sponsored_legislation": [],
+  "legislation_count": {
+    "value": null,
+    "availability": "partial",
+    "source_name": "Legistar",
+    "notes": "Legistar has a 'sponsors' endpoint per matter, but Monterey County may not consistently tag sponsors. Most items are Board Reports introduced by departments, not individual supervisors."
+  },
+
+  "committees": [
+    {"name": "Board of Supervisors Budget Committee", "role": "Vice Chair", "source_url": "https://www.countyofmonterey.gov/government/departments-a-h/clerk-of-the-board/board-standing-committees/budget-committee"},
+    {"name": "Alternative Energy and the Environment Committee", "role": "Member"},
+    {"name": "Monterey County Urban Standing Committee", "role": "Member"},
+    {"name": "Monterey County Cannabis Committee", "role": "Member"},
+    {"name": "Natividad Medical Center Board of Trustees", "role": "Member"},
+    {"name": "California Coastal Commission", "role": "Commissioner", "source_url": "https://www.coastal.ca.gov/"},
+    {"name": "Salinas Valley Solid Waste Authority", "role": "Board Member"},
+    {"name": "First 5 Monterey County", "role": "Board Member"},
+    {"name": "South Salinas Valley Broadband Authority", "role": "Member"},
+    {"name": "Hartnell College Foundation", "role": "Board Member"},
+    {"name": "Rural County Representatives of California", "role": "First Vice Chair"},
+    {"name": "Monterey Bay Air Resources District", "role": "Board Member"},
+    {"name": "Water Resources Agency Joint Boards Leadership Committee", "role": "Member"}
+  ],
+  "committee_count": {
+    "value": 13,
+    "availability": "found",
+    "source_name": "County website / Legistar bodies",
+    "notes": "Compiled from county website bio page and Legistar body memberships"
+  },
+
+  "budget_items": [],
+  "budget_summary": {
+    "value": null,
+    "availability": "not_found",
+    "notes": "County budgets are published as PDF documents at https://www.countyofmonterey.gov/government/departments-a-h/administrative-office/budget-analysis. The FY 2024-25 budget is $2 billion. Budget is organized by department (Sheriff, Social Services, Health, etc.), NOT by supervisor district. There is no public machine-readable data linking specific allocations to individual supervisors. The Budget Committee (chaired by Askew, vice-chaired by Lopez) provides oversight."
+  },
+
+  "public_statements": [
+    {
+      "title": "Chris Lopez wins the open seat for District 3 county supervisor in a three-way race",
+      "source_url": "https://www.montereycountyweekly.com/news/local_news/chris-lopez-wins-the-open-seat-for-district-county-supervisor/article_787a75c8-69da-11e8-ba99-bf748a78343e.html",
+      "source_name": "Monterey County Weekly"
+    },
+    {
+      "title": "Rivas ousts Justin Cummings from Coastal Commission, appoints pro-development Monterey County Supervisor Chris Lopez",
+      "source_url": "https://lookout.co/rivas-ousts-justin-cummings-from-coastal-commission-appoints-pro-development-monterey-county-supervisor-chris-lopez/story",
+      "source_name": "Lookout Santa Cruz"
+    },
+    {
+      "title": "The Board of Supervisors approves a $2 billion budget for 2024-25",
+      "source_url": "https://www.montereycountynow.com/blogs/news_blog/the-board-of-supervisors-approves-a-2-billion-budget-for-2024-25-plus-adding-a/article_b34752e2-2f50-11ef-9311-476d84af0bc1.html",
+      "source_name": "Monterey County Now"
+    },
+    {
+      "title": "County of Monterey Implements Hiring Freeze Amid Budget Deficit",
+      "source_url": "https://www.montereycountynow.com/news/local_news/three-months-into-the-fiscal-year-county-of-monterey-implements-a-hiring-freeze/article_46d63124-90e3-11ef-8bad-3318943027bb.html",
+      "source_name": "Monterey County Now"
+    }
+  ],
+  "news_mention_count": {
+    "value": 4,
+    "availability": "found",
+    "source_name": "DuckDuckGo search",
+    "notes": "Sample count from web search. Real run would find more with additional queries."
+  },
+
+  "campaign_finance": [],
+  "total_contributions": {
+    "value": null,
+    "availability": "partial",
+    "notes": "Campaign finance data exists in California's Cal-Access system (https://cal-access.sos.ca.gov/) and local FPPC filings. Known: Lopez has received contributions from fossil fuel companies (Chevron, CIPA). Actual dollar amounts require querying Cal-Access or filing CPRA requests.",
+    "source_name": "News reports / Cal-Access (not yet parsed)"
+  },
+  "top_donors": {
+    "value": null,
+    "availability": "partial",
+    "notes": "Voices of Monterey Bay reported on 'Money in Politics' including Monterey supervisors. Cal-Access has itemized donor records but requires scraping or API access."
+  },
+
+  "constituent_response_time": {
+    "value": null,
+    "availability": "not_found",
+    "notes": "Not publicly tracked anywhere. Would require: (1) CPRA request for constituent correspondence logs, (2) a constituent survey, or (3) monitoring response times to test inquiries."
+  },
+  "town_halls_held": {
+    "value": null,
+    "availability": "not_found",
+    "notes": "Not systematically tracked. Could be partially inferred from Legistar 'Special Meeting' event types or from social media/news announcements, but town halls are often informal community meetings that are not recorded in official systems."
+  },
+  "public_comment_engagement": {
+    "value": null,
+    "availability": "not_found",
+    "notes": "Meeting videos exist at https://monterey.legistar.com/Page.aspx?M=W but supervisor responses to public comments are not transcribed or indexed. Would require manual video review or AI-powered video analysis."
+  },
+  "social_media_responsiveness": {
+    "value": null,
+    "availability": "not_found",
+    "notes": "Chris Lopez has @LopezForSup on Twitter and @lopezforsupervisor on Instagram. Measuring responsiveness would require platform API access (increasingly restricted) or manual monitoring."
+  },
+
+  "data_sources_used": [
+    "Legistar Web API (https://webapi.legistar.com/v1/monterey/)",
+    "County website (https://www.countyofmonterey.gov/government/board-of-supervisors/district-3-chris-lopez)",
+    "DuckDuckGo web search",
+    "Wikipedia (https://en.wikipedia.org/wiki/Monterey_County_Board_of_Supervisors)"
+  ],
+  "data_sources_failed": [],
+
+  "availability_summary_explanation": {
+    "found": "Official page URL, email, phone, term dates, first elected, committees, news mentions",
+    "partial": "Votes (structure exists in Legistar but requires deep crawl), campaign finance (references found but not dollar amounts), attendance (derivable but not explicitly stored), sponsored legislation (endpoint exists but may not be consistently tagged)",
+    "not_found": "Constituent response time, town halls held, public comment engagement, social media responsiveness, budget by district, photo URL, top donors (itemized)",
+    "summary": "Of 19 tracked profile fields: ~7 FOUND, ~4 PARTIAL, ~8 NOT FOUND"
+  }
+}
