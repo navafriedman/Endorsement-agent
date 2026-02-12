@@ -96,19 +96,21 @@ export interface RoleFraming {
 
 /**
  * Structured constituent alignment scorecard.
- * Each dimension tracks what we can measure, what's missing,
- * and what a reporter could do to fill the gap.
+ * Scores are 0-100 numeric. null means insufficient data.
+ * Each dimension tracks evidence, gaps, and reporter actions.
  */
 export interface AlignmentDimension {
   label: string;
-  score: 'strong' | 'moderate' | 'weak' | 'insufficient_data';
+  score: number | null;       // 0-100, null = insufficient data
+  confidence: number;         // 0-100, how much data backs this score
   evidence: string[];
   data_gap?: string;
   reporter_action?: string;
 }
 
 export interface AlignmentScorecard {
-  overall: 'strong' | 'moderate' | 'weak' | 'insufficient_data';
+  overall_score: number | null;      // 0-100, null = insufficient data
+  overall_confidence: number;         // 0-100
   overall_notes: string;
   dimensions: {
     voting_alignment: AlignmentDimension;
@@ -193,7 +195,8 @@ export interface SupervisorComparison {
     vote_count: number;
     committee_count: number;
     news_mentions: number;
-    alignment_overall: string;
+    alignment_score: number | null;
+    alignment_confidence: number;
     constituent_issues_count: number;
     key_gaps: string[];
   }>;
@@ -262,11 +265,13 @@ export function emptyProfile(name: string, jurisdiction: string, state: string, 
 function emptyScorecard(): AlignmentScorecard {
   const emptyDim = (label: string): AlignmentDimension => ({
     label,
-    score: 'insufficient_data',
+    score: null,
+    confidence: 0,
     evidence: [],
   });
   return {
-    overall: 'insufficient_data',
+    overall_score: null,
+    overall_confidence: 0,
     overall_notes: '',
     dimensions: {
       voting_alignment: emptyDim('Voting Alignment'),

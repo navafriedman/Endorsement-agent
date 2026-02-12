@@ -204,37 +204,32 @@
 
         /* Alignment scorecard */
         .scorecard { margin-top: 8px; }
-        .scorecard-overall {
-            padding: 12px 16px; border-radius: 6px; margin-bottom: 12px;
-            font-size: 13px; line-height: 1.6;
-        }
-        .scorecard-overall.strong { background: var(--green-light); border: 1px solid #a7f3d0; }
-        .scorecard-overall.moderate { background: var(--yellow-light); border: 1px solid #fcd34d; }
-        .scorecard-overall.weak { background: var(--coral-light); border: 1px solid #fca5a5; }
-        .scorecard-overall.insufficient_data { background: #f1f5f9; border: 1px solid var(--border); }
+        .scorecard-top { display: flex; gap: 24px; align-items: center; margin-bottom: 16px; }
+        .gauge-wrap { flex-shrink: 0; text-align: center; }
+        .gauge-wrap svg { display: block; }
+        .gauge-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .scorecard-summary { flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
         .dimension {
-            padding: 12px 0; border-bottom: 1px solid #f1f5f9;
+            display: grid; grid-template-columns: 140px 1fr; gap: 8px;
+            padding: 10px 0; border-bottom: 1px solid #f1f5f9; align-items: start;
         }
         .dimension:last-child { border-bottom: none; }
-        .dimension-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .dimension-label { font-weight: 600; font-size: 13px; }
-        .dimension-score {
-            display: inline-block; padding: 2px 10px; border-radius: 10px;
-            font-size: 11px; font-weight: 600; text-transform: uppercase;
-        }
-        .score-strong { background: var(--green-light); color: #065f46; }
-        .score-moderate { background: var(--yellow-light); color: #92400e; }
-        .score-weak { background: var(--coral-light); color: #9a3412; }
-        .score-insufficient_data { background: #f1f5f9; color: var(--text-muted); }
-        .dimension-evidence { font-size: 12px; color: var(--text-secondary); padding-left: 12px; }
-        .dimension-evidence li { margin-bottom: 2px; }
-        .dimension-gap {
-            font-size: 12px; color: var(--coral); margin-top: 4px; padding-left: 12px;
-        }
-        .dimension-action {
-            font-size: 12px; color: var(--blue); margin-top: 2px; padding-left: 12px;
-            font-style: italic;
-        }
+        .dimension-left { display: flex; flex-direction: column; gap: 2px; }
+        .dimension-label { font-weight: 600; font-size: 12px; color: var(--text-secondary); }
+        .dimension-num { font-size: 20px; font-weight: 700; line-height: 1; }
+        .dimension-right {}
+        .dim-bar-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .dim-bar { flex: 1; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; max-width: 200px; }
+        .dim-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+        .dim-confidence { font-size: 10px; color: var(--text-muted); white-space: nowrap; }
+        .dim-evidence { font-size: 12px; color: var(--text-secondary); margin: 0; padding-left: 14px; }
+        .dim-evidence li { margin-bottom: 1px; }
+        .dim-detail { display: none; margin-top: 4px; }
+        .dim-detail.open { display: block; }
+        .dim-toggle { font-size: 11px; color: var(--blue); cursor: pointer; border: none; background: none; padding: 0; }
+        .dim-toggle:hover { text-decoration: underline; }
+        .dim-gap { font-size: 11px; color: var(--coral); margin-top: 2px; }
+        .dim-action { font-size: 11px; color: var(--blue); font-style: italic; }
 
         /* Role framing */
         .role-box {
@@ -548,33 +543,90 @@ function toggleSection(id, header) {
     arrow.innerHTML = body.classList.contains('collapsed') ? '&#9654;' : '&#9660;';
 }
 
+// --- Score color helper ---
+function scoreColor(score) {
+    if (score === null || score === undefined) return '#94a3b8';
+    if (score >= 70) return '#10b981';
+    if (score >= 50) return '#f59e0b';
+    if (score >= 30) return '#f06449';
+    return '#ef4444';
+}
+
+// --- SVG ring gauge ---
+function renderRingGauge(score, size, strokeWidth) {
+    size = size || 90;
+    strokeWidth = strokeWidth || 8;
+    var r = (size - strokeWidth) / 2;
+    var circ = 2 * Math.PI * r;
+    var pct = score != null ? score / 100 : 0;
+    var offset = circ * (1 - pct);
+    var color = scoreColor(score);
+    var label = score != null ? score : '?';
+    return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+        '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + r + '" fill="none" stroke="#f1f5f9" stroke-width="' + strokeWidth + '"/>' +
+        '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="' + strokeWidth + '" stroke-dasharray="' + circ + '" stroke-dashoffset="' + offset + '" stroke-linecap="round" transform="rotate(-90 ' + (size/2) + ' ' + (size/2) + ')"/>' +
+        '<text x="' + (size/2) + '" y="' + (size/2) + '" text-anchor="middle" dominant-baseline="central" font-size="' + Math.round(size * 0.28) + '" font-weight="700" fill="' + color + '">' + label + '</text>' +
+        '</svg>';
+}
+
 // --- Render alignment scorecard ---
 function renderScorecard(sc) {
     if (!sc) return '<p style="color:var(--text-muted);font-size:13px">No alignment scorecard available.</p>';
-    let html = '<div class="scorecard">';
-    html += '<div class="scorecard-overall ' + sc.overall + '">';
-    html += '<strong>Overall: ' + sc.overall.replace(/_/g, ' ').toUpperCase() + '</strong>';
-    html += '<br>' + sc.overall_notes;
+
+    var html = '<div class="scorecard">';
+
+    // Top row: ring gauge + summary
+    html += '<div class="scorecard-top">';
+    html += '<div class="gauge-wrap">';
+    html += renderRingGauge(sc.overall_score, 90, 8);
+    html += '<div class="gauge-label">Overall Score</div>';
+    html += '</div>';
+    html += '<div class="scorecard-summary">';
+    html += '<div style="margin-bottom:4px"><strong>Confidence:</strong> ' + sc.overall_confidence + '%</div>';
+    html += sc.overall_notes;
+    html += '</div>';
     html += '</div>';
 
-    const dims = sc.dimensions;
-    for (const key of ['voting_alignment', 'committee_relevance', 'accessibility', 'donor_independence', 'issue_responsiveness']) {
-        const d = dims[key];
+    // Dimensions with progress bars
+    var keys = ['voting_alignment', 'committee_relevance', 'accessibility', 'donor_independence', 'issue_responsiveness'];
+    for (var ki = 0; ki < keys.length; ki++) {
+        var key = keys[ki];
+        var d = sc.dimensions[key];
         if (!d) continue;
+        var color = scoreColor(d.score);
+        var scoreLabel = d.score != null ? d.score : '?';
+        var barWidth = d.score != null ? d.score : 0;
+
         html += '<div class="dimension">';
-        html += '<div class="dimension-header">';
-        html += '<span class="dimension-label">' + d.label + '</span>';
-        html += '<span class="dimension-score score-' + d.score + '">' + d.score.replace(/_/g, ' ') + '</span>';
+        html += '<div class="dimension-left">';
+        html += '<div class="dimension-label">' + d.label + '</div>';
+        html += '<div class="dimension-num" style="color:' + color + '">' + scoreLabel + '</div>';
         html += '</div>';
-        if (d.evidence.length > 0) {
-            html += '<ul class="dimension-evidence">';
-            for (const e of d.evidence) html += '<li>' + e + '</li>';
-            html += '</ul>';
+        html += '<div class="dimension-right">';
+        html += '<div class="dim-bar-wrap">';
+        html += '<div class="dim-bar"><div class="dim-bar-fill" style="width:' + barWidth + '%;background:' + color + '"></div></div>';
+        html += '<span class="dim-confidence">' + d.confidence + '% conf</span>';
+        html += '</div>';
+
+        // Collapsible evidence details
+        var detailId = 'dim-' + key;
+        if (d.evidence.length > 0 || d.data_gap || d.reporter_action) {
+            html += '<button class="dim-toggle" onclick="document.getElementById(\'' + detailId + '\').classList.toggle(\'open\')">Details</button>';
+            html += '<div class="dim-detail" id="' + detailId + '">';
+            if (d.evidence.length > 0) {
+                html += '<ul class="dim-evidence">';
+                for (var ei = 0; ei < d.evidence.length; ei++) html += '<li>' + d.evidence[ei] + '</li>';
+                html += '</ul>';
+            }
+            if (d.data_gap) html += '<div class="dim-gap">Gap: ' + d.data_gap + '</div>';
+            if (d.reporter_action) html += '<div class="dim-action">Reporter: ' + d.reporter_action + '</div>';
+            html += '</div>';
         }
-        if (d.data_gap) html += '<div class="dimension-gap">Gap: ' + d.data_gap + '</div>';
-        if (d.reporter_action) html += '<div class="dimension-action">Reporter action: ' + d.reporter_action + '</div>';
+
+        html += '</div>';
         html += '</div>';
     }
+
     html += '</div>';
     return html;
 }
@@ -671,19 +723,35 @@ function renderProfile(p, summary) {
     html += '<span><span class="dot" style="background:var(--coral)"></span> Not Found (' + summary.counts.not_found + '/' + total + ')</span>';
     html += '</div></div>';
 
+    // Contact & social media (moved up per reporter request)
+    var contactHtml = dpRow('Official Page', p.official_page_url) + dpRow('Email', p.email) + dpRow('Phone', p.phone);
+    if (p.social_media_responsiveness && p.social_media_responsiveness.notes) {
+        var smNotes = p.social_media_responsiveness.notes;
+        // Extract handles and make them visual
+        var handles = smNotes.match(/@\w+/g);
+        if (handles && handles.length > 0) {
+            contactHtml += '<div class="data-row"><span class="data-label">Social Media</span><span class="data-value">';
+            for (var hi = 0; hi < handles.length; hi++) {
+                contactHtml += '<span class="badge badge-found" style="margin-right:4px">' + handles[hi] + '</span>';
+            }
+            contactHtml += '</span></div>';
+        } else {
+            contactHtml += '<div class="data-row"><span class="data-label">Social Media</span><span class="data-value">' + smNotes + '</span></div>';
+        }
+    }
+    html += section('Contact & Social Media', undefined, contactHtml, true);
+
     // Role framing
     if (p.role_framing) {
         html += section('Role & Powers — What a County Supervisor Controls', undefined, renderRole(p.role_framing), true);
     }
 
     // Alignment scorecard
-    html += section('Constituent Alignment Scorecard', p.alignment_scorecard ? p.alignment_scorecard.overall.replace(/_/g, ' ').toUpperCase() : 'N/A', renderScorecard(p.alignment_scorecard), true);
+    var scoreLabel = p.alignment_scorecard && p.alignment_scorecard.overall_score != null ? p.alignment_scorecard.overall_score + '/100' : 'N/A';
+    html += section('Constituent Alignment Scorecard', scoreLabel, renderScorecard(p.alignment_scorecard), true);
 
     // Constituent issues
     html += section('Constituent Issues & Petitions', (p.constituent_issues || []).length + ' tracked', renderIssues(p.constituent_issues), true);
-
-    // Contact
-    html += section('Contact Info', undefined, dpRow('Official Page', p.official_page_url) + dpRow('Email', p.email) + dpRow('Phone', p.phone), true);
 
     // Term
     html += section('Term Information', undefined, dpRow('Term Start', p.term_start) + dpRow('Term End', p.term_end) + dpRow('First Elected', p.first_elected), false);
@@ -814,7 +882,12 @@ function renderComparison(profiles, comparison) {
         if (pW > 0) html += '<div class="bar-segment bar-partial" style="width:' + pW + '%"></div>';
         if (nW > 0) html += '<div class="bar-segment bar-not_found" style="width:' + nW + '%"></div>';
         html += '</div><span style="font-size:11px;color:var(--text-muted)">' + s.data_completeness + '%</span></td>';
-        html += '<td><span class="dimension-score score-' + s.alignment_overall + '">' + s.alignment_overall.replace(/_/g, ' ') + '</span></td>';
+        if (s.alignment_score != null) {
+            html += '<td><span style="font-weight:700;color:' + scoreColor(s.alignment_score) + '">' + s.alignment_score + '</span>';
+            html += '<span style="font-size:10px;color:var(--text-muted)"> /' + s.alignment_confidence + '%</span></td>';
+        } else {
+            html += '<td><span style="color:var(--text-muted)">N/A</span></td>';
+        }
         html += '<td>' + s.vote_count + '</td>';
         html += '<td>' + s.committee_count + '</td>';
         html += '<td>' + s.constituent_issues_count + '</td>';
