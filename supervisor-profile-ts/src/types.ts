@@ -3,17 +3,33 @@
  *
  * Every profile field that can be missing is wrapped in DataPoint,
  * which tracks availability, source, and explanatory notes.
+ *
+ * Designed for investigative journalists building data-driven
+ * accountability stories from scattered public records.
  */
 
 export type DataAvailability = 'found' | 'partial' | 'not_found' | 'not_applicable';
+
+/** How much a journalist can rely on this data point */
+export type SourceReliability = 'official_record' | 'verified_news' | 'web_search' | 'inferred' | 'self_reported';
 
 export interface DataPoint {
   value: any;
   availability: DataAvailability;
   source_url?: string;
   source_name?: string;
+  source_reliability?: SourceReliability;
   notes?: string;
   fetched_at?: string;
+}
+
+/** Tracks a public records request a reporter could file */
+export interface PublicRecordsNote {
+  record_type: string;
+  custodian: string;
+  request_basis: string;
+  estimated_turnaround?: string;
+  notes?: string;
 }
 
 export interface VoteRecord {
@@ -54,6 +70,55 @@ export interface CampaignFinanceRef {
   snippet?: string;
 }
 
+/** A constituent issue surfaced from petitions, news, or public comment */
+export interface ConstituentIssue {
+  issue: string;
+  source_type: 'petition' | 'local_news' | 'public_comment' | 'community_org';
+  source_url?: string;
+  source_name?: string;
+  signature_count?: number;
+  date?: string;
+  district_relevant: boolean;
+  supervisor_action?: 'voted_aligned' | 'voted_against' | 'no_action' | 'spoke_in_support' | 'unknown';
+  notes?: string;
+}
+
+/** What this elected role controls, influences, and cannot do */
+export interface RoleFraming {
+  official_title: string;
+  governing_body: string;
+  board_size: number;
+  direct_authority: string[];
+  influence_over: string[];
+  no_authority_over: string[];
+  key_context: string;
+}
+
+/**
+ * Structured constituent alignment scorecard.
+ * Each dimension tracks what we can measure, what's missing,
+ * and what a reporter could do to fill the gap.
+ */
+export interface AlignmentDimension {
+  label: string;
+  score: 'strong' | 'moderate' | 'weak' | 'insufficient_data';
+  evidence: string[];
+  data_gap?: string;
+  reporter_action?: string;
+}
+
+export interface AlignmentScorecard {
+  overall: 'strong' | 'moderate' | 'weak' | 'insufficient_data';
+  overall_notes: string;
+  dimensions: {
+    voting_alignment: AlignmentDimension;
+    committee_relevance: AlignmentDimension;
+    accessibility: AlignmentDimension;
+    donor_independence: AlignmentDimension;
+    issue_responsiveness: AlignmentDimension;
+  };
+}
+
 export interface ResponsivenessProfile {
   // Identity
   name: string;
@@ -61,6 +126,7 @@ export interface ResponsivenessProfile {
   jurisdiction: string;
   state: string;
   title: string;
+  role_framing?: RoleFraming;
 
   // Contact
   official_page_url: DataPoint;
@@ -100,22 +166,53 @@ export interface ResponsivenessProfile {
   public_comment_engagement: DataPoint;
   social_media_responsiveness: DataPoint;
 
+  // Constituent issue alignment
+  constituent_issues: ConstituentIssue[];
+  alignment_scorecard: AlignmentScorecard;
+
+  // Public records & meeting minutes
+  meeting_minutes_availability: DataPoint;
+  agenda_responsiveness: DataPoint;
+  cpra_records_notes: PublicRecordsNote[];
+
   // Meta
   profile_generated_at: string;
   data_sources_used: string[];
   data_sources_failed: string[];
 }
 
+/** Comparative summary for cross-supervisor analysis */
+export interface SupervisorComparison {
+  supervisors: Array<{
+    name: string;
+    district: string;
+    data_completeness: number;
+    fields_found: number;
+    fields_partial: number;
+    fields_not_found: number;
+    vote_count: number;
+    committee_count: number;
+    news_mentions: number;
+    alignment_overall: string;
+    constituent_issues_count: number;
+    key_gaps: string[];
+  }>;
+  jurisdiction: string;
+  generated_at: string;
+  story_angles: string[];
+}
+
 /** Helper to create a DataPoint */
 export function dp(
   value: any,
-  opts?: { source_url?: string; source_name?: string; notes?: string; availability?: DataAvailability }
+  opts?: { source_url?: string; source_name?: string; source_reliability?: SourceReliability; notes?: string; availability?: DataAvailability }
 ): DataPoint {
   return {
     value,
     availability: opts?.availability ?? (value != null ? 'found' : 'not_found'),
     source_url: opts?.source_url,
     source_name: opts?.source_name,
+    source_reliability: opts?.source_reliability,
     notes: opts?.notes,
     fetched_at: new Date().toISOString(),
   };
@@ -151,9 +248,33 @@ export function emptyProfile(name: string, jurisdiction: string, state: string, 
     town_halls_held: { ...empty },
     public_comment_engagement: { ...empty },
     social_media_responsiveness: { ...empty },
+    constituent_issues: [],
+    alignment_scorecard: emptyScorecard(),
+    meeting_minutes_availability: { ...empty },
+    agenda_responsiveness: { ...empty },
+    cpra_records_notes: [],
     profile_generated_at: new Date().toISOString(),
     data_sources_used: [],
     data_sources_failed: [],
+  };
+}
+
+function emptyScorecard(): AlignmentScorecard {
+  const emptyDim = (label: string): AlignmentDimension => ({
+    label,
+    score: 'insufficient_data',
+    evidence: [],
+  });
+  return {
+    overall: 'insufficient_data',
+    overall_notes: '',
+    dimensions: {
+      voting_alignment: emptyDim('Voting Alignment'),
+      committee_relevance: emptyDim('Committee Relevance'),
+      accessibility: emptyDim('Accessibility'),
+      donor_independence: emptyDim('Donor Independence'),
+      issue_responsiveness: emptyDim('Issue Responsiveness'),
+    },
   };
 }
 

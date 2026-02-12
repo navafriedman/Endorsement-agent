@@ -434,4 +434,13 @@ function markUnavailableFields(profile: ResponsivenessProfile) {
       notes: 'Campaign finance data exists in state filing systems (e.g., Cal-Access for CA) but requires scraping or API access.',
     });
   }
+
+  profile.meeting_minutes_availability = dp(null, {
+    availability: 'partial',
+    source_name: 'Legistar',
+    notes: 'Minutes posted to Legistar if jurisdiction uses it. Searchable by date but not by supervisor.',
+  });
+  profile.agenda_responsiveness = dp(null, {
+    notes: 'No public mechanism tracks which agenda items were requested by which supervisor or constituents.',
+  });
 }
