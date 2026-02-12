@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Responsiveness Profile</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232DD4BF'/%3E%3Cpath d='M8 8h6v6H8zM18 8h6v6h-6zM8 18h6v6H8zM18 18h6v6h-6z' fill='white' opacity='0.9'/%3E%3C/svg%3E">
+    <style>
+        :root {
+            --primary: #2DD4BF;
+            --primary-hover: #14B8A6;
+            --coral: #F06449;
+            --coral-light: #fef2f0;
+            --yellow: #f59e0b;
+            --yellow-light: #fef3c7;
+            --green: #10b981;
+            --green-light: #d1fae5;
+            --bg: #f8fafc;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+            --text: #1E1E2E;
+            --text-secondary: #4a4a5a;
+            --text-muted: #8a8a9a;
+            --radius: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        /* Layout */
+        .app { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+        /* Header */
+        .header {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+        .header p { color: var(--text-secondary); font-size: 13px; }
+
+        /* Search form */
+        .search-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .search-card h2 { font-size: 16px; margin-bottom: 12px; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+        }
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: #e2e8f0; }
+
+        .btn-row { display: flex; gap: 8px; align-items: center; }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        .loading.visible { display: block; }
+        .spinner {
+            display: inline-block;
+            width: 32px; height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Profile display */
+        .profile { display: none; }
+        .profile.visible { display: block; }
+
+        /* Availability summary bar */
+        .avail-bar {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .avail-bar h2 { font-size: 16px; margin-bottom: 12px; }
+        .bar-row { display: flex; height: 28px; border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+        .bar-segment { display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; min-width: 30px; }
+        .bar-found { background: var(--green); }
+        .bar-partial { background: var(--yellow); }
+        .bar-not_found { background: var(--coral); }
+        .bar-legend { display: flex; gap: 16px; font-size: 12px; color: var(--text-secondary); }
+        .bar-legend span { display: flex; align-items: center; gap: 4px; }
+        .bar-legend .dot { width: 10px; height: 10px; border-radius: 2px; }
+
+        /* Profile sections */
+        .section {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .section-header {
+            padding: 14px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .section-header:hover { background: #f1f5f9; }
+        .section-body { padding: 16px 20px; }
+        .section-body.collapsed { display: none; }
+
+        /* Data rows */
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .data-row:last-child { border-bottom: none; }
+        .data-label { font-weight: 500; color: var(--text-secondary); min-width: 180px; flex-shrink: 0; }
+        .data-value { flex: 1; text-align: right; }
+
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-found { background: var(--green-light); color: #065f46; }
+        .badge-partial { background: var(--yellow-light); color: #92400e; }
+        .badge-not_found { background: var(--coral-light); color: #9a3412; }
+
+        /* Vote table */
+        .vote-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .vote-table th {
+            text-align: left;
+            padding: 8px;
+            background: #f8fafc;
+            border-bottom: 2px solid var(--border);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        .vote-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .vote-aye { color: var(--green); font-weight: 600; }
+        .vote-no { color: var(--coral); font-weight: 600; }
+
+        /* Committee list */
+        .committee-list { list-style: none; }
+        .committee-list li {
+            padding: 6px 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+        }
+        .committee-list li:last-child { border-bottom: none; }
+        .committee-role { color: var(--primary); font-weight: 500; font-size: 12px; }
+
+        /* News list */
+        .news-list { list-style: none; }
+        .news-list li { padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+        .news-list li:last-child { border-bottom: none; }
+        .news-title { font-weight: 500; }
+        .news-title a { color: var(--text); text-decoration: none; }
+        .news-title a:hover { color: var(--primary); text-decoration: underline; }
+        .news-source { font-size: 12px; color: var(--text-muted); }
+        .news-excerpt { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* Gap report */
+        .gap-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .gap-item:last-child { border-bottom: none; }
+        .gap-field { font-weight: 500; display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+        .gap-notes { font-size: 12px; color: var(--text-secondary); padding-left: 16px; }
+
+        /* Sources */
+        .source-list { list-style: none; font-size: 13px; }
+        .source-list li { padding: 4px 0; }
+        .source-ok::before { content: '+ '; color: var(--green); font-weight: bold; }
+        .source-fail::before { content: 'x '; color: var(--coral); font-weight: bold; }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .data-row { flex-direction: column; gap: 4px; }
+            .data-value { text-align: left; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>Supervisor Responsiveness Profile</h1>
+        <p>Build a public accountability profile using Legistar API, county websites, and web search. See what data is actually available — and what's missing.</p>
+    </div>
+
+    <div class="search-card">
+        <h2>Look up a supervisor</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Supervisor Name</label>
+                <input type="text" id="inp-name" placeholder="Chris Lopez" value="Chris Lopez">
+            </div>
+            <div class="form-group">
+                <label>Legistar Client</label>
+                <input type="text" id="inp-client" placeholder="monterey" value="monterey">
+            </div>
+            <div class="form-group">
+                <label>Jurisdiction</label>
+                <input type="text" id="inp-jurisdiction" placeholder="Monterey County" value="Monterey County">
+            </div>
+            <div class="form-group">
+                <label>State</label>
+                <input type="text" id="inp-state" placeholder="CA" value="CA" maxlength="2">
+            </div>
+            <div class="form-group">
+                <label>District</label>
+                <input type="text" id="inp-district" placeholder="3" value="3">
+            </div>
+            <div class="form-group">
+                <label>Max Meetings</label>
+                <input type="number" id="inp-max" placeholder="15" value="15" min="1" max="100">
+            </div>
+        </div>
+        <div class="btn-row">
+            <button class="btn btn-primary" id="btn-build" onclick="buildProfile()">Build Profile (Live API)</button>
+            <button class="btn btn-secondary" id="btn-sample" onclick="loadSample()">Load Sample Profile</button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p id="loading-text">Querying Legistar API, scraping county website, and searching the web...</p>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">This may take 30-60 seconds as we scan meeting records</p>
+    </div>
+
+    <div class="profile" id="profile">
+        <!-- Filled by JS -->
+    </div>
+</div>
+
+<script>
+let currentProfile = null;
+
+async function buildProfile() {
+    const body = {
+        name: document.getElementById('inp-name').value,
+        legistarClient: document.getElementById('inp-client').value,
+        jurisdiction: document.getElementById('inp-jurisdiction').value,
+        state: document.getElementById('inp-state').value,
+        district: document.getElementById('inp-district').value || undefined,
+        maxMeetings: parseInt(document.getElementById('inp-max').value) || 15,
+    };
+
+    if (!body.name || !body.legistarClient || !body.jurisdiction || !body.state) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    showLoading(true);
+    try {
+        const resp = await fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Failed to build profile');
+        currentProfile = data;
+        renderProfile(data.profile, data.summary);
+    } catch (e) {
+        alert('Error: ' + e.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+async function loadSample() {
+    showLoading(true);
+    document.getElementById('loading-text').textContent = 'Loading sample profile...';
+    try {
+        const resp = await fetch('/api/profile/sample');
+        const data = await resp.json();
+        currentProfile = data;
+        renderProfile(data.profile, data.summary);
+    } catch (e) {
+        alert('Error: ' + e.message);
+    } finally {
+        showLoading(false);
+    }
+}
+
+function showLoading(show) {
+    document.getElementById('loading').classList.toggle('visible', show);
+    document.getElementById('profile').classList.toggle('visible', !show && currentProfile != null);
+    document.getElementById('btn-build').disabled = show;
+    document.getElementById('btn-sample').disabled = show;
+}
+
+function badge(availability) {
+    return `<span class="badge badge-${availability}">${availability.replace('_', ' ')}</span>`;
+}
+
+function dpRow(label, dp) {
+    const val = dp.value != null ? (typeof dp.value === 'object' ? JSON.stringify(dp.value) : dp.value) : '—';
+    return `<div class="data-row">
+        <span class="data-label">${label}</span>
+        <span class="data-value">${val} ${badge(dp.availability)}</span>
+    </div>`;
+}
+
+function section(title, count, bodyHtml, startOpen) {
+    const id = 'sec-' + title.replace(/\s+/g, '-').toLowerCase();
+    const collapsed = startOpen ? '' : 'collapsed';
+    const arrow = startOpen ? '&#9660;' : '&#9654;';
+    return `<div class="section">
+        <div class="section-header" onclick="toggleSection('${id}', this)">
+            <span>${title}</span>
+            <span><span class="sec-arrow">${arrow}</span> ${count !== undefined ? `<span style="color:var(--text-muted);font-weight:400;font-size:12px">${count}</span>` : ''}</span>
+        </div>
+        <div class="section-body ${collapsed}" id="${id}">${bodyHtml}</div>
+    </div>`;
+}
+
+function toggleSection(id, header) {
+    const body = document.getElementById(id);
+    const arrow = header.querySelector('.sec-arrow');
+    body.classList.toggle('collapsed');
+    arrow.innerHTML = body.classList.contains('collapsed') ? '&#9654;' : '&#9660;';
+}
+
+function renderProfile(p, summary) {
+    const el = document.getElementById('profile');
+    let html = '';
+
+    // --- Availability summary ---
+    const total = summary.total_fields;
+    const fPct = Math.round((summary.counts.found / total) * 100);
+    const pPct = Math.round((summary.counts.partial / total) * 100);
+    const nPct = 100 - fPct - pPct;
+
+    html += `<div class="avail-bar">
+        <h2>${p.name} — ${p.title}, District ${p.district || '?'}, ${p.jurisdiction}, ${p.state}</h2>
+        <div class="bar-row">
+            ${fPct > 0 ? `<div class="bar-segment bar-found" style="width:${fPct}%">${summary.counts.found}</div>` : ''}
+            ${pPct > 0 ? `<div class="bar-segment bar-partial" style="width:${pPct}%">${summary.counts.partial}</div>` : ''}
+            ${nPct > 0 ? `<div class="bar-segment bar-not_found" style="width:${nPct}%">${summary.counts.not_found}</div>` : ''}
+        </div>
+        <div class="bar-legend">
+            <span><span class="dot" style="background:var(--green)"></span> Found (${summary.counts.found}/${total})</span>
+            <span><span class="dot" style="background:var(--yellow)"></span> Partial (${summary.counts.partial}/${total})</span>
+            <span><span class="dot" style="background:var(--coral)"></span> Not Found (${summary.counts.not_found}/${total})</span>
+        </div>
+    </div>`;
+
+    // --- Contact ---
+    html += section('Contact Info', undefined, `
+        ${dpRow('Official Page', p.official_page_url)}
+        ${dpRow('Email', p.email)}
+        ${dpRow('Phone', p.phone)}
+    `, true);
+
+    // --- Term ---
+    html += section('Term Information', undefined, `
+        ${dpRow('Term Start', p.term_start)}
+        ${dpRow('Term End', p.term_end)}
+        ${dpRow('First Elected', p.first_elected)}
+    `, true);
+
+    // --- Legislative activity ---
+    let voteHtml = `
+        ${dpRow('Vote Summary', p.vote_summary)}
+        ${dpRow('Attendance Rate', p.attendance_rate)}
+        ${dpRow('Legislation Sponsored', p.legislation_count)}
+    `;
+    if (p.votes && p.votes.length > 0) {
+        // Vote breakdown
+        const breakdown = {};
+        p.votes.forEach(v => { breakdown[v.vote_value] = (breakdown[v.vote_value] || 0) + 1; });
+        voteHtml += '<div style="margin-top:12px"><strong>Vote breakdown:</strong> ';
+        voteHtml += Object.entries(breakdown).map(([k, v]) => `${k}: ${v}`).join(', ');
+        voteHtml += '</div>';
+
+        voteHtml += '<table class="vote-table" style="margin-top:12px"><thead><tr><th>Date</th><th>Item</th><th>Vote</th></tr></thead><tbody>';
+        for (const v of p.votes.slice(0, 20)) {
+            const cls = v.vote_value.toLowerCase() === 'aye' ? 'vote-aye' : v.vote_value.toLowerCase() === 'no' ? 'vote-no' : '';
+            voteHtml += `<tr>
+                <td>${v.event_date || '—'}</td>
+                <td>${(v.matter_title || '').slice(0, 80)}</td>
+                <td class="${cls}">${v.vote_value}</td>
+            </tr>`;
+        }
+        voteHtml += '</tbody></table>';
+        if (p.votes.length > 20) voteHtml += `<p style="font-size:12px;color:var(--text-muted);margin-top:8px">Showing 20 of ${p.votes.length} votes</p>`;
+    }
+    html += section('Legislative Activity', `${p.votes.length} votes`, voteHtml, true);
+
+    // --- Committees ---
+    let committeeHtml = dpRow('Count', p.committee_count);
+    if (p.committees.length > 0) {
+        committeeHtml += '<ul class="committee-list" style="margin-top:12px">';
+        for (const c of p.committees) {
+            committeeHtml += `<li><span>${c.name}</span>${c.role ? `<span class="committee-role">${c.role}</span>` : ''}</li>`;
+        }
+        committeeHtml += '</ul>';
+    }
+    html += section('Committee Assignments', p.committees.length, committeeHtml, true);
+
+    // --- Budget ---
+    html += section('Budget', undefined, dpRow('Budget Summary', p.budget_summary), false);
+
+    // --- News ---
+    let newsHtml = dpRow('News Mentions', p.news_mention_count);
+    if (p.public_statements.length > 0) {
+        newsHtml += '<ul class="news-list" style="margin-top:12px">';
+        for (const s of p.public_statements) {
+            newsHtml += `<li>
+                <div class="news-title"><a href="${s.source_url}" target="_blank" rel="noopener">${s.title}</a></div>
+                ${s.source_name ? `<div class="news-source">${s.source_name}</div>` : ''}
+                ${s.excerpt ? `<div class="news-excerpt">${s.excerpt}</div>` : ''}
+            </li>`;
+        }
+        newsHtml += '</ul>';
+    }
+    html += section('Public Statements / News', p.public_statements.length, newsHtml, false);
+
+    // --- Campaign Finance ---
+    let financeHtml = dpRow('Total Contributions', p.total_contributions);
+    if (p.campaign_finance_refs && p.campaign_finance_refs.length > 0) {
+        financeHtml += '<ul class="news-list" style="margin-top:12px">';
+        for (const r of p.campaign_finance_refs) {
+            financeHtml += `<li>
+                <div class="news-title"><a href="${r.source_url}" target="_blank" rel="noopener">${r.title}</a></div>
+                ${r.snippet ? `<div class="news-excerpt">${r.snippet}</div>` : ''}
+            </li>`;
+        }
+        financeHtml += '</ul>';
+    }
+    html += section('Campaign Finance', p.campaign_finance_refs?.length || 0, financeHtml, false);
+
+    // --- Responsiveness (the gap) ---
+    let responsHtml = `
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">
+            These are the metrics that would truly measure "responsiveness" — but they are <strong>not available</strong> from public online sources.
+            This is the key finding of this prototype.
+        </p>
+        ${dpRow('Constituent Response Time', p.constituent_response_time)}
+        ${dpRow('Town Halls Held', p.town_halls_held)}
+        ${dpRow('Public Comment Engagement', p.public_comment_engagement)}
+        ${dpRow('Social Media Responsiveness', p.social_media_responsiveness)}
+    `;
+    html += section('Responsiveness Metrics (The Gap)', '0 found', responsHtml, true);
+
+    // --- Gap Report ---
+    let gapHtml = '';
+    for (const g of summary.gaps) {
+        gapHtml += `<div class="gap-item">
+            <div class="gap-field">${badge(g.status)} <code>${g.field}</code></div>
+            ${g.notes ? `<div class="gap-notes">${g.notes}</div>` : ''}
+        </div>`;
+    }
+    html += section('Full Gap Report', `${summary.gaps.length} gaps`, gapHtml, false);
+
+    // --- Data Sources ---
+    let srcHtml = '<ul class="source-list">';
+    for (const s of p.data_sources_used) {
+        srcHtml += `<li class="source-ok">${s}</li>`;
+    }
+    for (const s of p.data_sources_failed) {
+        srcHtml += `<li class="source-fail">${s}</li>`;
+    }
+    srcHtml += '</ul>';
+    srcHtml += `<p style="font-size:12px;color:var(--text-muted);margin-top:12px">Profile generated: ${p.profile_generated_at}</p>`;
+    html += section('Data Sources', `${p.data_sources_used.length} used, ${p.data_sources_failed.length} failed`, srcHtml, false);
+
+    el.innerHTML = html;
+    el.classList.add('visible');
+}
+</script>
+</body>
+</html>
