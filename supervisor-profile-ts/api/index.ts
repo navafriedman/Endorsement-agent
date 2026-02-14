@@ -52,8 +52,15 @@ app.post('/api/profile', async (req: Request, res: Response) => {
  *
  * Returns a pre-built sample profile for Chris Lopez (Monterey County District 3).
  */
-app.get('/api/profile/sample', (_req: Request, res: Response) => {
-  res.json({ profile: PROFILES.chris_lopez, summary: summarize(PROFILES.chris_lopez) });
+app.get('/api/profile/sample', (req: Request, res: Response) => {
+  const key = (req.query.supervisor as string) || 'chris_lopez';
+  const profile = PROFILES[key];
+  if (!profile) {
+    return res.status(404).json({
+      error: `Supervisor "${key}" not found. Available: ${Object.keys(PROFILES).join(', ')}`,
+    });
+  }
+  res.json({ profile, summary: summarize(profile) });
 });
 
 /**
@@ -158,28 +165,28 @@ const MONTEREY_ROLE: RoleFraming = {
   governing_body: 'Monterey County Board of Supervisors',
   board_size: 5,
   direct_authority: [
-    'County budget approval and appropriations ($2B annually)',
-    'Land use and zoning decisions in unincorporated areas',
-    'County department oversight (Health, Social Services, Public Works, etc.)',
-    'Appointments to county commissions and advisory boards',
-    'Setting county tax rates and fee schedules',
-    'County employee policies (hiring freezes, salary schedules)',
-    'Contracts and procurement over threshold amounts',
+    '\u{1F4B0} County budget ($2B/yr)',
+    '\u{1F3D7}\uFE0F Land use & zoning (unincorporated)',
+    '\u{1F3DB}\uFE0F Department oversight',
+    '\u{1F4CB} Commission appointments',
+    '\u{1F4B2} Tax rates & fees',
+    '\u{1F465} Employee policies',
+    '\u{1F4DD} Contracts & procurement',
   ],
   influence_over: [
-    'Regional agency boards (TAMC, AMBAG, Air District) via appointed seats',
-    'State and federal policy through advocacy and resolutions',
-    'Special districts (water, fire) through liaison roles',
-    'Joint powers authorities (solid waste, broadband, energy)',
-    'California Coastal Commission (one seat held by Lopez)',
+    '\u{1F517} Regional boards (TAMC, AMBAG, Air District)',
+    '\u{1F4E3} State & federal advocacy',
+    '\u{1F4A7} Special districts (water, fire)',
+    '\u26A1 Joint powers (waste, broadband, energy)',
+    '\u{1F30A} Coastal Commission',
   ],
   no_authority_over: [
-    'City governments (Salinas, Monterey, Seaside, etc. are independent)',
-    'School districts and community college districts',
-    'State highways and Caltrans operations',
-    'Federal land management (Fort Ord, national forests)',
-    'Private utility companies (PG&E, CalAm Water)',
-    'Judicial appointments or court operations',
+    '\u{1F3D9}\uFE0F City governments (independent)',
+    '\u{1F393} School & college districts',
+    '\u{1F6E3}\uFE0F State highways (Caltrans)',
+    '\u{1F332} Federal land (Fort Ord, forests)',
+    '\u2699\uFE0F Private utilities (PG&E, CalAm)',
+    '\u2696\uFE0F Courts & judicial appointments',
   ],
   key_context: 'Monterey County has a 5-member board. Any 3 supervisors form a majority and can pass motions, approve budgets, and set policy. The board acts as both legislative and executive branch for unincorporated county areas. Individual supervisors represent specific districts but vote on county-wide matters. Committee chair positions (Budget, Cannabis, Energy) provide additional agenda-setting power.',
 };
