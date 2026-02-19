@@ -806,7 +806,8 @@ CRITICAL RULES:
 4. Issue Probes: EXACTLY one per Top Issue, type DROPDOWN, EXACTLY 3 options, meaningful policy question
 5. why_text should explain local relevance and how the answer helps match candidates
 6. Probe titles should be specific policy questions, not generic (e.g. "How should [City] address housing affordability?" not just "Housing")
-7. Return ONLY valid JSON`;
+7. Root structure MUST be exactly: { "pages": [...] } — no other top-level keys
+8. Return ONLY valid JSON, no markdown, no code fences`;
 
 const DEFAULT_GENERATOR_USER_PROMPT = `Create a voter education questionnaire for {city}, {state} ({electionType}{electionDate}).
 
@@ -820,7 +821,7 @@ Follow the EXACT schema from the system prompt:
 
 Make probe questions and why_text feel grounded in {city} - reference local context, specific challenges, named projects or laws where relevant.
 
-Return ONLY valid JSON.`;
+Return ONLY valid JSON with root structure { "pages": [...] }, no markdown or code fences.`;
 
 // AI Generate - Create questionnaire content for voter education
 app.post('/api/questionnaires/generate', async (req: Request, res: Response) => {
@@ -859,20 +860,30 @@ app.post('/api/questionnaires/generate', async (req: Request, res: Response) => 
     const responseText = message.content[0].type === 'text' ? message.content[0].text : '';
 
     // Parse the JSON response
-    let questionnaire;
+    let parsed: any;
     try {
-      questionnaire = JSON.parse(responseText);
+      parsed = JSON.parse(responseText);
     } catch {
       // Try to extract JSON from the response
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
-        questionnaire = JSON.parse(jsonMatch[0]);
+        parsed = JSON.parse(jsonMatch[0]);
       } else {
         throw new Error('Failed to parse AI response as JSON');
       }
     }
 
-    res.json({ questionnaire });
+    // Normalize: always return { pages: [...] }
+    let pages: any[];
+    if (Array.isArray(parsed)) {
+      pages = parsed;
+    } else if (Array.isArray(parsed.pages)) {
+      pages = parsed.pages;
+    } else {
+      throw new Error('AI response did not contain a pages array');
+    }
+
+    res.json({ questionnaire: { pages } });
   } catch (e: any) {
     console.error('Generate error:', e);
     res.status(500).json({ error: e.message });

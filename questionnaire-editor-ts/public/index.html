@@ -1110,7 +1110,7 @@
                 order: parseInt(document.getElementById('question-order').value),
                 visibilityConditions: editingQuestionIdx !== null ?
                     content.pages[editingPageIdx].questions[editingQuestionIdx].visibilityConditions || [] : [],
-                options: modalOptions
+                options: modalOptions.map(({ number, ...rest }) => rest)
             };
             if (type === 'MULTI_SELECT' || type === 'SINGLE_SELECT') {
                 question.minSelected = parseInt(document.getElementById('question-min').value);
@@ -1154,8 +1154,8 @@
                         <button onclick="moveOption(${i}, 1)" ${i === modalOptions.length - 1 ? 'disabled' : ''}>▼</button>
                     </div>
                     <input type="text" value="${esc(o.label)}" placeholder="Label" onchange="modalOptions[${i}].label=this.value">
+                    <input type="text" value="${esc(o.value||'')}" placeholder="Value" onchange="modalOptions[${i}].value=this.value">
                     <input type="text" value="${esc(o.graphic||'')}" placeholder="Emoji" onchange="modalOptions[${i}].graphic=this.value">
-                    <input type="number" value="${o.number||''}" placeholder="Num" onchange="modalOptions[${i}].number=this.value?parseInt(this.value):undefined">
                     <input type="text" class="signal-input" value="${esc(o.signal||'')}" placeholder="Signal" onchange="modalOptions[${i}].signal=this.value||undefined">
                     <button class="btn btn-sm btn-outline" onclick="modalOptions.splice(${i},1);renderModalOptions()">&times;</button>
                 </div>
@@ -1204,7 +1204,7 @@
         }
 
         function addOption() {
-            modalOptions.push({ label: '', value: '', graphic: '', number: undefined });
+            modalOptions.push({ label: '', value: '', graphic: '' });
             renderModalOptions();
         }
 
@@ -1360,7 +1360,8 @@
         }
 
         function exportQ() {
-            const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+            const exportData = { pages: content.pages || [] };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1395,13 +1396,15 @@
 
         async function viewVersion(n) {
             const data = await api(`/api/questionnaires/${current.id}/versions/${n}`);
-            const blob = new Blob([JSON.stringify(data.content, null, 2)], { type: 'application/json' });
+            const exportData = { pages: data.content?.pages || [] };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             window.open(URL.createObjectURL(blob), '_blank');
         }
 
         async function exportVersion(n) {
             const data = await api(`/api/questionnaires/${current.id}/versions/${n}`);
-            const blob = new Blob([JSON.stringify(data.content, null, 2)], { type: 'application/json' });
+            const exportData = { pages: data.content?.pages || [] };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
