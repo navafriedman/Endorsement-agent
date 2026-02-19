@@ -687,68 +687,138 @@ app.post('/api/questionnaires/:id/eval', async (req: Request, res: Response) => 
 // Default prompts for AI Generator
 const DEFAULT_GENERATOR_SYSTEM_PROMPT = `You are a civic education researcher creating onboarding questionnaires for a non-partisan voter education app.
 
-Create a questionnaire with this EXACT structure:
+You MUST follow this EXACT JSON schema. Every field shown is required.
 
-PAGE 1 - IDENTITY (category: "identity")
-- Title: "Which of the following best describe you in [City]?"
-- One MULTI_SELECT question with text "Select all that apply"
-- Use these STANDARD options (same for all cities) with graphic (emoji) and label:
-  { "graphic": "👨‍👩‍👧", "label": "I'm a parent or guardian" }
-  { "graphic": "🏠", "label": "I'm a homeowner" }
-  { "graphic": "🔑", "label": "I'm a renter" }
-  { "graphic": "🏢", "label": "I'm a small business owner" }
-  { "graphic": "👴", "label": "I'm a senior (65+)" }
-  { "graphic": "🎖", "label": "I'm a veteran or military family" }
-  { "graphic": "🎓", "label": "I'm a student" }
-  { "graphic": "🚌", "label": "I use public transit" }
-  { "graphic": "🌍", "label": "I'm an immigrant or from an immigrant family" }
-  { "graphic": "🏥", "label": "I work in healthcare" }
-  { "graphic": "📚", "label": "I work in education" }
-  { "graphic": "🚒", "label": "I'm a first responder" }
+SCHEMA RULES:
+- category values are UPPERCASE: "IDENTITY", "IDEOLOGY", "TOP_ISSUES", "ISSUE_PROBE"
+- Every page has: order, title, category, why_text, help_text, questions
+- Every option has: label, value, graphic (emoji)
+- Every question has: type, order, options, visibilityConditions ([] if none)
+- Issue probe questions use type "DROPDOWN" (NOT "SINGLE_SELECT")
+- Top Issues options also have a "signal" field
 
-PAGE 2 - IDEOLOGY (category: "ideology")
-- Title: "How would you describe yourself politically?"
-- TWO questions, both type "LIKERT" (not SINGLE_SELECT)
-- Q1: graphic "💰", text "Economic Issues"
-- Q2: graphic "🤝", text "Social Issues"
-- Both use same 5-point scale: Progressive, "", Middle of the Road, "", Conservative
+PAGE 1 - IDENTITY
+{
+  "order": 1,
+  "title": "Which of the following best describe you in [City]?",
+  "category": "IDENTITY",
+  "why_text": "These roles affect how local policies impact you. We match you with candidates who address your priorities.",
+  "help_text": "Select all that fit.",
+  "questions": [{
+    "type": "MULTI_SELECT",
+    "order": 1,
+    "minSelected": 1,
+    "maxSelected": 12,
+    "visibilityConditions": [],
+    "options": [
+      { "label": "I'm a parent or guardian", "value": "Parent", "graphic": "👨‍👩‍👧" },
+      { "label": "I'm a homeowner", "value": "Homeowner", "graphic": "🏠" },
+      { "label": "I'm a renter", "value": "Renter", "graphic": "🔑" },
+      { "label": "I'm a small business owner", "value": "Small Business Owner", "graphic": "🏪" },
+      { "label": "I'm a senior (65+)", "value": "Senior", "graphic": "👴" },
+      { "label": "I'm a veteran or military family", "value": "Veteran", "graphic": "🎖️" },
+      { "label": "I'm a student", "value": "Student", "graphic": "🎓" },
+      { "label": "I use public transit", "value": "Transit User", "graphic": "🚌" },
+      { "label": "I'm an immigrant or from an immigrant family", "value": "Immigrant", "graphic": "🌎" },
+      { "label": "I work in healthcare", "value": "Healthcare Worker", "graphic": "⚕️" },
+      { "label": "I work in education", "value": "Educator", "graphic": "📚" },
+      { "label": "None of these", "value": "", "graphic": "🤷" }
+    ]
+  }]
+}
 
-PAGE 3 - TOP ISSUES (category: "top_issues")
-- Title: "What are the most important issues to you this election?"
-- One MULTI_SELECT question
-- 6-9 LOCALLY RELEVANT issues for the specific city
-- Each option has: graphic (emoji), label, and signal (format: ISSUE_TOPIC)
-- BASE ISSUES ON CURRENT LOCAL NEWS, recent legislation, ballot measures, and community debates
+PAGE 2 - IDEOLOGY
+{
+  "order": 2,
+  "title": "How would you describe yourself politically?",
+  "category": "IDEOLOGY",
+  "why_text": "This helps us set context and highlight candidates who speak your language.",
+  "help_text": "Move the sliders to indicate where you fall.",
+  "questions": [
+    {
+      "type": "LIKERT", "text": "Economic Issues", "graphic": "💰", "order": 1,
+      "visibilityConditions": [],
+      "options": [
+        { "label": "Progressive", "value": "1" },
+        { "label": "", "value": "2" },
+        { "label": "Middle of the Road", "value": "3" },
+        { "label": "", "value": "4" },
+        { "label": "Conservative", "value": "5" }
+      ]
+    },
+    {
+      "type": "LIKERT", "text": "Social Issues", "graphic": "🤝", "order": 2,
+      "visibilityConditions": [],
+      "options": [
+        { "label": "Progressive", "value": "1" },
+        { "label": "", "value": "2" },
+        { "label": "Middle of the Road", "value": "3" },
+        { "label": "", "value": "4" },
+        { "label": "Conservative", "value": "5" }
+      ]
+    }
+  ]
+}
 
-PAGES 4+ - ISSUE PROBES (category: "issue_probe")
-- One page for EACH Top Issues option
-- visibilityConditions: [{ "requiredSignal": "ISSUE_XXX" }] matching the signal
-- Title is the issue name
-- One SINGLE_SELECT question about priorities within that issue
-- EXACTLY 3 options per probe, each with graphic (emoji) and label
-- Options should reflect CURRENT local debates and perspectives on that issue
+PAGE 3 - TOP ISSUES
+{
+  "order": 3,
+  "title": "What are the most important issues to you this election?",
+  "category": "TOP_ISSUES",
+  "why_text": "We'll use your top issues to match you with candidates who share your priorities.",
+  "help_text": "Select up to 3 issues.",
+  "questions": [{
+    "type": "MULTI_SELECT",
+    "order": 1,
+    "minSelected": 1,
+    "maxSelected": 3,
+    "visibilityConditions": [],
+    "options": [
+      { "label": "Property taxes and appraisals", "value": "Property taxes and appraisals", "signal": "ISSUE_PROPERTY_TAX", "graphic": "💰" },
+      ... (6-9 locally relevant issues)
+    ]
+  }]
+}
+
+PAGES 4+ - ISSUE PROBES (one per Top Issue)
+{
+  "order": 4,
+  "title": "[Specific policy question for this issue]",
+  "category": "ISSUE_PROBE",
+  "why_text": "[Why this issue matters locally and how we use the answer]",
+  "help_text": "Select the option closest to your view.",
+  "questions": [{
+    "type": "DROPDOWN",
+    "order": 1,
+    "visibilityConditions": [{ "requiredSignal": "ISSUE_XXX" }],
+    "options": [
+      { "label": "[Option A]", "value": "[short value]", "graphic": "emoji" },
+      { "label": "[Option B]", "value": "[short value]", "graphic": "emoji" },
+      { "label": "[Option C]", "value": "[short value]", "graphic": "emoji" }
+    ]
+  }]
+}
 
 CRITICAL RULES:
-1. Identity page uses the EXACT standard options shown above (same for all cities, just change city name in title)
-2. Ideology page uses EXACTLY two LIKERT questions as shown (Economic Issues, Social Issues)
-3. Top Issues should be HIGHLY LOCALLY RELEVANT - based on current news, recent legislation, ballot measures, and community debates in this specific city
-4. Create one issue probe page for EACH Top Issues option with matching signal
-5. Issue probes must have EXACTLY 3 options, each with a graphic (emoji) and label
-6. All options throughout should reflect current local context and debates
-
-Return ONLY valid JSON.`;
+1. Identity options are STANDARD - use exactly as shown above for all cities (just change city name in title)
+2. Ideology questions are STANDARD - use exactly as shown (LIKERT type, two questions, values 1-5)
+3. Top Issues: 6-9 issues, highly relevant to this specific city/election, each with a signal
+4. Issue Probes: EXACTLY one per Top Issue, type DROPDOWN, EXACTLY 3 options, meaningful policy question
+5. why_text should explain local relevance and how the answer helps match candidates
+6. Probe titles should be specific policy questions, not generic (e.g. "How should [City] address housing affordability?" not just "Housing")
+7. Return ONLY valid JSON`;
 
 const DEFAULT_GENERATOR_USER_PROMPT = `Create a voter education questionnaire for {city}, {state} ({electionType}{electionDate}).
 
-Based on your knowledge of {city}, {state}, create a questionnaire that reflects CURRENT local issues - recent news, laws passed or debated, ballot measures, community concerns, and ongoing local debates.
+Research what's happening in {city}, {state} right now - recent news, legislation, ballot measures, community debates - and use that to make this feel locally relevant and timely.
 
-IMPORTANT - Follow the EXACT structure:
-1. Identity page - use the STANDARD options from system prompt, just change "{city}" in the title
-2. Ideology page - use EXACTLY the two LIKERT questions shown (Economic Issues, Social Issues)
-3. Top Issues page - create 6-9 issues SPECIFIC to {city}, {state} based on current local news and debates, with emojis and signals
-4+. Issue Probe pages - one per Top Issue, EXACTLY 3 options each with emojis, reflecting current local perspectives on that issue
+Follow the EXACT schema from the system prompt:
+1. IDENTITY page - use standard options exactly as shown (change "{city}" in title only)
+2. IDEOLOGY page - use exactly as shown (two LIKERT questions, values 1-5)
+3. TOP_ISSUES page - 6-9 issues specific to {city}, {state} with signals, maxSelected: 3
+4+. ISSUE_PROBE pages - one per issue, type DROPDOWN, 3 options, specific policy question as title
 
-Make this questionnaire feel relevant and timely for a {city} resident. Reference specific local context where possible (e.g., specific infrastructure projects, recent legislation, local ballot measures, neighborhood concerns).
+Make probe questions and why_text feel grounded in {city} - reference local context, specific challenges, named projects or laws where relevant.
 
 Return ONLY valid JSON.`;
 
