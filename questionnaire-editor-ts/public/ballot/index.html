@@ -364,13 +364,19 @@
         .issue-row {
             padding: 8px 0;
             border-top: 1px solid #f1f5f9;
+            cursor: pointer;
+        }
+        .issue-row:hover {
+            background: #fafbfc;
+            margin: 0 -12px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
         }
         .issue-row-header {
             display: flex;
             align-items: center;
             gap: 5px;
             margin-bottom: 6px;
-            cursor: pointer;
         }
         .issue-row-header .dot {
             width: 7px;
@@ -385,14 +391,29 @@
             letter-spacing: 0.5px;
             color: var(--text-muted);
         }
-        .issue-row-expand {
-            font-size: 10px;
+        .issue-row-more {
+            font-size: 11px;
             color: var(--text-muted);
             margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+        .issue-row:hover .issue-row-more {
+            opacity: 1;
+            color: var(--purple);
+        }
+        .issue-row-more .caret {
+            font-size: 10px;
             transition: transform 0.2s;
         }
-        .issue-row.expanded .issue-row-expand {
+        .issue-row.expanded .issue-row-more .caret {
             transform: rotate(90deg);
+        }
+        .issue-row.expanded .issue-row-more .more-label {
+            display: none;
         }
         .stance-pills {
             display: flex;
@@ -415,24 +436,66 @@
             font-weight: 400;
         }
         .issue-detail {
-            display: none;
-            margin-top: 8px;
-            padding: 8px 12px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease, margin 0.25s ease, padding 0.25s ease;
+            padding: 0 12px;
+            margin-top: 0;
             background: #f8fafc;
             border-radius: var(--radius-sm);
-            border-left: 3px solid var(--border);
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.5;
         }
         .issue-row.expanded .issue-detail {
-            display: block;
+            max-height: 200px;
+            padding: 10px 12px;
+            margin-top: 8px;
+        }
+        .issue-detail-quote {
+            position: relative;
+            padding-left: 12px;
+        }
+        .issue-detail-quote::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 2px;
+            background: var(--border);
         }
         .issue-detail-source {
             font-size: 11px;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
+        .issue-detail-source::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2394a3b8'%3E%3Cpath d='M4.5 3A1.5 1.5 0 003 4.5v7A1.5 1.5 0 004.5 13h7a1.5 1.5 0 001.5-1.5v-3a.5.5 0 011 0v3A2.5 2.5 0 0111.5 14h-7A2.5 2.5 0 012 11.5v-7A2.5 2.5 0 014.5 2h3a.5.5 0 010 1h-3zM9 1.5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5v5a.5.5 0 01-1 0V2.707L8.354 8.354a.5.5 0 11-.708-.708L13.293 2H9.5a.5.5 0 01-.5-.5z'/%3E%3C/svg%3E") no-repeat center;
+            flex-shrink: 0;
+        }
+
+        /* Issue-colored left border on expanded detail */
+        .issue-row.expanded .issue-detail-quote[data-issue="immigration"]::before { background: #3b82f6; }
+        .issue-row.expanded .issue-detail-quote[data-issue="education"]::before { background: #f59e0b; }
+        .issue-row.expanded .issue-detail-quote[data-issue="healthcare"]::before { background: #10b981; }
+        .issue-row.expanded .issue-detail-quote[data-issue="housing"]::before { background: #6366f1; }
+        .issue-row.expanded .issue-detail-quote[data-issue="criminal_justice"]::before { background: #a855f7; }
+        .issue-row.expanded .issue-detail-quote[data-issue="economy"]::before { background: #d97706; }
+        .issue-row.expanded .issue-detail-quote[data-issue="environment"]::before { background: #14b8a6; }
+        .issue-row.expanded .issue-detail-quote[data-issue="voting_rights"]::before { background: #ec4899; }
+        .issue-row.expanded .issue-detail-quote[data-issue="gun_policy"]::before { background: #ef4444; }
+        .issue-row.expanded .issue-detail-quote[data-issue="reproductive_rights"]::before { background: #db2777; }
+        .issue-row.expanded .issue-detail-quote[data-issue="lgbtq"]::before { background: #8b5cf6; }
+        .issue-row.expanded .issue-detail-quote[data-issue="budget"]::before { background: #0ea5e9; }
 
         /* Issue color coding for stance pills */
         .stance-pill[data-issue="immigration"] { background: #dbeafe; color: #1e40af; }
@@ -1246,11 +1309,11 @@ function renderStancePills(candidate, issueList) {
         ${issueList.map(issue => {
             const pos = candidate.issues[issue.id];
             const uid = `${candidate.initials}-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
-            return `<div class="issue-row" id="row-${uid}">
-                <div class="issue-row-header" onclick="toggleDetail('${uid}')">
+            return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
+                <div class="issue-row-header">
                     <span class="dot" data-issue="${issue.id}"></span>
                     <span class="issue-row-label">${issue.label}</span>
-                    ${pos ? `<span class="issue-row-expand">&#9656;</span>` : ''}
+                    ${pos ? `<span class="issue-row-more"><span class="more-label">Details</span> <span class="caret">&#9656;</span></span>` : ''}
                 </div>
                 <div class="stance-pills">
                     ${pos && pos.stances
@@ -1259,8 +1322,8 @@ function renderStancePills(candidate, issueList) {
                     }
                 </div>
                 ${pos ? `<div class="issue-detail">
-                    ${pos.position}
-                    <div class="issue-detail-source">Source: ${pos.source}</div>
+                    <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
+                    <div class="issue-detail-source">${pos.source}</div>
                 </div>` : ''}
             </div>`;
         }).join('')}
