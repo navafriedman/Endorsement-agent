@@ -1273,61 +1273,76 @@ function renderIssueFirstView() {
     }
 
     empty.style.display = 'none';
+
+    const selectedIssueList = [...selectedIssues].map(id => ISSUES.find(i => i.id === id));
     let html = '';
 
-    for (const issueId of selectedIssues) {
-        const issue = ISSUES.find(i => i.id === issueId);
+    for (const race of RACES) {
+        if (race.candidates.length === 0) continue;
 
-        html += `<div class="issue-group fade-in">
-            <div class="issue-group-header">
-                <div class="issue-group-icon">${issue.icon}</div>
-                <div>
-                    <div class="issue-group-title">${issue.label}</div>
-                    <div class="issue-group-subtitle">Where candidates stand across your races</div>
-                </div>
-            </div>`;
+        html += `<div class="race-card fade-in">
+            <div class="race-header">
+                <span class="race-name">${race.name}</span>
+                <span class="race-type-badge race-type-${race.type}">${race.type}</span>
+            </div>
+            <div class="candidates-grid">
+                ${race.candidates.map(c => {
+                    const matchScore = calculateMatch(c);
+                    const matchedEndorsements = [...selectedIdentities].filter(gid => c.endorsements.includes(gid));
 
-        // For each race, show candidates' positions on this issue
-        for (const race of RACES) {
-            if (race.candidates.length === 0) continue;
-
-            // Check if any candidate has a position on this issue
-            const hasAnyPosition = race.candidates.some(c => c.issues[issueId]);
-
-            html += `<div class="issue-race-row">
-                <div class="issue-race-header">${race.name}</div>
-                <div class="issue-candidates-row">
-                    ${race.candidates.map(c => {
-                        const pos = c.issues[issueId];
-                        // Check if endorsed by any selected identity groups
-                        const matchedEndorsements = [...selectedIdentities].filter(gid => c.endorsements.includes(gid));
-
-                        return `<div class="issue-candidate-cell">
-                            <div class="issue-candidate-name">
-                                ${c.name}
-                                ${c.incumbent ? `<span class="incumbent-badge">Incumbent</span>` : ''}
+                    return `<div class="candidate-col">
+                        <div class="candidate-name-row">
+                            <div class="candidate-avatar">${c.initials}</div>
+                            <div class="candidate-info">
+                                <h4>${c.name}</h4>
+                                <span class="candidate-meta">
+                                    ${c.party}
+                                    ${c.incumbent ? `<span class="incumbent-badge">Incumbent</span>` : ''}
+                                </span>
                             </div>
-                            <div class="issue-candidate-party">${c.party}</div>
-                            ${pos
-                                ? `<div class="issue-candidate-position">${pos.position}<br><span style="font-size:11px;color:var(--text-muted)">Source: ${pos.source}</span></div>`
-                                : `<div class="issue-candidate-no-data">No public position found</div>`
-                            }
-                            ${matchedEndorsements.length > 0 ? `
-                            <div style="margin-top:8px;">
-                                <div class="endorsement-chips">
-                                    ${matchedEndorsements.map(gid => {
-                                        const g = IDENTITY_GROUPS.find(x => x.id === gid);
-                                        return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
-                                    }).join('')}
-                                </div>
-                            </div>` : ''}
-                        </div>`;
-                    }).join('')}
-                </div>
-            </div>`;
-        }
+                        </div>
 
-        html += '</div>';
+                        <div class="candidate-issues">
+                            ${selectedIssueList.map(issue => {
+                                const pos = c.issues[issue.id];
+                                return `<div class="issue-position visible">
+                                    <div class="issue-position-label">
+                                        <span class="dot"></span> ${issue.label}
+                                    </div>
+                                    ${pos
+                                        ? `<div class="issue-position-text">${pos.position}</div>
+                                           <div class="issue-source">Source: ${pos.source}</div>`
+                                        : `<div class="issue-position-text" style="color:var(--text-muted);font-style:italic">No public position found</div>`
+                                    }
+                                </div>`;
+                            }).join('')}
+                        </div>
+
+                        ${matchedEndorsements.length > 0 ? `
+                        <div class="candidate-endorsements visible">
+                            <div class="endorsements-label">Endorsed by</div>
+                            <div class="endorsement-chips">
+                                ${matchedEndorsements.map(gid => {
+                                    const g = IDENTITY_GROUPS.find(x => x.id === gid);
+                                    return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
+                                }).join('')}
+                            </div>
+                        </div>` : ''}
+
+                        <div class="match-bar-container visible">
+                            <div class="match-bar-label">
+                                <span>Alignment</span>
+                                <span>${matchScore}%</span>
+                            </div>
+                            <div class="match-bar">
+                                <div class="match-bar-fill ${matchScore >= 60 ? 'high' : matchScore >= 30 ? 'medium' : 'low'}"
+                                    style="width: ${matchScore}%"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>`;
     }
 
     container.innerHTML = html;
@@ -1348,69 +1363,85 @@ function renderIdentityFirstView() {
     }
 
     empty.style.display = 'none';
+
+    const selectedGroupList = [...selectedIdentities].map(id => IDENTITY_GROUPS.find(g => g.id === id));
+    const selectedIssueList = [...selectedIssues].map(id => ISSUES.find(i => i.id === id));
     let html = '';
 
-    for (const groupId of selectedIdentities) {
-        const group = IDENTITY_GROUPS.find(g => g.id === groupId);
+    for (const race of RACES) {
+        if (race.candidates.length === 0) continue;
 
-        // Find all endorsed candidates
-        const endorsedRaces = [];
-        for (const race of RACES) {
-            const endorsed = race.candidates.filter(c => c.endorsements.includes(groupId));
-            if (endorsed.length > 0) {
-                endorsedRaces.push({ race, endorsed });
-            }
-        }
+        // Check if any candidate in this race is endorsed by any selected group
+        const hasEndorsed = race.candidates.some(c =>
+            selectedGroupList.some(g => c.endorsements.includes(g.id))
+        );
 
-        html += `<div class="issue-group fade-in">
-            <div class="issue-group-header">
-                <div class="issue-group-icon" style="background: var(--purple-light);">${group.icon}</div>
-                <div>
-                    <div class="issue-group-title">${group.label}</div>
-                    <div class="issue-group-subtitle">${group.type} &mdash; ${endorsedRaces.length === 0 ? 'No endorsements in your races' : `Endorsements in ${endorsedRaces.length} race${endorsedRaces.length > 1 ? 's' : ''}`}</div>
-                </div>
-            </div>`;
+        html += `<div class="race-card fade-in">
+            <div class="race-header">
+                <span class="race-name">${race.name}</span>
+                <span class="race-type-badge race-type-${race.type}">${race.type}</span>
+            </div>
+            <div class="candidates-grid">
+                ${race.candidates.map(c => {
+                    const matchScore = calculateMatch(c);
+                    const matchedGroups = selectedGroupList.filter(g => c.endorsements.includes(g.id));
+                    const unmatchedGroups = selectedGroupList.filter(g => !c.endorsements.includes(g.id));
+                    const isEndorsed = matchedGroups.length > 0;
 
-        if (endorsedRaces.length === 0) {
-            html += `<div class="issue-race-row">
-                <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:14px;">
-                    No endorsements found for your local races.
-                </div>
-            </div>`;
-        }
-
-        for (const { race, endorsed } of endorsedRaces) {
-            html += `<div class="issue-race-row">
-                <div class="issue-race-header">${race.name}</div>
-                <div class="issue-candidates-row">
-                    ${endorsed.map(c => {
-                        // Show the candidate's positions on selected issues
-                        const issuePositions = [...selectedIssues].map(iid => {
-                            const issue = ISSUES.find(i => i.id === iid);
-                            const pos = c.issues[iid];
-                            if (!pos) return '';
-                            return `<div style="margin-top:6px;padding:6px 10px;background:#f8fafc;border-radius:6px;border-left:3px solid var(--coral);font-size:12px;">
-                                <strong>${issue.label}:</strong> ${pos.position}
-                            </div>`;
-                        }).join('');
-
-                        return `<div class="issue-candidate-cell">
-                            <div class="issue-candidate-name">
-                                ${c.name}
-                                ${c.incumbent ? `<span class="incumbent-badge">Incumbent</span>` : ''}
+                    return `<div class="candidate-col" style="${isEndorsed ? 'background: #faf9ff;' : ''}">
+                        <div class="candidate-name-row">
+                            <div class="candidate-avatar" style="${isEndorsed ? 'border-color: var(--purple); color: var(--purple);' : ''}">${c.initials}</div>
+                            <div class="candidate-info">
+                                <h4>${c.name}</h4>
+                                <span class="candidate-meta">
+                                    ${c.party}
+                                    ${c.incumbent ? `<span class="incumbent-badge">Incumbent</span>` : ''}
+                                </span>
                             </div>
-                            <div class="issue-candidate-party">${c.party}</div>
-                            <div style="margin-top:6px;padding:5px 10px;background:var(--purple-light);border-radius:6px;font-size:12px;color:var(--purple);font-weight:500;">
-                                Endorsed by ${group.label}
-                            </div>
-                            ${issuePositions}
-                        </div>`;
-                    }).join('')}
-                </div>
-            </div>`;
-        }
+                        </div>
 
-        html += '</div>';
+                        <div class="candidate-endorsements visible" style="margin-top:12px;">
+                            ${matchedGroups.length > 0 ? `
+                            <div class="endorsements-label">Endorsed by your trusted voices</div>
+                            <div class="endorsement-chips">
+                                ${matchedGroups.map(g => {
+                                    return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
+                                }).join('')}
+                            </div>` : `
+                            <div style="font-size:12px;color:var(--text-muted);font-style:italic;">Not endorsed by your selected groups</div>`}
+                        </div>
+
+                        ${selectedIssueList.length > 0 ? `
+                        <div class="candidate-issues">
+                            ${selectedIssueList.map(issue => {
+                                const pos = c.issues[issue.id];
+                                return `<div class="issue-position visible">
+                                    <div class="issue-position-label">
+                                        <span class="dot"></span> ${issue.label}
+                                    </div>
+                                    ${pos
+                                        ? `<div class="issue-position-text">${pos.position}</div>
+                                           <div class="issue-source">Source: ${pos.source}</div>`
+                                        : `<div class="issue-position-text" style="color:var(--text-muted);font-style:italic">No public position found</div>`
+                                    }
+                                </div>`;
+                            }).join('')}
+                        </div>` : ''}
+
+                        <div class="match-bar-container visible">
+                            <div class="match-bar-label">
+                                <span>Alignment</span>
+                                <span>${matchScore}%</span>
+                            </div>
+                            <div class="match-bar">
+                                <div class="match-bar-fill ${matchScore >= 60 ? 'high' : matchScore >= 30 ? 'medium' : 'low'}"
+                                    style="width: ${matchScore}%"></div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>`;
     }
 
     container.innerHTML = html;
