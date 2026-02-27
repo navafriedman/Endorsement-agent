@@ -378,10 +378,9 @@
             gap: 5px;
             margin-bottom: 6px;
         }
-        .issue-row-header .dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
+        .issue-icon {
+            font-size: 14px;
+            line-height: 1;
             flex-shrink: 0;
         }
         .issue-row-label {
@@ -511,18 +510,6 @@
         .stance-pill[data-issue="lgbtq"] { background: #ede9fe; color: #5b21b6; }
         .stance-pill[data-issue="budget"] { background: #e0f2fe; color: #075985; }
 
-        .issue-row-header .dot[data-issue="immigration"] { background: #3b82f6; }
-        .issue-row-header .dot[data-issue="education"] { background: #f59e0b; }
-        .issue-row-header .dot[data-issue="healthcare"] { background: #10b981; }
-        .issue-row-header .dot[data-issue="housing"] { background: #6366f1; }
-        .issue-row-header .dot[data-issue="criminal_justice"] { background: #a855f7; }
-        .issue-row-header .dot[data-issue="economy"] { background: #d97706; }
-        .issue-row-header .dot[data-issue="environment"] { background: #14b8a6; }
-        .issue-row-header .dot[data-issue="voting_rights"] { background: #ec4899; }
-        .issue-row-header .dot[data-issue="gun_policy"] { background: #ef4444; }
-        .issue-row-header .dot[data-issue="reproductive_rights"] { background: #db2777; }
-        .issue-row-header .dot[data-issue="lgbtq"] { background: #8b5cf6; }
-        .issue-row-header .dot[data-issue="budget"] { background: #0ea5e9; }
 
         /* Endorsement badges on candidate */
         .candidate-endorsements {
@@ -1311,7 +1298,7 @@ function renderStancePills(candidate, issueList) {
             const uid = `${candidate.initials}-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
             return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
                 <div class="issue-row-header">
-                    <span class="dot" data-issue="${issue.id}"></span>
+                    <span class="issue-icon">${issue.icon}</span>
                     <span class="issue-row-label">${issue.label}</span>
                     ${pos ? `<span class="issue-row-more"><span class="more-label">Details</span> <span class="caret">&#9656;</span></span>` : ''}
                 </div>
