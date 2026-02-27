@@ -552,6 +552,53 @@
         }
 
         /* Match indicator */
+        /* Agree / Disagree rating buttons */
+        .stance-rating {
+            display: flex;
+            gap: 4px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .rate-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 1.5px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            padding: 0;
+            line-height: 1;
+        }
+        .rate-btn:hover {
+            transform: scale(1.15);
+        }
+        .rate-btn.agree:hover, .rate-btn.agree.active {
+            border-color: var(--green);
+            background: #dcfce7;
+        }
+        .rate-btn.disagree:hover, .rate-btn.disagree.active {
+            border-color: var(--rose);
+            background: #fee2e2;
+        }
+        .issue-row.rated-agree {
+            background: #f0fdf4;
+            margin: 0 -12px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+        }
+        .issue-row.rated-disagree {
+            background: #fef2f2;
+            margin: 0 -12px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Match bar */
         .match-bar-container {
             display: none;
             margin-top: 14px;
@@ -582,6 +629,18 @@
         .match-bar-fill.high { background: var(--green); }
         .match-bar-fill.medium { background: var(--amber); }
         .match-bar-fill.low { background: var(--rose); }
+        .match-bar-container.unrated .match-bar-label {
+            color: #cbd5e1;
+        }
+        .match-bar-container.unrated .match-bar {
+            opacity: 0.4;
+        }
+        .match-bar-prompt {
+            font-size: 11px;
+            color: #94a3b8;
+            font-style: italic;
+            margin-top: 4px;
+        }
 
         /* ========== NO CANDIDATES ========== */
         .no-candidates {
@@ -1114,6 +1173,9 @@ let selectedIssues = new Set();
 let selectedIdentities = new Set();
 let currentView = 'races'; // 'races', 'issues', 'identity'
 
+// Voter alignment ratings: key = "candidateName:issueId", value = 'agree' | 'disagree'
+let voterRatings = {};
+
 // ============================================================
 // INIT
 // ============================================================
@@ -1296,8 +1358,11 @@ function renderStancePills(candidate, issueList) {
         ${issueList.map(issue => {
             const pos = candidate.issues[issue.id];
             const uid = `${candidate.initials}-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
-            return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
-                <div class="issue-row-header">
+            const ratingKey = `${candidate.name}:${issue.id}`;
+            const rating = voterRatings[ratingKey] || null;
+            const ratedClass = rating === 'agree' ? 'rated-agree' : rating === 'disagree' ? 'rated-disagree' : '';
+            return `<div class="issue-row ${ratedClass}" id="row-${uid}">
+                <div class="issue-row-header" onclick="toggleDetail('${uid}')">
                     <span class="issue-icon">${issue.icon}</span>
                     <span class="issue-row-label">${issue.label}</span>
                     ${pos ? `<span class="issue-row-more"><span class="more-label">Details</span> <span class="caret">&#9656;</span></span>` : ''}
@@ -1307,6 +1372,10 @@ function renderStancePills(candidate, issueList) {
                         ? pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')
                         : `<span class="stance-pill no-position">No position found</span>`
                     }
+                    ${pos ? `<span class="stance-rating">
+                        <button class="rate-btn agree ${rating === 'agree' ? 'active' : ''}" onclick="event.stopPropagation(); ratePosition('${candidate.name}', '${issue.id}', 'agree')" title="I agree">&#x2713;</button>
+                        <button class="rate-btn disagree ${rating === 'disagree' ? 'active' : ''}" onclick="event.stopPropagation(); ratePosition('${candidate.name}', '${issue.id}', 'disagree')" title="I disagree">&#x2717;</button>
+                    </span>` : ''}
                 </div>
                 ${pos ? `<div class="issue-detail">
                     <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
@@ -1322,9 +1391,78 @@ function toggleDetail(uid) {
     if (row) row.classList.toggle('expanded');
 }
 
-function renderCandidateCol(c, race) {
-    const matchScore = calculateMatch(c);
+function ratePosition(candidateName, issueId, rating) {
+    const key = `${candidateName}:${issueId}`;
+    // Toggle off if clicking same rating again
+    if (voterRatings[key] === rating) {
+        delete voterRatings[key];
+    } else {
+        voterRatings[key] = rating;
+    }
+    renderCurrentView();
+}
+
+function calculateMatch(candidate) {
+    let total = 0;
+    let agreed = 0;
+
+    // Count voter ratings for this candidate
+    for (const issueId of selectedIssues) {
+        const key = `${candidate.name}:${issueId}`;
+        if (voterRatings[key]) {
+            total++;
+            if (voterRatings[key] === 'agree') agreed++;
+        }
+    }
+
+    // Identity match: endorsed by selected groups
+    for (const groupId of selectedIdentities) {
+        total++;
+        if (candidate.endorsements.includes(groupId)) agreed++;
+    }
+
+    if (total === 0) return { score: 0, hasRatings: false };
+    return { score: Math.round((agreed / total) * 100), hasRatings: true };
+}
+
+function renderCurrentView() {
+    if (currentView === 'races') renderRaceCards();
+    else if (currentView === 'issues') renderIssueFirstView();
+    else if (currentView === 'identity') renderIdentityFirstView();
+}
+
+function renderAlignmentBar(candidate) {
     const hasFilters = selectedIssues.size > 0 || selectedIdentities.size > 0;
+    if (!hasFilters) return '';
+
+    const { score, hasRatings } = calculateMatch(candidate);
+
+    if (!hasRatings) {
+        return `<div class="match-bar-container visible unrated">
+            <div class="match-bar-label">
+                <span>Alignment</span>
+                <span>--%</span>
+            </div>
+            <div class="match-bar">
+                <div class="match-bar-fill" style="width: 0%"></div>
+            </div>
+            <div class="match-bar-prompt">Rate positions above to see your alignment</div>
+        </div>`;
+    }
+
+    return `<div class="match-bar-container visible">
+        <div class="match-bar-label">
+            <span>Your alignment</span>
+            <span>${score}%</span>
+        </div>
+        <div class="match-bar">
+            <div class="match-bar-fill ${score >= 60 ? 'high' : score >= 30 ? 'medium' : 'low'}"
+                style="width: ${score}%"></div>
+        </div>
+    </div>`;
+}
+
+function renderCandidateCol(c, race) {
     const selectedIssueList = [...selectedIssues].map(id => ISSUES.find(i => i.id === id));
 
     return `<div class="candidate-col">
@@ -1356,39 +1494,11 @@ function renderCandidateCol(c, race) {
             </div>
         </div>` : ''}
 
-        ${hasFilters ? `
-        <div class="match-bar-container visible">
-            <div class="match-bar-label">
-                <span>Alignment</span>
-                <span>${matchScore}%</span>
-            </div>
-            <div class="match-bar">
-                <div class="match-bar-fill ${matchScore >= 60 ? 'high' : matchScore >= 30 ? 'medium' : 'low'}"
-                    style="width: ${matchScore}%"></div>
-            </div>
-        </div>` : ''}
+        ${renderAlignmentBar(c)}
     </div>`;
 }
 
-function calculateMatch(candidate) {
-    let total = 0;
-    let matched = 0;
-
-    // Issue match: does the candidate have a position on selected issues?
-    for (const issueId of selectedIssues) {
-        total++;
-        if (candidate.issues[issueId]) matched++;
-    }
-
-    // Identity match: is the candidate endorsed by selected groups?
-    for (const groupId of selectedIdentities) {
-        total++;
-        if (candidate.endorsements.includes(groupId)) matched++;
-    }
-
-    if (total === 0) return 0;
-    return Math.round((matched / total) * 100);
-}
+// Old calculateMatch removed — replaced by voter-rating-based version above
 
 // ============================================================
 // ISSUE-FIRST VIEW
@@ -1419,7 +1529,6 @@ function renderIssueFirstView() {
             </div>
             <div class="candidates-grid">
                 ${race.candidates.map(c => {
-                    const matchScore = calculateMatch(c);
                     const matchedEndorsements = [...selectedIdentities].filter(gid => c.endorsements.includes(gid));
 
                     return `<div class="candidate-col">
@@ -1447,16 +1556,7 @@ function renderIssueFirstView() {
                             </div>
                         </div>` : ''}
 
-                        <div class="match-bar-container visible">
-                            <div class="match-bar-label">
-                                <span>Alignment</span>
-                                <span>${matchScore}%</span>
-                            </div>
-                            <div class="match-bar">
-                                <div class="match-bar-fill ${matchScore >= 60 ? 'high' : matchScore >= 30 ? 'medium' : 'low'}"
-                                    style="width: ${matchScore}%"></div>
-                            </div>
-                        </div>
+                        ${renderAlignmentBar(c)}
                     </div>`;
                 }).join('')}
             </div>
@@ -1496,7 +1596,6 @@ function renderIdentityFirstView() {
             </div>
             <div class="candidates-grid">
                 ${race.candidates.map(c => {
-                    const matchScore = calculateMatch(c);
                     const matchedGroups = selectedGroupList.filter(g => c.endorsements.includes(g.id));
                     const isEndorsed = matchedGroups.length > 0;
 
@@ -1525,16 +1624,7 @@ function renderIdentityFirstView() {
 
                         ${renderStancePills(c, selectedIssueList)}
 
-                        <div class="match-bar-container visible">
-                            <div class="match-bar-label">
-                                <span>Alignment</span>
-                                <span>${matchScore}%</span>
-                            </div>
-                            <div class="match-bar">
-                                <div class="match-bar-fill ${matchScore >= 60 ? 'high' : matchScore >= 30 ? 'medium' : 'low'}"
-                                    style="width: ${matchScore}%"></div>
-                            </div>
-                        </div>
+                        ${renderAlignmentBar(c)}
                     </div>`;
                 }).join('')}
             </div>
