@@ -361,39 +361,105 @@
         .candidate-issues {
             margin-top: 14px;
         }
-        .issue-position {
-            display: none;
+        .issue-row {
             padding: 8px 0;
             border-top: 1px solid #f1f5f9;
         }
-        .issue-position.visible { display: block; }
-        .issue-position-label {
+        .issue-row-header {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+        .issue-row-header .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .issue-row-label {
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
-            margin-bottom: 3px;
+        }
+        .issue-row-expand {
+            font-size: 10px;
+            color: var(--text-muted);
+            margin-left: auto;
+            transition: transform 0.2s;
+        }
+        .issue-row.expanded .issue-row-expand {
+            transform: rotate(90deg);
+        }
+        .stance-pills {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             gap: 5px;
         }
-        .issue-position-label .dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--coral);
+        .stance-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.4;
+            transition: all 0.15s;
         }
-        .issue-position-text {
+        .stance-pill.no-position {
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-style: italic;
+            font-weight: 400;
+        }
+        .issue-detail {
+            display: none;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--border);
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.5;
         }
-        .issue-source {
+        .issue-row.expanded .issue-detail {
+            display: block;
+        }
+        .issue-detail-source {
             font-size: 11px;
             color: var(--text-muted);
-            margin-top: 2px;
+            margin-top: 4px;
         }
+
+        /* Issue color coding for stance pills */
+        .stance-pill[data-issue="immigration"] { background: #dbeafe; color: #1e40af; }
+        .stance-pill[data-issue="education"] { background: #fef3c7; color: #92400e; }
+        .stance-pill[data-issue="healthcare"] { background: #d1fae5; color: #065f46; }
+        .stance-pill[data-issue="housing"] { background: #e0e7ff; color: #3730a3; }
+        .stance-pill[data-issue="criminal_justice"] { background: #f3e8ff; color: #6b21a8; }
+        .stance-pill[data-issue="economy"] { background: #fef3c7; color: #78350f; }
+        .stance-pill[data-issue="environment"] { background: #ccfbf1; color: #134e4a; }
+        .stance-pill[data-issue="voting_rights"] { background: #fce7f3; color: #9d174d; }
+        .stance-pill[data-issue="gun_policy"] { background: #fee2e2; color: #991b1b; }
+        .stance-pill[data-issue="reproductive_rights"] { background: #fce7f3; color: #831843; }
+        .stance-pill[data-issue="lgbtq"] { background: #ede9fe; color: #5b21b6; }
+        .stance-pill[data-issue="budget"] { background: #e0f2fe; color: #075985; }
+
+        .issue-row-header .dot[data-issue="immigration"] { background: #3b82f6; }
+        .issue-row-header .dot[data-issue="education"] { background: #f59e0b; }
+        .issue-row-header .dot[data-issue="healthcare"] { background: #10b981; }
+        .issue-row-header .dot[data-issue="housing"] { background: #6366f1; }
+        .issue-row-header .dot[data-issue="criminal_justice"] { background: #a855f7; }
+        .issue-row-header .dot[data-issue="economy"] { background: #d97706; }
+        .issue-row-header .dot[data-issue="environment"] { background: #14b8a6; }
+        .issue-row-header .dot[data-issue="voting_rights"] { background: #ec4899; }
+        .issue-row-header .dot[data-issue="gun_policy"] { background: #ef4444; }
+        .issue-row-header .dot[data-issue="reproductive_rights"] { background: #db2777; }
+        .issue-row-header .dot[data-issue="lgbtq"] { background: #8b5cf6; }
+        .issue-row-header .dot[data-issue="budget"] { background: #0ea5e9; }
 
         /* Endorsement badges on candidate */
         .candidate-endorsements {
@@ -765,16 +831,16 @@ const RACES = [
                 incumbent: false,
                 initials: 'JC',
                 issues: {
-                    immigration: { position: 'Supports pathway to citizenship for undocumented immigrants; opposes border wall expansion', source: 'Campaign website' },
-                    education: { position: 'Advocates for increased public school funding, student debt relief, universal pre-K', source: 'Legislative record (TX House)' },
-                    healthcare: { position: 'Supports expanding Medicaid in Texas, lowering prescription drug costs', source: 'Campaign website' },
-                    criminal_justice: { position: 'Led criminal justice reform bills in TX House; supports ending cash bail', source: 'TX Legislature voting record' },
-                    economy: { position: 'Supports raising federal minimum wage, small business tax credits', source: 'Campaign platform' },
-                    reproductive_rights: { position: 'Pro-choice; opposes Texas abortion restrictions; supports restoring Roe protections', source: 'Public statements' },
-                    voting_rights: { position: 'Authored voting access legislation in TX House; opposes voter ID restrictions', source: 'Legislative record' },
-                    gun_policy: { position: 'Supports universal background checks and red flag laws', source: 'Campaign website' },
-                    lgbtq: { position: 'Supports Equality Act and anti-discrimination protections', source: 'Public statements' },
-                    housing: { position: 'Supports federal affordable housing investment and renter protections', source: 'Campaign platform' },
+                    immigration: { position: 'Supports pathway to citizenship for undocumented immigrants; opposes border wall expansion', source: 'Campaign website', stances: ['Pathway to citizenship', 'Opposes border wall'] },
+                    education: { position: 'Advocates for increased public school funding, student debt relief, universal pre-K', source: 'Legislative record (TX House)', stances: ['Public school funding', 'Student debt relief', 'Universal pre-K'] },
+                    healthcare: { position: 'Supports expanding Medicaid in Texas, lowering prescription drug costs', source: 'Campaign website', stances: ['Expand Medicaid', 'Lower Rx costs'] },
+                    criminal_justice: { position: 'Led criminal justice reform bills in TX House; supports ending cash bail', source: 'TX Legislature voting record', stances: ['CJ reform bills', 'End cash bail'] },
+                    economy: { position: 'Supports raising federal minimum wage, small business tax credits', source: 'Campaign platform', stances: ['Raise minimum wage', 'Small biz tax credits'] },
+                    reproductive_rights: { position: 'Pro-choice; opposes Texas abortion restrictions; supports restoring Roe protections', source: 'Public statements', stances: ['Pro-choice', 'Restore Roe'] },
+                    voting_rights: { position: 'Authored voting access legislation in TX House; opposes voter ID restrictions', source: 'Legislative record', stances: ['Voting access bills', 'Opposes voter ID'] },
+                    gun_policy: { position: 'Supports universal background checks and red flag laws', source: 'Campaign website', stances: ['Background checks', 'Red flag laws'] },
+                    lgbtq: { position: 'Supports Equality Act and anti-discrimination protections', source: 'Public statements', stances: ['Equality Act', 'Anti-discrimination'] },
+                    housing: { position: 'Supports federal affordable housing investment and renter protections', source: 'Campaign platform', stances: ['Affordable housing', 'Renter protections'] },
                 },
                 endorsements: ['naacp', 'emily_list', 'teachers_union', 'afl_cio', 'planned_parenthood', 'lwv'],
             },
@@ -784,15 +850,15 @@ const RACES = [
                 incumbent: false,
                 initials: 'JT',
                 issues: {
-                    education: { position: 'Former teacher; championed public school funding and teacher pay raises in TX House', source: 'Legislative record (TX House)' },
-                    healthcare: { position: 'Supports Medicaid expansion and mental health funding', source: 'Campaign website' },
-                    immigration: { position: 'Supports comprehensive immigration reform with earned legalization', source: 'Campaign website' },
-                    environment: { position: 'Supports clean energy transition and grid reliability investments', source: 'Legislative record' },
-                    economy: { position: 'Focus on workforce development, community college investment', source: 'Campaign platform' },
-                    gun_policy: { position: 'Supports raising age to purchase firearms, universal background checks', source: 'TX Legislature voting record' },
-                    reproductive_rights: { position: 'Pro-choice; opposes state abortion restrictions', source: 'Public statements' },
-                    voting_rights: { position: 'Supports automatic voter registration and expanded early voting', source: 'Campaign website' },
-                    housing: { position: 'Supports affordable housing tax credits and anti-displacement measures', source: 'Campaign platform' },
+                    education: { position: 'Former teacher; championed public school funding and teacher pay raises in TX House', source: 'Legislative record (TX House)', stances: ['Public school funding', 'Teacher pay raises'] },
+                    healthcare: { position: 'Supports Medicaid expansion and mental health funding', source: 'Campaign website', stances: ['Medicaid expansion', 'Mental health funding'] },
+                    immigration: { position: 'Supports comprehensive immigration reform with earned legalization', source: 'Campaign website', stances: ['Immigration reform', 'Earned legalization'] },
+                    environment: { position: 'Supports clean energy transition and grid reliability investments', source: 'Legislative record', stances: ['Clean energy', 'Grid reliability'] },
+                    economy: { position: 'Focus on workforce development, community college investment', source: 'Campaign platform', stances: ['Workforce development', 'Community colleges'] },
+                    gun_policy: { position: 'Supports raising age to purchase firearms, universal background checks', source: 'TX Legislature voting record', stances: ['Raise purchase age', 'Background checks'] },
+                    reproductive_rights: { position: 'Pro-choice; opposes state abortion restrictions', source: 'Public statements', stances: ['Pro-choice', 'Opposes restrictions'] },
+                    voting_rights: { position: 'Supports automatic voter registration and expanded early voting', source: 'Campaign website', stances: ['Auto registration', 'Expanded early voting'] },
+                    housing: { position: 'Supports affordable housing tax credits and anti-displacement measures', source: 'Campaign platform', stances: ['Housing tax credits', 'Anti-displacement'] },
                 },
                 endorsements: ['teachers_union', 'sierra_club', 'lwv', 'planned_parenthood'],
             },
@@ -810,12 +876,12 @@ const RACES = [
                 incumbent: true,
                 initials: 'TO',
                 issues: {
-                    immigration: { position: 'Championed local anti-illegal-immigration ordinances; supports stricter enforcement', source: 'County records, news coverage' },
-                    budget: { position: 'Cut county budget, reduced property tax rate', source: 'Tarrant County budget records' },
-                    criminal_justice: { position: 'Supports law enforcement funding increases; opposes bail reform', source: 'Public statements' },
-                    education: { position: 'Supports school choice and parental rights in curriculum', source: 'Public statements' },
-                    lgbtq: { position: 'Opposed library materials with LGBTQ+ content; supported restrictions', source: 'County meeting minutes' },
-                    gun_policy: { position: 'Strong Second Amendment supporter; opposes new gun regulations', source: 'NRA endorsement' },
+                    immigration: { position: 'Championed local anti-illegal-immigration ordinances; supports stricter enforcement', source: 'County records, news coverage', stances: ['Anti-immigration ordinances', 'Stricter enforcement'] },
+                    budget: { position: 'Cut county budget, reduced property tax rate', source: 'Tarrant County budget records', stances: ['Cut county budget', 'Lower property tax'] },
+                    criminal_justice: { position: 'Supports law enforcement funding increases; opposes bail reform', source: 'Public statements', stances: ['More police funding', 'Opposes bail reform'] },
+                    education: { position: 'Supports school choice and parental rights in curriculum', source: 'Public statements', stances: ['School choice', 'Parental rights'] },
+                    lgbtq: { position: 'Opposed library materials with LGBTQ+ content; supported restrictions', source: 'County meeting minutes', stances: ['Library restrictions', 'Opposes LGBTQ+ content'] },
+                    gun_policy: { position: 'Strong Second Amendment supporter; opposes new gun regulations', source: 'NRA endorsement', stances: ['Pro-2nd Amendment', 'Opposes gun regulations'] },
                 },
                 endorsements: ['nra', 'texas_right_to_life', 'chamber_commerce'],
             },
@@ -825,9 +891,9 @@ const RACES = [
                 incumbent: false,
                 initials: 'RB',
                 issues: {
-                    budget: { position: 'Promises fiscal responsibility, transparent county spending', source: 'Campaign website' },
-                    criminal_justice: { position: 'Supports law enforcement; focus on reducing property crime', source: 'Campaign platform' },
-                    housing: { position: 'Wants to streamline permitting to increase housing supply', source: 'Campaign website' },
+                    budget: { position: 'Promises fiscal responsibility, transparent county spending', source: 'Campaign website', stances: ['Fiscal responsibility', 'Transparent spending'] },
+                    criminal_justice: { position: 'Supports law enforcement; focus on reducing property crime', source: 'Campaign platform', stances: ['Pro-law enforcement', 'Reduce property crime'] },
+                    housing: { position: 'Wants to streamline permitting to increase housing supply', source: 'Campaign website', stances: ['Streamline permitting', 'More housing supply'] },
                 },
                 endorsements: [],
             },
@@ -837,13 +903,13 @@ const RACES = [
                 incumbent: false,
                 initials: 'LB',
                 issues: {
-                    healthcare: { position: 'Supports county health programs expansion, mental health services', source: 'Campaign website' },
-                    housing: { position: 'Advocates for affordable housing investment and tenant protections', source: 'Campaign platform' },
-                    criminal_justice: { position: 'Supports diversion programs and mental health courts', source: 'Campaign website' },
-                    education: { position: 'Supports public school funding, opposes book bans', source: 'Public statements' },
-                    budget: { position: 'Wants increased transparency in county spending; supports investing in infrastructure', source: 'Campaign platform' },
-                    environment: { position: 'Supports county climate resilience planning', source: 'Campaign website' },
-                    voting_rights: { position: 'Supports expanded early voting locations in Tarrant County', source: 'Campaign platform' },
+                    healthcare: { position: 'Supports county health programs expansion, mental health services', source: 'Campaign website', stances: ['Expand health programs', 'Mental health services'] },
+                    housing: { position: 'Advocates for affordable housing investment and tenant protections', source: 'Campaign platform', stances: ['Affordable housing', 'Tenant protections'] },
+                    criminal_justice: { position: 'Supports diversion programs and mental health courts', source: 'Campaign website', stances: ['Diversion programs', 'Mental health courts'] },
+                    education: { position: 'Supports public school funding, opposes book bans', source: 'Public statements', stances: ['Public school funding', 'Opposes book bans'] },
+                    budget: { position: 'Wants increased transparency in county spending; supports investing in infrastructure', source: 'Campaign platform', stances: ['Spending transparency', 'Infrastructure investment'] },
+                    environment: { position: 'Supports county climate resilience planning', source: 'Campaign website', stances: ['Climate resilience'] },
+                    voting_rights: { position: 'Supports expanded early voting locations in Tarrant County', source: 'Campaign platform', stances: ['More early voting locations'] },
                 },
                 endorsements: ['lwv', 'teachers_union', 'sierra_club'],
             },
@@ -861,10 +927,10 @@ const RACES = [
                 incumbent: true,
                 initials: 'AS',
                 issues: {
-                    healthcare: { position: 'Expanded county health services; supported JPS Hospital funding', source: 'County voting record' },
-                    housing: { position: 'Championed affordable housing initiatives in Precinct 1', source: 'Commissioner office records' },
-                    budget: { position: 'Voted for infrastructure investments; supports progressive revenue', source: 'County budget votes' },
-                    criminal_justice: { position: 'Supports re-entry programs and community-based safety', source: 'Public statements' },
+                    healthcare: { position: 'Expanded county health services; supported JPS Hospital funding', source: 'County voting record', stances: ['Expand health services', 'JPS Hospital funding'] },
+                    housing: { position: 'Championed affordable housing initiatives in Precinct 1', source: 'Commissioner office records', stances: ['Affordable housing'] },
+                    budget: { position: 'Voted for infrastructure investments; supports progressive revenue', source: 'County budget votes', stances: ['Infrastructure investment', 'Progressive revenue'] },
+                    criminal_justice: { position: 'Supports re-entry programs and community-based safety', source: 'Public statements', stances: ['Re-entry programs', 'Community safety'] },
                 },
                 endorsements: ['naacp', 'afl_cio', 'lwv'],
             },
@@ -874,11 +940,11 @@ const RACES = [
                 incumbent: false,
                 initials: 'TT',
                 issues: {
-                    budget: { position: 'Wants to cut county spending; opposes tax increases', source: 'Campaign website' },
-                    immigration: { position: 'Former state rep who authored strict immigration enforcement bills', source: 'TX Legislature record' },
-                    gun_policy: { position: 'Authored constitutional carry legislation in TX House', source: 'Legislative record' },
-                    criminal_justice: { position: 'Supports increased law enforcement funding', source: 'Campaign platform' },
-                    reproductive_rights: { position: 'Authored bill to criminalize abortion with no exceptions', source: 'TX Legislature record' },
+                    budget: { position: 'Wants to cut county spending; opposes tax increases', source: 'Campaign website', stances: ['Cut spending', 'Opposes tax increases'] },
+                    immigration: { position: 'Former state rep who authored strict immigration enforcement bills', source: 'TX Legislature record', stances: ['Strict enforcement bills'] },
+                    gun_policy: { position: 'Authored constitutional carry legislation in TX House', source: 'Legislative record', stances: ['Constitutional carry'] },
+                    criminal_justice: { position: 'Supports increased law enforcement funding', source: 'Campaign platform', stances: ['More police funding'] },
+                    reproductive_rights: { position: 'Authored bill to criminalize abortion with no exceptions', source: 'TX Legislature record', stances: ['Criminalize abortion'] },
                 },
                 endorsements: ['nra', 'texas_right_to_life'],
             },
@@ -896,8 +962,8 @@ const RACES = [
                 incumbent: true,
                 initials: 'PS',
                 issues: {
-                    criminal_justice: { position: 'Modernized case filing systems; reduced processing backlogs', source: 'Office records' },
-                    budget: { position: 'Reduced office operating costs while maintaining services', source: 'County budget reports' },
+                    criminal_justice: { position: 'Modernized case filing systems; reduced processing backlogs', source: 'Office records', stances: ['Modernized filing', 'Reduced backlogs'] },
+                    budget: { position: 'Reduced office operating costs while maintaining services', source: 'County budget reports', stances: ['Cut operating costs'] },
                 },
                 endorsements: ['fw_star_telegram'],
             },
@@ -907,8 +973,8 @@ const RACES = [
                 incumbent: false,
                 initials: 'TB',
                 issues: {
-                    criminal_justice: { position: 'Wants to improve public access to court records, reduce wait times', source: 'Campaign website' },
-                    voting_rights: { position: 'Supports making jury selection more representative of community demographics', source: 'Campaign platform' },
+                    criminal_justice: { position: 'Wants to improve public access to court records, reduce wait times', source: 'Campaign website', stances: ['Public court access', 'Reduce wait times'] },
+                    voting_rights: { position: 'Supports making jury selection more representative of community demographics', source: 'Campaign platform', stances: ['Representative juries'] },
                 },
                 endorsements: ['naacp'],
             },
@@ -926,8 +992,8 @@ const RACES = [
                 incumbent: true,
                 initials: 'TW',
                 issues: {
-                    budget: { position: 'Maintained efficient operations; digitized many county records', source: 'Office annual reports' },
-                    voting_rights: { position: 'Managed county elections; implemented voter ID requirements', source: 'County records' },
+                    budget: { position: 'Maintained efficient operations; digitized many county records', source: 'Office annual reports', stances: ['Efficient operations', 'Digitized records'] },
+                    voting_rights: { position: 'Managed county elections; implemented voter ID requirements', source: 'County records', stances: ['Election management', 'Voter ID'] },
                 },
                 endorsements: ['chamber_commerce'],
             },
@@ -937,8 +1003,8 @@ const RACES = [
                 incumbent: false,
                 initials: 'NS',
                 issues: {
-                    voting_rights: { position: 'Wants more polling locations, extended hours, multilingual support', source: 'Campaign website' },
-                    budget: { position: 'Supports investing in technology to improve county services', source: 'Campaign platform' },
+                    voting_rights: { position: 'Wants more polling locations, extended hours, multilingual support', source: 'Campaign website', stances: ['More polling locations', 'Extended hours', 'Multilingual support'] },
+                    budget: { position: 'Supports investing in technology to improve county services', source: 'Campaign platform', stances: ['Tech investment'] },
                 },
                 endorsements: ['lulac', 'lwv'],
             },
@@ -956,11 +1022,11 @@ const RACES = [
                 incumbent: true,
                 initials: 'RR',
                 issues: {
-                    education: { position: 'Voted for public school funding increases; opposes voucher programs', source: 'TX Legislature voting record' },
-                    healthcare: { position: 'Supports Medicaid expansion for Texas', source: 'Legislative record' },
-                    immigration: { position: 'Opposes SB4-style enforcement bills; supports immigrant communities', source: 'Voting record' },
-                    economy: { position: 'Supports small business grants and workforce training for District 90', source: 'Office records' },
-                    housing: { position: 'Authored bill for property tax relief for elderly homeowners', source: 'Legislative record' },
+                    education: { position: 'Voted for public school funding increases; opposes voucher programs', source: 'TX Legislature voting record', stances: ['School funding increases', 'Opposes vouchers'] },
+                    healthcare: { position: 'Supports Medicaid expansion for Texas', source: 'Legislative record', stances: ['Medicaid expansion'] },
+                    immigration: { position: 'Opposes SB4-style enforcement bills; supports immigrant communities', source: 'Voting record', stances: ['Opposes SB4', 'Pro-immigrant'] },
+                    economy: { position: 'Supports small business grants and workforce training for District 90', source: 'Office records', stances: ['Small biz grants', 'Workforce training'] },
+                    housing: { position: 'Authored bill for property tax relief for elderly homeowners', source: 'Legislative record', stances: ['Property tax relief'] },
                 },
                 endorsements: ['lulac', 'teachers_union', 'afl_cio'],
             },
@@ -978,11 +1044,11 @@ const RACES = [
                 incumbent: true,
                 initials: 'NC',
                 issues: {
-                    criminal_justice: { position: 'Chairs Criminal Jurisprudence committee; led bail reform and re-entry legislation', source: 'TX Legislature committee records' },
-                    education: { position: 'Supports increased teacher pay and public school funding', source: 'Voting record' },
-                    healthcare: { position: 'Supports expanding access to mental health services', source: 'Legislative record' },
-                    gun_policy: { position: 'Supports background check requirements and safe storage laws', source: 'Voting record' },
-                    voting_rights: { position: 'Opposed restrictive voting bills; supports expanded access', source: 'Legislative record' },
+                    criminal_justice: { position: 'Chairs Criminal Jurisprudence committee; led bail reform and re-entry legislation', source: 'TX Legislature committee records', stances: ['CJ committee chair', 'Bail reform', 'Re-entry programs'] },
+                    education: { position: 'Supports increased teacher pay and public school funding', source: 'Voting record', stances: ['Teacher pay', 'School funding'] },
+                    healthcare: { position: 'Supports expanding access to mental health services', source: 'Legislative record', stances: ['Mental health access'] },
+                    gun_policy: { position: 'Supports background check requirements and safe storage laws', source: 'Voting record', stances: ['Background checks', 'Safe storage laws'] },
+                    voting_rights: { position: 'Opposed restrictive voting bills; supports expanded access', source: 'Legislative record', stances: ['Opposes restrictions', 'Expanded access'] },
                 },
                 endorsements: ['naacp', 'emily_list', 'planned_parenthood', 'teachers_union'],
             },
@@ -1172,10 +1238,44 @@ function renderRaceCards() {
     }).join('');
 }
 
+// Shared: render stance pills for a candidate given a list of issues
+function renderStancePills(candidate, issueList) {
+    if (issueList.length === 0) return '';
+
+    return `<div class="candidate-issues">
+        ${issueList.map(issue => {
+            const pos = candidate.issues[issue.id];
+            const uid = `${candidate.initials}-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
+            return `<div class="issue-row" id="row-${uid}">
+                <div class="issue-row-header" onclick="toggleDetail('${uid}')">
+                    <span class="dot" data-issue="${issue.id}"></span>
+                    <span class="issue-row-label">${issue.label}</span>
+                    ${pos ? `<span class="issue-row-expand">&#9656;</span>` : ''}
+                </div>
+                <div class="stance-pills">
+                    ${pos && pos.stances
+                        ? pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')
+                        : `<span class="stance-pill no-position">No position found</span>`
+                    }
+                </div>
+                ${pos ? `<div class="issue-detail">
+                    ${pos.position}
+                    <div class="issue-detail-source">Source: ${pos.source}</div>
+                </div>` : ''}
+            </div>`;
+        }).join('')}
+    </div>`;
+}
+
+function toggleDetail(uid) {
+    const row = document.getElementById('row-' + uid);
+    if (row) row.classList.toggle('expanded');
+}
+
 function renderCandidateCol(c, race) {
-    // Calculate match score
     const matchScore = calculateMatch(c);
     const hasFilters = selectedIssues.size > 0 || selectedIdentities.size > 0;
+    const selectedIssueList = [...selectedIssues].map(id => ISSUES.find(i => i.id === id));
 
     return `<div class="candidate-col">
         <div class="candidate-name-row">
@@ -1189,25 +1289,8 @@ function renderCandidateCol(c, race) {
             </div>
         </div>
 
-        <!-- Issue positions (visible when issues selected) -->
-        <div class="candidate-issues">
-            ${ISSUES.map(issue => {
-                if (!selectedIssues.has(issue.id)) return '';
-                const pos = c.issues[issue.id];
-                return `<div class="issue-position visible">
-                    <div class="issue-position-label">
-                        <span class="dot"></span> ${issue.label}
-                    </div>
-                    ${pos
-                        ? `<div class="issue-position-text">${pos.position}</div>
-                           <div class="issue-source">Source: ${pos.source}</div>`
-                        : `<div class="issue-position-text" style="color:var(--text-muted);font-style:italic">No public position found</div>`
-                    }
-                </div>`;
-            }).join('')}
-        </div>
+        ${renderStancePills(c, selectedIssueList)}
 
-        <!-- Endorsements (visible when identities selected or always show if any) -->
         ${c.endorsements.length > 0 ? `
         <div class="candidate-endorsements ${selectedIdentities.size > 0 || c.endorsements.length > 0 ? 'visible' : ''}">
             <div class="endorsements-label">Endorsed by</div>
@@ -1223,7 +1306,6 @@ function renderCandidateCol(c, race) {
             </div>
         </div>` : ''}
 
-        <!-- Match bar -->
         ${hasFilters ? `
         <div class="match-bar-container visible">
             <div class="match-bar-label">
@@ -1302,21 +1384,7 @@ function renderIssueFirstView() {
                             </div>
                         </div>
 
-                        <div class="candidate-issues">
-                            ${selectedIssueList.map(issue => {
-                                const pos = c.issues[issue.id];
-                                return `<div class="issue-position visible">
-                                    <div class="issue-position-label">
-                                        <span class="dot"></span> ${issue.label}
-                                    </div>
-                                    ${pos
-                                        ? `<div class="issue-position-text">${pos.position}</div>
-                                           <div class="issue-source">Source: ${pos.source}</div>`
-                                        : `<div class="issue-position-text" style="color:var(--text-muted);font-style:italic">No public position found</div>`
-                                    }
-                                </div>`;
-                            }).join('')}
-                        </div>
+                        ${renderStancePills(c, selectedIssueList)}
 
                         ${matchedEndorsements.length > 0 ? `
                         <div class="candidate-endorsements visible">
@@ -1371,11 +1439,6 @@ function renderIdentityFirstView() {
     for (const race of RACES) {
         if (race.candidates.length === 0) continue;
 
-        // Check if any candidate in this race is endorsed by any selected group
-        const hasEndorsed = race.candidates.some(c =>
-            selectedGroupList.some(g => c.endorsements.includes(g.id))
-        );
-
         html += `<div class="race-card fade-in">
             <div class="race-header">
                 <span class="race-name">${race.name}</span>
@@ -1385,7 +1448,6 @@ function renderIdentityFirstView() {
                 ${race.candidates.map(c => {
                     const matchScore = calculateMatch(c);
                     const matchedGroups = selectedGroupList.filter(g => c.endorsements.includes(g.id));
-                    const unmatchedGroups = selectedGroupList.filter(g => !c.endorsements.includes(g.id));
                     const isEndorsed = matchedGroups.length > 0;
 
                     return `<div class="candidate-col" style="${isEndorsed ? 'background: #faf9ff;' : ''}">
@@ -1411,22 +1473,7 @@ function renderIdentityFirstView() {
                             <div style="font-size:12px;color:var(--text-muted);font-style:italic;">Not endorsed by your selected groups</div>`}
                         </div>
 
-                        ${selectedIssueList.length > 0 ? `
-                        <div class="candidate-issues">
-                            ${selectedIssueList.map(issue => {
-                                const pos = c.issues[issue.id];
-                                return `<div class="issue-position visible">
-                                    <div class="issue-position-label">
-                                        <span class="dot"></span> ${issue.label}
-                                    </div>
-                                    ${pos
-                                        ? `<div class="issue-position-text">${pos.position}</div>
-                                           <div class="issue-source">Source: ${pos.source}</div>`
-                                        : `<div class="issue-position-text" style="color:var(--text-muted);font-style:italic">No public position found</div>`
-                                    }
-                                </div>`;
-                            }).join('')}
-                        </div>` : ''}
+                        ${renderStancePills(c, selectedIssueList)}
 
                         <div class="match-bar-container visible">
                             <div class="match-bar-label">
