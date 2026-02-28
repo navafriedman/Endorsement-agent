@@ -345,6 +345,32 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 57px;
+            background: white;
+            z-index: 10;
+        }
+        .race-share-btn {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 4px 10px;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s;
+        }
+        .race-share-btn:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+        .race-share-btn svg {
+            width: 12px;
+            height: 12px;
+            fill: currentColor;
         }
         .race-name {
             font-size: 16px;
@@ -385,18 +411,19 @@
             margin-bottom: 6px;
         }
         .candidate-avatar {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: var(--bg);
             border: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
             flex-shrink: 0;
+            overflow: hidden;
+            background: var(--bg);
+        }
+        .candidate-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
         .candidate-info {
             min-width: 0;
@@ -443,6 +470,7 @@
             align-items: center;
             gap: 5px;
             min-width: 0;
+            flex-wrap: wrap;
         }
         .issue-icon {
             font-size: 13px;
@@ -455,13 +483,26 @@
             color: var(--text-secondary);
             flex-shrink: 0;
         }
-        .stance-summary {
-            font-size: 12px;
-            color: var(--text-muted);
+        .stance-pills-inline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            flex: 1;
             min-width: 0;
+        }
+        .stance-pills-inline .stance-pill {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            white-space: nowrap;
+            max-width: 140px;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+        }
+        .no-position-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-style: italic;
             flex: 1;
         }
         .issue-row-caret {
@@ -499,12 +540,6 @@
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.5;
-        }
-        .issue-detail-stances {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-bottom: 8px;
         }
         .stance-pill {
             display: inline-block;
@@ -908,6 +943,11 @@
         .page-footer a { color: var(--coral); text-decoration: none; }
         .page-footer a:hover { text-decoration: underline; }
 
+        /* Mobile race label shown per-candidate (hidden on desktop) */
+        .candidate-race-label {
+            display: none;
+        }
+
         /* ========== RESPONSIVE ========== */
         @media (max-width: 640px) {
             .hero h1 { font-size: 22px; }
@@ -919,6 +959,18 @@
             .issue-candidate-cell:last-child { border-bottom: none; }
             .filter-popover { min-width: 280px; left: -40px; }
             .align-btn { width: 20px; height: 20px; font-size: 10px; }
+            .candidate-race-label {
+                display: block;
+                font-size: 10px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: var(--text-muted);
+                margin-bottom: 4px;
+            }
+            .race-header {
+                top: 53px;
+            }
         }
 
         /* ========== TRANSITIONS ========== */
@@ -937,7 +989,13 @@
 <header class="page-header">
     <div class="container">
         <a class="logo" href="#">change<span>.vote</span></a>
-        <span class="header-meta">Fort Worth, TX</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span class="header-meta">Fort Worth, TX</span>
+            <button class="race-share-btn" onclick="shareBallot()" title="Share your ballot">
+                <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+                Share ballot
+            </button>
+        </div>
     </div>
 </header>
 
@@ -1465,10 +1523,16 @@ function renderRaceCards() {
             </div>`;
         }
 
-        return `<div class="race-card fade-in">
+        return `<div class="race-card fade-in" id="race-${race.id}">
             <div class="race-header">
-                <span class="race-name">${race.name}</span>
-                <span class="race-type-badge race-type-${race.type}">${race.type}</span>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="race-name">${race.name}</span>
+                    <span class="race-type-badge race-type-${race.type}">${race.type}</span>
+                </div>
+                <button class="race-share-btn" onclick="shareRace('${race.id}', '${race.name}')" title="Share this race">
+                    <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+                    Share
+                </button>
             </div>
             <div class="candidates-grid">
                 ${race.candidates.map(c => renderCandidateCol(c, race)).join('')}
@@ -1477,41 +1541,46 @@ function renderRaceCards() {
     }).join('');
 }
 
-// Shared: render stance pills for a candidate given a list of issues
+// Shared: render a single issue row (used by all three render functions)
+function renderIssueRow(candidate, issue, uidPrefix) {
+    const pos = candidate.issues[issue.id];
+    const uid = `${candidate.initials}-${uidPrefix}-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
+    const ratingKey = `${candidate.name}:${issue.id}`;
+    const rating = voterRatings[ratingKey] || null;
+    const ratedClass = rating === 'agree' ? 'rated-agree' : rating === 'disagree' ? 'rated-disagree' : '';
+    const escapedName = candidate.name.replace(/'/g, "\\'");
+
+    const inlinePills = pos && pos.stances
+        ? `<span class="stance-pills-inline">${pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')}</span>`
+        : `<span class="no-position-label">No position found</span>`;
+
+    const alignBtns = pos ? `<span class="align-btns" onclick="event.stopPropagation()">
+        <button class="align-btn ${rating === 'agree' ? 'active-agree' : ''}" onclick="ratePosition('${escapedName}', '${issue.id}', 'agree')" title="Agree"><svg viewBox="0 0 24 24"><path d="M2 20h2V10H2v10zm20-9a2 2 0 00-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v10a2 2 0 002 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></button>
+        <button class="align-btn ${rating === 'disagree' ? 'active-disagree' : ''}" onclick="ratePosition('${escapedName}', '${issue.id}', 'disagree')" title="Disagree"><svg viewBox="0 0 24 24"><path d="M22 4h-2v10h2V4zM2 13a2 2 0 002 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06l1.06 1.05 5.58-5.59c.37-.36.59-.86.59-1.41V5a2 2 0 00-2-2H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2z"/></svg></button>
+    </span>` : '';
+
+    return `<div class="issue-row ${ratedClass}" id="row-${uid}" onclick="toggleDetail('${uid}')">
+        <div class="issue-row-header">
+            <span class="issue-icon">${issue.icon}</span>
+            <span class="issue-row-label">${issue.label}</span>
+            ${inlinePills}
+            ${alignBtns}
+            <span class="issue-row-caret">&#9656;</span>
+        </div>
+        ${pos ? `<div class="issue-detail">
+            <div class="issue-detail-inner">
+                <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
+                <div class="issue-detail-source">${pos.source}</div>
+            </div>
+        </div>` : ''}
+    </div>`;
+}
+
+// Render selected issues for a candidate
 function renderStancePills(candidate, issueList) {
     if (issueList.length === 0) return '';
-
     return `<div class="candidate-issues">
-        ${issueList.map(issue => {
-            const pos = candidate.issues[issue.id];
-            const uid = `${candidate.initials}-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
-            const ratingKey = `${candidate.name}:${issue.id}`;
-            const rating = voterRatings[ratingKey] || null;
-            const ratedClass = rating === 'agree' ? 'rated-agree' : rating === 'disagree' ? 'rated-disagree' : '';
-            const stanceSummary = pos && pos.stances ? pos.stances.join(' · ') : '';
-            const escapedName = candidate.name.replace(/'/g, "\\'");
-            return `<div class="issue-row ${ratedClass}" id="row-${uid}" onclick="toggleDetail('${uid}')">
-                <div class="issue-row-header">
-                    <span class="issue-icon">${issue.icon}</span>
-                    <span class="issue-row-label">${issue.label}</span>
-                    ${stanceSummary ? `<span class="stance-summary">${stanceSummary}</span>` : `<span class="stance-summary" style="font-style:italic">No position found</span>`}
-                    ${pos ? `<span class="align-btns" onclick="event.stopPropagation()">
-                        <button class="align-btn ${rating === 'agree' ? 'active-agree' : ''}" onclick="ratePosition('${escapedName}', '${issue.id}', 'agree')" title="Agree"><svg viewBox="0 0 24 24"><path d="M2 20h2V10H2v10zm20-9a2 2 0 00-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v10a2 2 0 002 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></button>
-                        <button class="align-btn ${rating === 'disagree' ? 'active-disagree' : ''}" onclick="ratePosition('${escapedName}', '${issue.id}', 'disagree')" title="Disagree"><svg viewBox="0 0 24 24"><path d="M22 4h-2v10h2V4zM2 13a2 2 0 002 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06l1.06 1.05 5.58-5.59c.37-.36.59-.86.59-1.41V5a2 2 0 00-2-2H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2z"/></svg></button>
-                    </span>` : ''}
-                    <span class="issue-row-caret">&#9656;</span>
-                </div>
-                ${pos ? `<div class="issue-detail">
-                    <div class="issue-detail-inner">
-                        <div class="issue-detail-stances">
-                            ${pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')}
-                        </div>
-                        <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
-                        <div class="issue-detail-source">${pos.source}</div>
-                    </div>
-                </div>` : ''}
-            </div>`;
-        }).join('')}
+        ${issueList.map(issue => renderIssueRow(candidate, issue, 'sel')).join('')}
     </div>`;
 }
 
@@ -1602,28 +1671,7 @@ function renderTopIssuesPreview(candidate) {
     const remainingCount = issueIds.length - topIssues.length;
 
     return `<div class="candidate-issues">
-        ${topIssues.map(issue => {
-            const pos = candidate.issues[issue.id];
-            const uid = `${candidate.initials}-default-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
-            const stanceSummary = pos && pos.stances ? pos.stances.join(' · ') : '';
-            return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
-                <div class="issue-row-header">
-                    <span class="issue-icon">${issue.icon}</span>
-                    <span class="issue-row-label">${issue.label}</span>
-                    ${stanceSummary ? `<span class="stance-summary">${stanceSummary}</span>` : ''}
-                    <span class="issue-row-caret">&#9656;</span>
-                </div>
-                ${pos ? `<div class="issue-detail">
-                    <div class="issue-detail-inner">
-                        <div class="issue-detail-stances">
-                            ${pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')}
-                        </div>
-                        <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
-                        <div class="issue-detail-source">${pos.source}</div>
-                    </div>
-                </div>` : ''}
-            </div>`;
-        }).join('')}
+        ${topIssues.map(issue => renderIssueRow(candidate, issue, 'default')).join('')}
         ${remainingCount > 0 ? `<div class="other-issues-toggle" onclick="toggleOtherDefault('${candidate.initials}')">
             <span class="toggle-caret">&#9656;</span> ${remainingCount} more position${remainingCount !== 1 ? 's' : ''}
         </div>
@@ -1631,26 +1679,7 @@ function renderTopIssuesPreview(candidate) {
             ${issueIds.slice(topIssues.length).map(id => {
                 const issue = ISSUES.find(i => i.id === id);
                 if (!issue) return '';
-                const pos = candidate.issues[id];
-                const uid = `${candidate.initials}-extra-${id}`.replace(/[^a-zA-Z0-9]/g, '_');
-                const stanceSummary = pos && pos.stances ? pos.stances.join(' · ') : '';
-                return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
-                    <div class="issue-row-header">
-                        <span class="issue-icon">${issue.icon}</span>
-                        <span class="issue-row-label">${issue.label}</span>
-                        ${stanceSummary ? `<span class="stance-summary">${stanceSummary}</span>` : ''}
-                        <span class="issue-row-caret">&#9656;</span>
-                    </div>
-                    ${pos ? `<div class="issue-detail">
-                        <div class="issue-detail-inner">
-                            <div class="issue-detail-stances">
-                                ${pos.stances.map(s => `<span class="stance-pill" data-issue="${id}">${s}</span>`).join('')}
-                            </div>
-                            <div class="issue-detail-quote" data-issue="${id}">${pos.position}</div>
-                            <div class="issue-detail-source">${pos.source}</div>
-                        </div>
-                    </div>` : ''}
-                </div>`;
+                return renderIssueRow(candidate, issue, 'extra');
             }).join('')}
         </div>` : ''}
     </div>`;
@@ -1667,28 +1696,14 @@ function renderOtherIssues(candidate) {
         ${otherIssueIds.map(id => {
             const issue = ISSUES.find(i => i.id === id);
             if (!issue) return '';
-            const pos = candidate.issues[id];
-            const uid = `${candidate.initials}-other-${id}`.replace(/[^a-zA-Z0-9]/g, '_');
-            const stanceSummary = pos.stances ? pos.stances.join(' · ') : '';
-            return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
-                <div class="issue-row-header">
-                    <span class="issue-icon">${issue.icon}</span>
-                    <span class="issue-row-label">${issue.label}</span>
-                    ${stanceSummary ? `<span class="stance-summary">${stanceSummary}</span>` : ''}
-                    <span class="issue-row-caret">&#9656;</span>
-                </div>
-                <div class="issue-detail">
-                    <div class="issue-detail-inner">
-                        <div class="issue-detail-stances">
-                            ${pos.stances.map(s => `<span class="stance-pill" data-issue="${id}">${s}</span>`).join('')}
-                        </div>
-                        <div class="issue-detail-quote" data-issue="${id}">${pos.position}</div>
-                        <div class="issue-detail-source">${pos.source}</div>
-                    </div>
-                </div>
-            </div>`;
+            return renderIssueRow(candidate, issue, 'other');
         }).join('')}
     </div>`;
+}
+
+function candidatePhotoUrl(name) {
+    const encoded = encodeURIComponent(name);
+    return `https://ui-avatars.com/api/?name=${encoded}&background=e2e8f0&color=475569&size=80&font-size=0.4&bold=true`;
 }
 
 function renderCandidateCol(c, race) {
@@ -1699,10 +1714,14 @@ function renderCandidateCol(c, race) {
         ? [...selectedIdentities].filter(gid => c.endorsements.includes(gid))
         : [];
     const isEndorsed = matchedEndorsements.length > 0;
+    const photoUrl = c.photo || candidatePhotoUrl(c.name);
 
     return `<div class="candidate-col" style="${isEndorsed ? 'background: #faf9ff;' : ''}">
+        <div class="candidate-race-label">${race.name} &middot; ${race.type}</div>
         <div class="candidate-name-row">
-            <div class="candidate-avatar" style="${isEndorsed ? 'border-color: var(--purple); color: var(--purple);' : ''}">${c.initials}</div>
+            <div class="candidate-avatar" style="${isEndorsed ? 'border-color: var(--purple);' : ''}">
+                <img src="${photoUrl}" alt="${c.name}" loading="lazy">
+            </div>
             <div class="candidate-info">
                 <h4>${c.name}</h4>
                 <span class="candidate-meta">
@@ -1733,7 +1752,35 @@ function renderCandidateCol(c, race) {
     </div>`;
 }
 
-// Old separate view functions removed — unified into single race card view
+// ============================================================
+// SHARE
+// ============================================================
+function shareRace(raceId, raceName) {
+    const url = `${location.origin}${location.pathname}#race-${raceId}`;
+    const text = `Check out the ${raceName} race on change.vote`;
+    doShare(url, text, event);
+}
+
+function shareBallot() {
+    const url = `${location.origin}${location.pathname}`;
+    const text = 'Check out my personalized ballot on change.vote';
+    doShare(url, text, event);
+}
+
+function doShare(url, text, evt) {
+    if (navigator.share) {
+        navigator.share({ title: text, url }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            const btn = evt && evt.target.closest('.race-share-btn');
+            if (btn) {
+                const orig = btn.innerHTML;
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.innerHTML = orig; }, 1500);
+            }
+        });
+    }
+}
 
 // ============================================================
 // GO
