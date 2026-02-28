@@ -243,6 +243,10 @@
             font-weight: 500;
             cursor: pointer;
             transition: opacity 0.15s;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .filter-active-tag:hover {
             opacity: 0.7;
@@ -360,12 +364,14 @@
 
         .candidates-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 0;
         }
         .candidate-col {
-            padding: 20px 24px;
+            padding: 20px;
             border-right: 1px solid var(--border);
+            overflow-x: hidden;
+            min-width: 0;
         }
         .candidate-col:last-child { border-right: none; }
 
@@ -389,10 +395,16 @@
             color: var(--text-muted);
             flex-shrink: 0;
         }
+        .candidate-info {
+            min-width: 0;
+        }
         .candidate-info h4 {
             font-size: 15px;
             font-weight: 600;
             line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .candidate-meta {
             font-size: 12px;
@@ -412,22 +424,24 @@
         /* Issue positions on candidate */
         .candidate-issues {
             margin-top: 14px;
+            overflow: hidden;
         }
         .issue-row {
             padding: 8px 0;
             border-top: 1px solid #f1f5f9;
+            border-radius: var(--radius-sm);
+            transition: background 0.15s;
         }
         .issue-row:hover {
             background: #fafbfc;
-            margin: 0 -12px;
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
         }
         .issue-row-header {
             display: flex;
             align-items: center;
             gap: 5px;
             margin-bottom: 6px;
+            flex-wrap: wrap;
+            min-width: 0;
         }
         .issue-icon {
             font-size: 14px;
@@ -440,6 +454,10 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .issue-row-more {
             font-size: 11px;
@@ -450,6 +468,7 @@
             gap: 3px;
             opacity: 0.6;
             transition: opacity 0.15s;
+            flex-shrink: 0;
         }
         .issue-row:hover .issue-row-more {
             opacity: 1;
@@ -468,7 +487,8 @@
         .stance-pills {
             display: flex;
             flex-wrap: wrap;
-            gap: 5px;
+            gap: 4px;
+            min-width: 0;
         }
         .stance-pill {
             display: inline-block;
@@ -478,6 +498,10 @@
             font-weight: 500;
             line-height: 1.4;
             transition: all 0.15s;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .stance-pill.no-position {
             background: #f1f5f9;
@@ -580,6 +604,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
+            min-width: 0;
         }
         .endorsement-chip {
             display: inline-flex;
@@ -592,6 +617,10 @@
             background: #f1f5f9;
             color: var(--text-secondary);
             transition: all 0.15s;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .endorsement-chip.highlighted {
             background: var(--purple-light);
@@ -600,6 +629,7 @@
         }
         .endorsement-chip .chip-icon {
             font-size: 12px;
+            flex-shrink: 0;
         }
 
         /* Top issues preview (before filters) */
@@ -628,10 +658,15 @@
             font-weight: 500;
             background: #f1f5f9;
             color: var(--text-secondary);
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .top-issue-tag .tag-icon {
             font-size: 12px;
             line-height: 1;
+            flex-shrink: 0;
         }
 
         /* Match indicator */
@@ -675,14 +710,12 @@
         }
         .issue-row.rated-agree {
             background: #f0fdf4;
-            margin: 0 -12px;
-            padding: 8px 12px;
+            padding: 8px;
             border-radius: var(--radius-sm);
         }
         .issue-row.rated-disagree {
             background: #fffbeb;
-            margin: 0 -12px;
-            padding: 8px 12px;
+            padding: 8px;
             border-radius: var(--radius-sm);
         }
 
@@ -692,6 +725,8 @@
             margin-top: 14px;
             padding-top: 12px;
             border-top: 1px solid #f1f5f9;
+            overflow: visible;
+            position: relative;
         }
         .alignment-score.visible { display: block; }
         .alignment-label {
@@ -721,17 +756,17 @@
             position: relative;
             text-transform: none;
             letter-spacing: 0;
+            flex-shrink: 0;
         }
         .alignment-label .info-dot .info-tip {
             display: none;
             position: absolute;
             bottom: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            width: 240px;
+            right: -8px;
+            width: 220px;
             background: #1e293b;
             color: white;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 400;
             line-height: 1.5;
             padding: 10px 12px;
@@ -739,13 +774,13 @@
             z-index: 100;
             text-transform: none;
             letter-spacing: 0;
+            white-space: normal;
         }
         .alignment-label .info-dot .info-tip::after {
             content: '';
             position: absolute;
             top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
+            right: 12px;
             border: 5px solid transparent;
             border-top-color: #1e293b;
         }
@@ -764,6 +799,8 @@
             border-radius: 12px;
             font-size: 13px;
             font-weight: 600;
+            max-width: 100%;
+            white-space: nowrap;
         }
         .alignment-chip.high {
             background: var(--green-light);
@@ -888,12 +925,13 @@
         @media (max-width: 640px) {
             .hero h1 { font-size: 22px; }
             .candidates-grid { grid-template-columns: 1fr; }
-            .candidate-col { border-right: none; border-bottom: 1px solid var(--border); }
+            .candidate-col { border-right: none; border-bottom: 1px solid var(--border); padding: 16px; }
             .candidate-col:last-child { border-bottom: none; }
             .issue-candidates-row { grid-template-columns: 1fr; }
             .issue-candidate-cell { border-right: none; border-bottom: 1px solid var(--border); }
             .issue-candidate-cell:last-child { border-bottom: none; }
             .filter-popover { min-width: 280px; left: -40px; }
+            .align-toggle button { padding: 4px 8px; font-size: 10px; }
         }
 
         /* ========== TRANSITIONS ========== */
