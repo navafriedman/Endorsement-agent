@@ -1,16 +1,18 @@
-import type { ViewMode } from './types';
-
 type Listener = () => void;
+
+export type AlignmentRating = 'agree' | 'disagree' | null;
 
 class AppState {
   private _selectedIssues = new Set<string>();
   private _selectedIdentities = new Set<string>();
-  private _currentView: ViewMode = 'races';
+  private _openDropdown: 'issues' | 'identity' | null = null;
+  private _expandedRows = new Set<string>(); // "candidateName:issueId"
+  private _alignments = new Map<string, AlignmentRating>(); // "candidateName:issueId" -> rating
   private listeners: Listener[] = [];
 
   get selectedIssues(): ReadonlySet<string> { return this._selectedIssues; }
   get selectedIdentities(): ReadonlySet<string> { return this._selectedIdentities; }
-  get currentView(): ViewMode { return this._currentView; }
+  get openDropdown(): string | null { return this._openDropdown; }
 
   subscribe(listener: Listener): () => void {
     this.listeners.push(listener);
@@ -41,19 +43,83 @@ class AppState {
     this.notify();
   }
 
-  setView(view: ViewMode): void {
-    this._currentView = view;
+  setDropdown(which: 'issues' | 'identity' | null): void {
+    this._openDropdown = which;
+    this.notify();
+  }
+
+  toggleDropdown(which: 'issues' | 'identity'): void {
+    this._openDropdown = this._openDropdown === which ? null : which;
     this.notify();
   }
 
   clearAll(): void {
     this._selectedIssues.clear();
     this._selectedIdentities.clear();
+    this._alignments.clear();
+    this._expandedRows.clear();
     this.notify();
   }
 
   hasFilters(): boolean {
     return this._selectedIssues.size > 0 || this._selectedIdentities.size > 0;
+  }
+
+  // Row expansion
+  isExpanded(key: string): boolean {
+    return this._expandedRows.has(key);
+  }
+
+  toggleExpanded(key: string): void {
+    if (this._expandedRows.has(key)) {
+      this._expandedRows.delete(key);
+    } else {
+      this._expandedRows.add(key);
+    }
+    this.notify();
+  }
+
+  // Alignments
+  getAlignment(key: string): AlignmentRating {
+    return this._alignments.get(key) ?? null;
+  }
+
+  setAlignment(key: string, rating: AlignmentRating): void {
+    if (rating === null) {
+      this._alignments.delete(key);
+    } else {
+      this._alignments.set(key, rating);
+    }
+    this.notify();
+  }
+
+  toggleAlignment(key: string, rating: 'agree' | 'disagree'): void {
+    const current = this._alignments.get(key);
+    if (current === rating) {
+      this._alignments.delete(key);
+    } else {
+      this._alignments.set(key, rating);
+    }
+    this.notify();
+  }
+
+  // Calculate alignment score for a candidate
+  getAlignmentScore(candidateName: string): { score: number; total: number } | null {
+    let agrees = 0;
+    let disagrees = 0;
+    let total = 0;
+
+    for (const [key, rating] of this._alignments) {
+      if (key.startsWith(candidateName + ':')) {
+        total++;
+        if (rating === 'agree') agrees++;
+        if (rating === 'disagree') disagrees++;
+      }
+    }
+
+    if (total === 0) return null;
+    const score = Math.round(((agrees) / total) * 100);
+    return { score, total };
   }
 }
 

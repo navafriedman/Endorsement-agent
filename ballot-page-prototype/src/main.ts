@@ -2,14 +2,10 @@ import './styles.css';
 import { state } from './state';
 import {
   renderShell,
-  renderViewToggle,
+  renderFilterBar,
   renderIssuePills,
   renderIdentityPills,
-  renderFiltersBar,
-  renderRacesView,
-  renderIssuesView,
-  renderIdentityView,
-  updatePanels,
+  renderRaceCards,
 } from './render';
 
 // ============================================================
@@ -20,26 +16,17 @@ const app = document.getElementById('app')!;
 app.innerHTML = renderShell();
 
 // ============================================================
-// INITIAL RENDER
+// RENDER CYCLE
 // ============================================================
 
 function renderAll(): void {
-  renderViewToggle();
+  renderFilterBar();
   renderIssuePills();
   renderIdentityPills();
-  renderFiltersBar();
-  renderRacesView();
-  renderIssuesView();
-  renderIdentityView();
-  updatePanels();
+  renderRaceCards();
 }
 
 renderAll();
-
-// ============================================================
-// SUBSCRIBE TO STATE CHANGES
-// ============================================================
-
 state.subscribe(renderAll);
 
 // ============================================================
@@ -48,33 +35,85 @@ state.subscribe(renderAll);
 
 app.addEventListener('click', (e) => {
   const target = e.target as HTMLElement;
-  const btn = target.closest('button') || target.closest('.pill');
-  if (!btn) return;
 
-  // View toggle
-  const viewAttr = btn.getAttribute('data-view');
-  if (viewAttr) {
-    state.setView(viewAttr as 'races' | 'issues' | 'identity');
+  // Filter overlay click — close dropdowns
+  if (target.id === 'filter-overlay') {
+    state.setDropdown(null);
     return;
   }
 
-  // Issue pill
-  const issueAttr = btn.getAttribute('data-issue');
-  if (issueAttr) {
-    state.toggleIssue(issueAttr);
+  // Dropdown toggle buttons
+  const dropdownBtn = target.closest('[data-dropdown]') as HTMLElement | null;
+  if (dropdownBtn) {
+    const which = dropdownBtn.getAttribute('data-dropdown') as 'issues' | 'identity';
+    state.toggleDropdown(which);
     return;
   }
 
-  // Identity pill
-  const identityAttr = btn.getAttribute('data-identity');
-  if (identityAttr) {
-    state.toggleIdentity(identityAttr);
+  // Issue pill (inside popover)
+  const issuePill = target.closest('[data-issue]') as HTMLElement | null;
+  if (issuePill) {
+    state.toggleIssue(issuePill.getAttribute('data-issue')!);
+    return;
+  }
+
+  // Identity pill (inside popover)
+  const identityPill = target.closest('[data-identity]') as HTMLElement | null;
+  if (identityPill) {
+    state.toggleIdentity(identityPill.getAttribute('data-identity')!);
+    return;
+  }
+
+  // Remove filter tag
+  const removeIssue = target.closest('[data-remove-issue]') as HTMLElement | null;
+  if (removeIssue) {
+    state.toggleIssue(removeIssue.getAttribute('data-remove-issue')!);
+    return;
+  }
+  const removeIdentity = target.closest('[data-remove-identity]') as HTMLElement | null;
+  if (removeIdentity) {
+    state.toggleIdentity(removeIdentity.getAttribute('data-remove-identity')!);
     return;
   }
 
   // Clear all
-  if (btn.id === 'clear-all') {
+  if (target.closest('#clear-all')) {
     state.clearAll();
     return;
+  }
+
+  // Agree/disagree buttons — handle BEFORE expand so clicks don't bubble
+  const alignBtn = target.closest('[data-align]') as HTMLElement | null;
+  if (alignBtn) {
+    e.stopPropagation();
+    const key = alignBtn.getAttribute('data-align-key')!;
+    const rating = alignBtn.getAttribute('data-align')! as 'agree' | 'disagree';
+    state.toggleAlignment(key, rating);
+    return;
+  }
+
+  // Other issues toggle
+  const otherToggle = target.closest('[data-other-toggle]') as HTMLElement | null;
+  if (otherToggle) {
+    const candidateName = otherToggle.getAttribute('data-other-toggle')!;
+    state.toggleExpanded(`other:${candidateName}`);
+    return;
+  }
+
+  // Issue row expand/collapse
+  const issueRow = target.closest('.issue-row') as HTMLElement | null;
+  if (issueRow) {
+    const key = issueRow.getAttribute('data-expand-key');
+    if (key) {
+      state.toggleExpanded(key);
+    }
+    return;
+  }
+});
+
+// Also close dropdowns on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && state.openDropdown) {
+    state.setDropdown(null);
   }
 });

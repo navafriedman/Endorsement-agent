@@ -14,6 +14,7 @@ export interface IdentityGroup {
 export interface IssuePosition {
   position: string;
   source: string;
+  stances: string[];
 }
 
 export interface Candidate {
@@ -32,5 +33,3 @@ export interface Race {
   type: 'federal' | 'state' | 'local';
   candidates: Candidate[];
 }
-
-export type ViewMode = 'races' | 'issues' | 'identity';
