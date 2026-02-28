@@ -1,0 +1,835 @@
+/* ============================================================
+   DESIGN TOKENS — change.vote design system
+   ============================================================ */
+:root {
+  /* Primary */
+  --coral: #F06449;
+  --coral-hover: #E05339;
+  --coral-light: #fef2f0;
+
+  /* Secondary */
+  --purple: #8B5CF6;
+  --purple-light: #ede9fe;
+
+  /* Supporting */
+  --teal: #2DD4BF;
+  --teal-light: #ccfbf1;
+  --blue: #3B82F6;
+  --blue-light: #dbeafe;
+  --amber: #F59E0B;
+  --amber-light: #fef3c7;
+  --green: #10B981;
+  --green-light: #d1fae5;
+  --rose: #F43F5E;
+  --rose-light: #ffe4e6;
+
+  /* Neutrals */
+  --bg: #f8fafc;
+  --bg-white: #ffffff;
+  --border: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --text: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  /* Radii */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 4px;
+
+  /* Shadows */
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.header {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--coral);
+  text-decoration: none;
+  letter-spacing: -0.3px;
+}
+
+.logo span {
+  color: var(--text);
+}
+
+.header-location {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: white;
+  padding: 40px 0 36px;
+}
+
+.hero h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+
+.hero-subtitle {
+  font-size: 15px;
+  opacity: 0.7;
+  margin-bottom: 12px;
+}
+
+.election-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.election-badge svg {
+  opacity: 0.8;
+}
+
+/* ============================================================
+   VIEW TOGGLE
+   ============================================================ */
+.view-toggle {
+  display: flex;
+  gap: 2px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 3px;
+  margin: 24px 0 20px;
+}
+
+.view-toggle-btn {
+  flex: 1;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.view-toggle-btn:hover:not(.active) {
+  color: var(--text);
+}
+
+.view-toggle-btn.active {
+  background: white;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-weight: 600;
+}
+
+/* ============================================================
+   PICKER SECTIONS (Issues & Groups)
+   ============================================================ */
+.picker {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+.picker-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.picker-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+}
+
+.pill-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ============================================================
+   PILLS
+   ============================================================ */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: white;
+  color: var(--text-secondary);
+  user-select: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.pill:hover {
+  border-color: var(--border-hover);
+  background: var(--bg);
+}
+
+.pill.selected {
+  border-color: var(--coral);
+  background: var(--coral-light);
+  color: var(--coral);
+}
+
+.pill.identity.selected {
+  border-color: var(--purple);
+  background: var(--purple-light);
+  color: var(--purple);
+}
+
+.pill-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.pill-count {
+  font-size: 11px;
+  background: var(--bg);
+  padding: 1px 6px;
+  border-radius: 8px;
+  color: var(--text-muted);
+}
+
+.pill.selected .pill-count {
+  background: rgba(240, 100, 73, 0.15);
+  color: var(--coral);
+}
+
+.pill.identity.selected .pill-count {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--purple);
+}
+
+/* ============================================================
+   ACTIVE FILTERS BAR
+   ============================================================ */
+.filters-bar {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.filters-bar-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.filter-tag.issue {
+  background: var(--coral-light);
+  color: var(--coral);
+}
+
+.filter-tag.identity {
+  background: var(--purple-light);
+  color: var(--purple);
+}
+
+.clear-btn {
+  font-size: 12px;
+  color: var(--coral);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.clear-btn:hover {
+  background: var(--coral-light);
+}
+
+/* ============================================================
+   HINT (empty state for content area)
+   ============================================================ */
+.hint {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+}
+
+.hint-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  opacity: 0.6;
+}
+
+.hint h3 {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.hint p {
+  font-size: 14px;
+}
+
+/* ============================================================
+   RACE HINT
+   ============================================================ */
+.race-hint {
+  text-align: center;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+  background: white;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* ============================================================
+   VIEW PANELS
+   ============================================================ */
+.view-panel {
+  display: none;
+}
+
+.view-panel.active {
+  display: block;
+}
+
+/* ============================================================
+   RACE CARDS
+   ============================================================ */
+.race-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.race-header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafbfc;
+}
+
+.race-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.race-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+.race-badge.federal { background: var(--blue-light); color: #1d4ed8; }
+.race-badge.state { background: var(--amber-light); color: #92400e; }
+.race-badge.local { background: var(--green-light); color: #065f46; }
+
+/* ============================================================
+   CANDIDATE COLUMNS
+   ============================================================ */
+.candidates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.candidate-col {
+  padding: 18px 20px;
+  border-right: 1px solid var(--border);
+}
+
+.candidate-col:last-child {
+  border-right: none;
+}
+
+/* Candidate header */
+.candidate-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.candidate-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.candidate-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.candidate-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 1px;
+}
+
+.incumbent-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: var(--teal-light);
+  color: #0d9488;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   ISSUE POSITIONS (within candidate column)
+   ============================================================ */
+.positions-list {
+  margin-top: 14px;
+}
+
+.position-item {
+  padding: 10px 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.position-item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.position-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--coral);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.position-text {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.position-source {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.position-none {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ============================================================
+   ENDORSEMENTS (within candidate column)
+   ============================================================ */
+.endorsements {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.endorsements-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.endorsement-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.endorsement-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  font-weight: 500;
+  background: #f1f5f9;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+
+.endorsement-chip.highlighted {
+  background: var(--purple-light);
+  color: var(--purple);
+  font-weight: 600;
+}
+
+/* ============================================================
+   MATCH BAR
+   ============================================================ */
+.match-section {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.match-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.match-bar {
+  height: 5px;
+  background: #f1f5f9;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.match-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.match-fill.high { background: var(--green); }
+.match-fill.medium { background: var(--amber); }
+.match-fill.low { background: var(--rose); }
+
+/* ============================================================
+   ISSUE-FIRST VIEW
+   ============================================================ */
+.issue-group {
+  margin-bottom: 20px;
+}
+
+.issue-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  margin-bottom: 8px;
+}
+
+.issue-group-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--coral-light);
+  flex-shrink: 0;
+}
+
+.issue-group-title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.issue-group-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Race row within issue-first view */
+.issue-race {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.issue-race-label {
+  padding: 10px 18px;
+  background: #fafbfc;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.issue-candidates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.issue-cell {
+  padding: 14px 18px;
+  border-right: 1px solid var(--border);
+}
+
+.issue-cell:last-child {
+  border-right: none;
+}
+
+.issue-cell-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.issue-cell-party {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.issue-cell-position {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--coral);
+}
+
+.issue-cell-position .source {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.issue-cell-none {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   IDENTITY-FIRST VIEW
+   ============================================================ */
+.identity-group-icon {
+  background: var(--purple-light) !important;
+}
+
+.endorsed-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  background: var(--purple-light);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--purple);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.issue-snippet {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--coral);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.issue-snippet strong {
+  color: var(--text);
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  line-height: 1.8;
+}
+
+.footer a {
+  color: var(--coral);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.25s ease;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 640px) {
+  .hero { padding: 32px 0 28px; }
+  .hero h1 { font-size: 22px; }
+
+  .view-toggle { margin: 16px 0 14px; }
+  .view-toggle-btn { padding: 8px 10px; font-size: 13px; }
+
+  .picker { padding: 16px; }
+  .picker-title { font-size: 14px; }
+
+  .pill { padding: 6px 12px; font-size: 12px; }
+
+  .candidates-grid { grid-template-columns: 1fr; }
+  .candidate-col {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .candidate-col:last-child { border-bottom: none; }
+
+  .issue-candidates { grid-template-columns: 1fr; }
+  .issue-cell {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .issue-cell:last-child { border-bottom: none; }
+
+  .race-header {
+    position: sticky;
+    top: 47px;
+    z-index: 10;
+  }
+
+  .filters-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+
+@media (max-width: 400px) {
+  .container { padding: 0 14px; }
+  .candidate-col { padding: 14px; }
+  .race-header { padding: 12px 14px; }
+}
