@@ -423,13 +423,13 @@
 
         /* Issue positions on candidate */
         .candidate-issues {
-            margin-top: 14px;
+            margin-top: 10px;
             overflow: hidden;
         }
         .issue-row {
-            padding: 8px 0;
+            padding: 6px 0;
             border-top: 1px solid #f1f5f9;
-            border-radius: var(--radius-sm);
+            cursor: pointer;
             transition: background 0.15s;
         }
         .issue-row:hover {
@@ -437,98 +437,84 @@
         }
         .issue-row-header {
             display: flex;
-            align-items: center;
+            align-items: baseline;
             gap: 5px;
-            margin-bottom: 6px;
-            flex-wrap: wrap;
             min-width: 0;
         }
         .issue-icon {
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1;
             flex-shrink: 0;
         }
         .issue-row-label {
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .issue-row-more {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            opacity: 0.6;
-            transition: opacity 0.15s;
+            color: var(--text-secondary);
             flex-shrink: 0;
         }
-        .issue-row:hover .issue-row-more {
-            opacity: 1;
-            color: var(--purple);
-        }
-        .issue-row-more .caret {
-            font-size: 10px;
-            transition: transform 0.2s;
-        }
-        .issue-row.expanded .issue-row-more .caret {
-            transform: rotate(90deg);
-        }
-        .issue-row.expanded .issue-row-more .more-label {
-            display: none;
-        }
-        .stance-pills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            min-width: 0;
-        }
-        .stance-pill {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 14px;
+        .stance-summary {
             font-size: 12px;
-            font-weight: 500;
-            line-height: 1.4;
-            transition: all 0.15s;
-            max-width: 100%;
+            color: var(--text-muted);
+            min-width: 0;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            flex: 1;
+        }
+        .issue-row-caret {
+            font-size: 10px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            transition: transform 0.2s;
+            margin-left: auto;
+        }
+        .issue-row:hover .issue-row-caret {
+            color: var(--purple);
+        }
+        .issue-row.expanded .issue-row-caret {
+            transform: rotate(90deg);
         }
         .stance-pill.no-position {
-            background: #f1f5f9;
+            font-size: 12px;
             color: var(--text-muted);
             font-style: italic;
-            font-weight: 400;
         }
         .issue-detail {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.25s ease, margin 0.25s ease, padding 0.25s ease;
-            padding: 0 12px;
+            transition: max-height 0.3s ease, margin 0.25s ease, padding 0.25s ease;
             margin-top: 0;
+        }
+        .issue-row.expanded .issue-detail {
+            max-height: 300px;
+            margin-top: 6px;
+        }
+        .issue-detail-inner {
             background: #f8fafc;
             border-radius: var(--radius-sm);
+            padding: 10px 12px;
             font-size: 13px;
             color: var(--text-secondary);
             line-height: 1.5;
         }
-        .issue-row.expanded .issue-detail {
-            max-height: 200px;
-            padding: 10px 12px;
-            margin-top: 8px;
+        .issue-detail-stances {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .stance-pill {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.4;
         }
         .issue-detail-quote {
             position: relative;
             padding-left: 12px;
+            margin-bottom: 6px;
         }
         .issue-detail-quote::before {
             content: '';
@@ -543,7 +529,6 @@
         .issue-detail-source {
             font-size: 11px;
             color: var(--text-muted);
-            margin-top: 6px;
             display: flex;
             align-items: center;
             gap: 4px;
@@ -588,18 +573,12 @@
 
         /* Endorsement badges on candidate */
         .candidate-endorsements {
-            margin-top: 12px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #f1f5f9;
             display: none;
         }
         .candidate-endorsements.visible { display: block; }
-        .endorsements-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
         .endorsement-chips {
             display: flex;
             flex-wrap: wrap;
@@ -610,8 +589,8 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 3px 10px;
-            border-radius: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
             font-size: 11px;
             font-weight: 500;
             background: #f1f5f9;
@@ -628,162 +607,116 @@
             font-weight: 600;
         }
         .endorsement-chip .chip-icon {
-            font-size: 12px;
+            font-size: 11px;
             flex-shrink: 0;
         }
 
-        /* Other issues section (shown below selected issues) */
-        .other-issues {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed #e2e8f0;
-        }
-        .other-issues-label {
+        /* Other issues toggle (collapsed by default) */
+        .other-issues-toggle {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+            padding: 4px 0;
             font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: 500;
             color: var(--text-muted);
-            margin-bottom: 4px;
+            cursor: pointer;
+            transition: color 0.15s;
         }
-        .other-issues .issue-row {
-            opacity: 0.75;
+        .other-issues-toggle:hover {
+            color: var(--purple);
         }
-        .other-issues .issue-row:hover {
+        .other-issues-toggle .toggle-caret {
+            font-size: 9px;
+            transition: transform 0.2s;
+        }
+        .other-issues-toggle.open .toggle-caret {
+            transform: rotate(90deg);
+        }
+        .other-issues-content {
+            display: none;
+        }
+        .other-issues-content.visible {
+            display: block;
+        }
+        .other-issues-content .issue-row {
+            opacity: 0.7;
+        }
+        .other-issues-content .issue-row:hover {
             opacity: 1;
         }
 
-        /* Match indicator */
-        /* Agree / Disagree segmented toggle — inline with issue header */
-        .align-toggle {
+        /* Agree / Disagree compact icon buttons */
+        .align-btns {
             display: inline-flex;
+            gap: 2px;
             margin-left: auto;
             flex-shrink: 0;
+        }
+        .align-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
             border: 1.5px solid #e2e8f0;
-            border-radius: 14px;
-            overflow: hidden;
-            font-size: 11px;
-            font-weight: 600;
-            line-height: 1;
-        }
-        .align-toggle button {
-            padding: 4px 10px;
-            border: none;
             background: white;
-            color: #94a3b8;
             cursor: pointer;
-            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 11px;
-            font-weight: 600;
             line-height: 1;
+            transition: all 0.15s;
+            padding: 0;
+            color: #94a3b8;
         }
-        .align-toggle button:first-child {
-            border-right: 1px solid #e2e8f0;
-        }
-        .align-toggle button:hover {
+        .align-btn:hover {
+            border-color: #cbd5e1;
             background: #f8fafc;
-            color: #64748b;
         }
-        .align-toggle button.active-agree {
+        .align-btn.active-agree {
             background: #dcfce7;
+            border-color: #86efac;
             color: #16a34a;
         }
-        .align-toggle button.active-disagree {
+        .align-btn.active-disagree {
             background: #fff7ed;
+            border-color: #fdba74;
             color: #ea580c;
         }
         .issue-row.rated-agree {
             background: #f0fdf4;
-            padding: 8px;
+            padding: 6px 6px;
             border-radius: var(--radius-sm);
         }
         .issue-row.rated-disagree {
             background: #fffbeb;
-            padding: 8px;
+            padding: 6px 6px;
             border-radius: var(--radius-sm);
         }
 
-        /* Alignment score — follows same visual pattern as endorsements section */
+        /* Alignment score — compact single-line */
         .alignment-score {
             display: none;
-            margin-top: 14px;
-            padding-top: 12px;
+            margin-top: 10px;
+            padding-top: 8px;
             border-top: 1px solid #f1f5f9;
             overflow: visible;
             position: relative;
         }
-        .alignment-score.visible { display: block; }
-        .alignment-label {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 6px;
+        .alignment-score.visible {
             display: flex;
             align-items: center;
-            gap: 4px;
-        }
-        .alignment-label .info-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 1.5px solid var(--border);
-            background: white;
-            color: var(--text-muted);
-            font-size: 9px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: help;
-            position: relative;
-            text-transform: none;
-            letter-spacing: 0;
-            flex-shrink: 0;
-        }
-        .alignment-label .info-dot .info-tip {
-            display: none;
-            position: absolute;
-            bottom: calc(100% + 8px);
-            right: -8px;
-            width: 220px;
-            background: #1e293b;
-            color: white;
-            font-size: 11px;
-            font-weight: 400;
-            line-height: 1.5;
-            padding: 10px 12px;
-            border-radius: var(--radius-sm);
-            z-index: 100;
-            text-transform: none;
-            letter-spacing: 0;
-            white-space: normal;
-        }
-        .alignment-label .info-dot .info-tip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            right: 12px;
-            border: 5px solid transparent;
-            border-top-color: #1e293b;
-        }
-        .alignment-label .info-dot .info-tip a {
-            color: #93c5fd;
-            text-decoration: underline;
-        }
-        .alignment-label .info-dot:hover .info-tip {
-            display: block;
+            gap: 6px;
         }
         .alignment-chip {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 13px;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 12px;
             font-weight: 600;
-            max-width: 100%;
             white-space: nowrap;
         }
         .alignment-chip.high {
@@ -797,6 +730,53 @@
         .alignment-chip.low {
             background: var(--rose-light);
             color: #9f1239;
+        }
+        .alignment-info {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border);
+            background: white;
+            color: var(--text-muted);
+            font-size: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .alignment-info .info-tip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            right: -8px;
+            width: 200px;
+            background: #1e293b;
+            color: white;
+            font-size: 11px;
+            font-weight: 400;
+            line-height: 1.5;
+            padding: 8px 10px;
+            border-radius: var(--radius-sm);
+            z-index: 100;
+            white-space: normal;
+        }
+        .alignment-info .info-tip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 10px;
+            border: 5px solid transparent;
+            border-top-color: #1e293b;
+        }
+        .alignment-info .info-tip a {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+        .alignment-info:hover .info-tip {
+            display: block;
         }
 
         /* ========== NO CANDIDATES ========== */
@@ -915,7 +895,7 @@
             .issue-candidate-cell { border-right: none; border-bottom: 1px solid var(--border); }
             .issue-candidate-cell:last-child { border-bottom: none; }
             .filter-popover { min-width: 280px; left: -40px; }
-            .align-toggle button { padding: 4px 8px; font-size: 10px; }
+            .align-btn { width: 20px; height: 20px; font-size: 10px; }
         }
 
         /* ========== TRANSITIONS ========== */
@@ -1485,25 +1465,27 @@ function renderStancePills(candidate, issueList) {
             const ratingKey = `${candidate.name}:${issue.id}`;
             const rating = voterRatings[ratingKey] || null;
             const ratedClass = rating === 'agree' ? 'rated-agree' : rating === 'disagree' ? 'rated-disagree' : '';
-            return `<div class="issue-row ${ratedClass}" id="row-${uid}">
+            const stanceSummary = pos && pos.stances ? pos.stances.join(' · ') : '';
+            const escapedName = candidate.name.replace(/'/g, "\\'");
+            return `<div class="issue-row ${ratedClass}" id="row-${uid}" onclick="toggleDetail('${uid}')">
                 <div class="issue-row-header">
                     <span class="issue-icon">${issue.icon}</span>
-                    <span class="issue-row-label" onclick="toggleDetail('${uid}')" style="cursor:pointer">${issue.label}</span>
-                    ${pos ? `<span class="align-toggle">
-                        <button class="${rating === 'agree' ? 'active-agree' : ''}" onclick="event.stopPropagation(); ratePosition('${candidate.name}', '${issue.id}', 'agree')">Agree</button>
-                        <button class="${rating === 'disagree' ? 'active-disagree' : ''}" onclick="event.stopPropagation(); ratePosition('${candidate.name}', '${issue.id}', 'disagree')">Disagree</button>
+                    <span class="issue-row-label">${issue.label}</span>
+                    ${stanceSummary ? `<span class="stance-summary">${stanceSummary}</span>` : `<span class="stance-summary" style="font-style:italic">No position found</span>`}
+                    ${pos ? `<span class="align-btns" onclick="event.stopPropagation()">
+                        <button class="align-btn ${rating === 'agree' ? 'active-agree' : ''}" onclick="ratePosition('${escapedName}', '${issue.id}', 'agree')" title="Agree">&#9650;</button>
+                        <button class="align-btn ${rating === 'disagree' ? 'active-disagree' : ''}" onclick="ratePosition('${escapedName}', '${issue.id}', 'disagree')" title="Disagree">&#9660;</button>
                     </span>` : ''}
-                    ${pos ? `<span class="issue-row-more" onclick="toggleDetail('${uid}')" style="cursor:pointer"><span class="more-label">Details</span> <span class="caret">&#9656;</span></span>` : ''}
-                </div>
-                <div class="stance-pills">
-                    ${pos && pos.stances
-                        ? pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')
-                        : `<span class="stance-pill no-position">No position found</span>`
-                    }
+                    <span class="issue-row-caret">&#9656;</span>
                 </div>
                 ${pos ? `<div class="issue-detail">
-                    <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
-                    <div class="issue-detail-source">${pos.source}</div>
+                    <div class="issue-detail-inner">
+                        <div class="issue-detail-stances">
+                            ${pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')}
+                        </div>
+                        <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
+                        <div class="issue-detail-source">${pos.source}</div>
+                    </div>
                 </div>` : ''}
             </div>`;
         }).join('')}
@@ -1513,6 +1495,20 @@ function renderStancePills(candidate, issueList) {
 function toggleDetail(uid) {
     const row = document.getElementById('row-' + uid);
     if (row) row.classList.toggle('expanded');
+}
+
+function toggleOtherIssues(initials) {
+    const content = document.getElementById('other-' + initials);
+    const toggle = content && content.previousElementSibling;
+    if (content) content.classList.toggle('visible');
+    if (toggle) toggle.classList.toggle('open');
+}
+
+function toggleOtherDefault(initials) {
+    const content = document.getElementById('other-default-' + initials);
+    const toggle = content && content.previousElementSibling;
+    if (content) content.classList.toggle('visible');
+    if (toggle) toggle.classList.toggle('open');
 }
 
 function ratePosition(candidateName, issueId, rating) {
@@ -1568,10 +1564,8 @@ function renderAlignmentBar(candidate) {
     }
 
     return `<div class="alignment-score visible">
-        <div class="alignment-label">Your alignment
-            <span class="info-dot">?<span class="info-tip">Based on ${total} factors: positions you rated and endorsements from your trusted groups. <a href="https://example.com/how-alignment-works" target="_blank">Learn more</a></span></span>
-        </div>
         <span class="alignment-chip ${level}">${chipText}</span>
+        <span class="alignment-info">?<span class="info-tip">Based on ${total} factors: positions you rated and endorsements from your trusted groups. <a href="https://example.com/how-alignment-works" target="_blank">Learn more</a></span></span>
     </div>`;
 }
 
@@ -1579,59 +1573,95 @@ function renderTopIssuesPreview(candidate) {
     const issueIds = Object.keys(candidate.issues);
     if (issueIds.length === 0) return '';
 
-    const topIssues = issueIds.slice(0, 3).map(id => ISSUES.find(i => i.id === id)).filter(Boolean);
+    const topIssues = issueIds.slice(0, 4).map(id => ISSUES.find(i => i.id === id)).filter(Boolean);
     if (topIssues.length === 0) return '';
+
+    const remainingCount = issueIds.length - topIssues.length;
 
     return `<div class="candidate-issues">
         ${topIssues.map(issue => {
             const pos = candidate.issues[issue.id];
             const uid = `${candidate.initials}-default-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
-            return `<div class="issue-row" id="row-${uid}">
+            const stanceSummary = pos && pos.stances ? pos.stances.join(' · ') : '';
+            return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
                 <div class="issue-row-header">
                     <span class="issue-icon">${issue.icon}</span>
-                    <span class="issue-row-label" onclick="toggleDetail('${uid}')" style="cursor:pointer">${issue.label}</span>
-                    ${pos ? `<span class="issue-row-more" onclick="toggleDetail('${uid}')" style="cursor:pointer"><span class="more-label">Details</span> <span class="caret">&#9656;</span></span>` : ''}
-                </div>
-                <div class="stance-pills">
-                    ${pos && pos.stances
-                        ? pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')
-                        : `<span class="stance-pill no-position">No position found</span>`
-                    }
+                    <span class="issue-row-label">${issue.label}</span>
+                    ${stanceSummary ? `<span class="stance-summary">${stanceSummary}</span>` : ''}
+                    <span class="issue-row-caret">&#9656;</span>
                 </div>
                 ${pos ? `<div class="issue-detail">
-                    <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
-                    <div class="issue-detail-source">${pos.source}</div>
+                    <div class="issue-detail-inner">
+                        <div class="issue-detail-stances">
+                            ${pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')}
+                        </div>
+                        <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
+                        <div class="issue-detail-source">${pos.source}</div>
+                    </div>
                 </div>` : ''}
             </div>`;
         }).join('')}
+        ${remainingCount > 0 ? `<div class="other-issues-toggle" onclick="toggleOtherDefault('${candidate.initials}')">
+            <span class="toggle-caret">&#9656;</span> ${remainingCount} more position${remainingCount !== 1 ? 's' : ''}
+        </div>
+        <div class="other-issues-content" id="other-default-${candidate.initials}">
+            ${issueIds.slice(topIssues.length).map(id => {
+                const issue = ISSUES.find(i => i.id === id);
+                if (!issue) return '';
+                const pos = candidate.issues[id];
+                const uid = `${candidate.initials}-extra-${id}`.replace(/[^a-zA-Z0-9]/g, '_');
+                const stanceSummary = pos && pos.stances ? pos.stances.join(' · ') : '';
+                return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
+                    <div class="issue-row-header">
+                        <span class="issue-icon">${issue.icon}</span>
+                        <span class="issue-row-label">${issue.label}</span>
+                        ${stanceSummary ? `<span class="stance-summary">${stanceSummary}</span>` : ''}
+                        <span class="issue-row-caret">&#9656;</span>
+                    </div>
+                    ${pos ? `<div class="issue-detail">
+                        <div class="issue-detail-inner">
+                            <div class="issue-detail-stances">
+                                ${pos.stances.map(s => `<span class="stance-pill" data-issue="${id}">${s}</span>`).join('')}
+                            </div>
+                            <div class="issue-detail-quote" data-issue="${id}">${pos.position}</div>
+                            <div class="issue-detail-source">${pos.source}</div>
+                        </div>
+                    </div>` : ''}
+                </div>`;
+            }).join('')}
+        </div>` : ''}
     </div>`;
 }
 
 function renderOtherIssues(candidate) {
-    // Show candidate's other issue positions not in the selected set
     const otherIssueIds = Object.keys(candidate.issues).filter(id => !selectedIssues.has(id));
     if (otherIssueIds.length === 0) return '';
 
-    const otherIssues = otherIssueIds.slice(0, 3).map(id => ISSUES.find(i => i.id === id)).filter(Boolean);
-    if (otherIssues.length === 0) return '';
-
-    return `<div class="other-issues">
-        <div class="other-issues-label">Other positions</div>
-        ${otherIssues.map(issue => {
-            const pos = candidate.issues[issue.id];
-            const uid = `${candidate.initials}-other-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
-            return `<div class="issue-row" id="row-${uid}">
+    return `<div class="other-issues-toggle" onclick="toggleOtherIssues('${candidate.initials}')">
+        <span class="toggle-caret">&#9656;</span> ${otherIssueIds.length} more position${otherIssueIds.length !== 1 ? 's' : ''}
+    </div>
+    <div class="other-issues-content" id="other-${candidate.initials}">
+        ${otherIssueIds.map(id => {
+            const issue = ISSUES.find(i => i.id === id);
+            if (!issue) return '';
+            const pos = candidate.issues[id];
+            const uid = `${candidate.initials}-other-${id}`.replace(/[^a-zA-Z0-9]/g, '_');
+            const stanceSummary = pos.stances ? pos.stances.join(' · ') : '';
+            return `<div class="issue-row" id="row-${uid}" onclick="toggleDetail('${uid}')">
                 <div class="issue-row-header">
                     <span class="issue-icon">${issue.icon}</span>
-                    <span class="issue-row-label" onclick="toggleDetail('${uid}')" style="cursor:pointer">${issue.label}</span>
-                    <span class="issue-row-more" onclick="toggleDetail('${uid}')" style="cursor:pointer"><span class="more-label">Details</span> <span class="caret">&#9656;</span></span>
-                </div>
-                <div class="stance-pills">
-                    ${pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')}
+                    <span class="issue-row-label">${issue.label}</span>
+                    ${stanceSummary ? `<span class="stance-summary">${stanceSummary}</span>` : ''}
+                    <span class="issue-row-caret">&#9656;</span>
                 </div>
                 <div class="issue-detail">
-                    <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
-                    <div class="issue-detail-source">${pos.source}</div>
+                    <div class="issue-detail-inner">
+                        <div class="issue-detail-stances">
+                            ${pos.stances.map(s => `<span class="stance-pill" data-issue="${id}">${s}</span>`).join('')}
+                        </div>
+                        <div class="issue-detail-quote" data-issue="${id}">${pos.position}</div>
+                        <div class="issue-detail-source">${pos.source}</div>
+                    </div>
                 </div>
             </div>`;
         }).join('')}
@@ -1663,16 +1693,15 @@ function renderCandidateCol(c, race) {
         ${hasIssues ? renderOtherIssues(c) : ''}
 
         ${hasIdentity ? `
-        <div class="candidate-endorsements visible" style="margin-top:12px;">
+        <div class="candidate-endorsements visible">
             ${isEndorsed ? `
-            <div class="endorsements-label">Endorsed by your trusted voices</div>
             <div class="endorsement-chips">
                 ${matchedEndorsements.map(gid => {
                     const g = IDENTITY_GROUPS.find(x => x.id === gid);
                     return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
                 }).join('')}
             </div>` : `
-            <div style="font-size:12px;color:var(--text-muted);font-style:italic;">Not endorsed by your selected groups</div>`}
+            <div style="font-size:11px;color:var(--text-muted);font-style:italic;">Not endorsed by selected groups</div>`}
         </div>` : ''}
 
         ${renderAlignmentBar(c)}
