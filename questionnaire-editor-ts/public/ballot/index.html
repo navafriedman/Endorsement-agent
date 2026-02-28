@@ -632,41 +632,25 @@
             flex-shrink: 0;
         }
 
-        /* Top issues preview (before filters) */
-        .top-issues-preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
+        /* Other issues section (shown below selected issues) */
+        .other-issues {
             margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #e2e8f0;
         }
-        .top-issues-label {
+        .other-issues-label {
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
-            width: 100%;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
-        .top-issue-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 500;
-            background: #f1f5f9;
-            color: var(--text-secondary);
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .other-issues .issue-row {
+            opacity: 0.75;
         }
-        .top-issue-tag .tag-icon {
-            font-size: 12px;
-            line-height: 1;
-            flex-shrink: 0;
+        .other-issues .issue-row:hover {
+            opacity: 1;
         }
 
         /* Match indicator */
@@ -1577,9 +1561,9 @@ function renderAlignmentBar(candidate) {
 
     return `<div class="alignment-score visible">
         <div class="alignment-label">Your alignment
-            <span class="info-dot">?<span class="info-tip">Based on positions you rated and endorsements from your trusted groups. <a href="https://example.com/how-alignment-works" target="_blank">Learn more</a></span></span>
+            <span class="info-dot">?<span class="info-tip">Based on ${total} factor${total !== 1 ? 's' : ''}: positions you rated and endorsements from your trusted groups. <a href="https://example.com/how-alignment-works" target="_blank">Learn more</a></span></span>
         </div>
-        <span class="alignment-chip ${level}">${agreed} of ${total} match</span>
+        <span class="alignment-chip ${level}">${pct}% match</span>
     </div>`;
 }
 
@@ -1590,9 +1574,59 @@ function renderTopIssuesPreview(candidate) {
     const topIssues = issueIds.slice(0, 3).map(id => ISSUES.find(i => i.id === id)).filter(Boolean);
     if (topIssues.length === 0) return '';
 
-    return `<div class="top-issues-preview">
-        <div class="top-issues-label">Top issues</div>
-        ${topIssues.map(issue => `<span class="top-issue-tag"><span class="tag-icon">${issue.icon}</span> ${issue.label}</span>`).join('')}
+    return `<div class="candidate-issues">
+        ${topIssues.map(issue => {
+            const pos = candidate.issues[issue.id];
+            const uid = `${candidate.initials}-default-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
+            return `<div class="issue-row" id="row-${uid}">
+                <div class="issue-row-header">
+                    <span class="issue-icon">${issue.icon}</span>
+                    <span class="issue-row-label" onclick="toggleDetail('${uid}')" style="cursor:pointer">${issue.label}</span>
+                    ${pos ? `<span class="issue-row-more" onclick="toggleDetail('${uid}')" style="cursor:pointer"><span class="more-label">Details</span> <span class="caret">&#9656;</span></span>` : ''}
+                </div>
+                <div class="stance-pills">
+                    ${pos && pos.stances
+                        ? pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')
+                        : `<span class="stance-pill no-position">No position found</span>`
+                    }
+                </div>
+                ${pos ? `<div class="issue-detail">
+                    <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
+                    <div class="issue-detail-source">${pos.source}</div>
+                </div>` : ''}
+            </div>`;
+        }).join('')}
+    </div>`;
+}
+
+function renderOtherIssues(candidate) {
+    // Show candidate's other issue positions not in the selected set
+    const otherIssueIds = Object.keys(candidate.issues).filter(id => !selectedIssues.has(id));
+    if (otherIssueIds.length === 0) return '';
+
+    const otherIssues = otherIssueIds.slice(0, 3).map(id => ISSUES.find(i => i.id === id)).filter(Boolean);
+    if (otherIssues.length === 0) return '';
+
+    return `<div class="other-issues">
+        <div class="other-issues-label">Other positions</div>
+        ${otherIssues.map(issue => {
+            const pos = candidate.issues[issue.id];
+            const uid = `${candidate.initials}-other-${issue.id}`.replace(/[^a-zA-Z0-9]/g, '_');
+            return `<div class="issue-row" id="row-${uid}">
+                <div class="issue-row-header">
+                    <span class="issue-icon">${issue.icon}</span>
+                    <span class="issue-row-label" onclick="toggleDetail('${uid}')" style="cursor:pointer">${issue.label}</span>
+                    <span class="issue-row-more" onclick="toggleDetail('${uid}')" style="cursor:pointer"><span class="more-label">Details</span> <span class="caret">&#9656;</span></span>
+                </div>
+                <div class="stance-pills">
+                    ${pos.stances.map(s => `<span class="stance-pill" data-issue="${issue.id}">${s}</span>`).join('')}
+                </div>
+                <div class="issue-detail">
+                    <div class="issue-detail-quote" data-issue="${issue.id}">${pos.position}</div>
+                    <div class="issue-detail-source">${pos.source}</div>
+                </div>
+            </div>`;
+        }).join('')}
     </div>`;
 }
 
@@ -1618,6 +1652,7 @@ function renderCandidateCol(c, race) {
         </div>
 
         ${hasIssues ? renderStancePills(c, selectedIssueList) : renderTopIssuesPreview(c)}
+        ${hasIssues ? renderOtherIssues(c) : ''}
 
         ${hasIdentity ? `
         <div class="candidate-endorsements visible" style="margin-top:12px;">
