@@ -686,60 +686,84 @@
             border-radius: var(--radius-sm);
         }
 
-        /* Match bar */
-        .match-bar-container {
+        /* Alignment score */
+        .alignment-score {
             display: none;
             margin-top: 14px;
-            padding-top: 12px;
-            border-top: 1px solid #f1f5f9;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
         }
-        .match-bar-container.visible { display: block; }
-        .match-bar-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 4px;
+        .alignment-score.visible { display: block; }
+        .alignment-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 8px;
         }
-        .match-bar {
-            height: 6px;
-            background: #f1f5f9;
-            border-radius: 3px;
-            overflow: hidden;
+        .alignment-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
         }
-        .match-bar-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.4s ease;
-            background: var(--teal);
+        .alignment-fraction {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1;
         }
-        .match-bar-fill.high { background: var(--green); }
-        .match-bar-fill.medium { background: var(--amber); }
-        .match-bar-fill.low { background: var(--rose); }
-        .align-info-btn {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 1px solid #cbd5e1;
-            background: white;
-            color: #94a3b8;
-            font-size: 10px;
-            cursor: help;
+        .alignment-fraction .of-total {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        .alignment-segments {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 6px;
+        }
+        .align-segment {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            transition: background 0.3s;
+        }
+        .align-segment.agree { background: var(--green); }
+        .align-segment.disagree { background: #fb923c; }
+        .alignment-legend {
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .alignment-legend span {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            margin-left: 4px;
-            position: relative;
-            flex-shrink: 0;
+            gap: 4px;
         }
-        .align-tooltip {
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .legend-dot.agree { background: var(--green); }
+        .legend-dot.disagree { background: #fb923c; }
+        .legend-dot.unrated { background: #e2e8f0; }
+        .alignment-tooltip-wrap {
+            position: relative;
+            cursor: help;
+        }
+        .alignment-tooltip-wrap .align-tooltip {
             display: none;
             position: absolute;
             bottom: calc(100% + 8px);
-            right: -8px;
-            width: 220px;
+            right: 0;
+            width: 230px;
             background: #1e293b;
             color: white;
             font-size: 11px;
@@ -758,8 +782,7 @@
             border: 5px solid transparent;
             border-top-color: #1e293b;
         }
-        .align-info-btn:hover .align-tooltip,
-        .align-info-btn:focus .align-tooltip {
+        .alignment-tooltip-wrap:hover .align-tooltip {
             display: block;
         }
 
@@ -1490,26 +1513,29 @@ function ratePosition(candidateName, issueId, rating) {
 }
 
 function calculateMatch(candidate) {
-    let total = 0;
-    let agreed = 0;
+    // Build a list of individual segments: { type: 'agree'|'disagree'|'endorsed'|'not-endorsed' }
+    const segments = [];
 
-    // Count voter ratings for this candidate
     for (const issueId of selectedIssues) {
         const key = `${candidate.name}:${issueId}`;
         if (voterRatings[key]) {
-            total++;
-            if (voterRatings[key] === 'agree') agreed++;
+            segments.push({ type: voterRatings[key] }); // 'agree' or 'disagree'
         }
     }
 
-    // Identity match: endorsed by selected groups
     for (const groupId of selectedIdentities) {
-        total++;
-        if (candidate.endorsements.includes(groupId)) agreed++;
+        if (candidate.endorsements.includes(groupId)) {
+            segments.push({ type: 'agree' });
+        } else {
+            segments.push({ type: 'disagree' });
+        }
     }
 
-    if (total === 0) return { score: 0, agreed: 0, total: 0, hasRatings: false };
-    return { score: Math.round((agreed / total) * 100), agreed, total, hasRatings: true };
+    if (segments.length === 0) return { score: 0, agreed: 0, total: 0, segments: [], hasRatings: false };
+
+    const agreed = segments.filter(s => s.type === 'agree').length;
+    const total = segments.length;
+    return { score: Math.round((agreed / total) * 100), agreed, total, segments, hasRatings: true };
 }
 
 function renderCurrentView() {
@@ -1517,23 +1543,27 @@ function renderCurrentView() {
 }
 
 function renderAlignmentBar(candidate) {
-    const { score, agreed, total, hasRatings } = calculateMatch(candidate);
+    const { agreed, total, segments, hasRatings } = calculateMatch(candidate);
 
-    // Don't show anything until the voter has made at least one rating
     if (!hasRatings) return '';
 
-    return `<div class="match-bar-container visible">
-        <div class="match-bar-label">
-            <span>Your alignment
-                <span class="align-info-btn" tabindex="0">?
-                    <span class="align-tooltip">Based on the positions you marked Agree or Disagree${selectedIdentities.size > 0 ? ', plus endorsements from your trusted groups' : ''}. Only issues you've rated are counted.</span>
-                </span>
-            </span>
-            <span>${agreed} of ${total}</span>
+    const agreeCount = segments.filter(s => s.type === 'agree').length;
+    const disagreeCount = segments.filter(s => s.type === 'disagree').length;
+
+    return `<div class="alignment-score visible">
+        <div class="alignment-header">
+            <span class="alignment-title">Your alignment</span>
+            <div class="alignment-tooltip-wrap">
+                <span class="alignment-fraction">${agreed} <span class="of-total">of ${total}</span></span>
+                <span class="align-tooltip">Based on positions you marked Agree or Disagree${selectedIdentities.size > 0 ? ', plus endorsements from your trusted groups' : ''}. Only rated issues are counted.</span>
+            </div>
         </div>
-        <div class="match-bar">
-            <div class="match-bar-fill ${score >= 60 ? 'high' : score >= 30 ? 'medium' : 'low'}"
-                style="width: ${score}%"></div>
+        <div class="alignment-segments">
+            ${segments.map(s => `<div class="align-segment ${s.type}"></div>`).join('')}
+        </div>
+        <div class="alignment-legend">
+            <span><span class="legend-dot agree"></span>${agreeCount} agree</span>
+            <span><span class="legend-dot disagree"></span>${disagreeCount} disagree</span>
         </div>
     </div>`;
 }
