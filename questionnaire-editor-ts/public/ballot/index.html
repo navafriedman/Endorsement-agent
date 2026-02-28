@@ -366,12 +366,15 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 0;
+            align-items: stretch;
         }
         .candidate-col {
             padding: 20px;
             border-right: 1px solid var(--border);
             overflow-x: hidden;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
         }
         .candidate-col:last-child { border-right: none; }
 
@@ -380,6 +383,11 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 6px;
+            position: sticky;
+            top: 57px; /* below sticky page-header */
+            background: inherit;
+            z-index: 5;
+            padding-bottom: 4px;
         }
         .candidate-avatar {
             width: 36px;
@@ -437,7 +445,7 @@
         }
         .issue-row-header {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             gap: 5px;
             min-width: 0;
         }
@@ -616,13 +624,14 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            margin-top: 4px;
-            padding: 4px 0;
+            margin-top: 6px;
+            padding: 5px 0;
             font-size: 11px;
             font-weight: 500;
             color: var(--text-muted);
             cursor: pointer;
             transition: color 0.15s;
+            border-top: 1px dashed #e2e8f0;
         }
         .other-issues-toggle:hover {
             color: var(--purple);
@@ -709,10 +718,15 @@
             border-radius: var(--radius-sm);
         }
 
+        /* Bottom section of candidate card — endorsements + alignment pushed to bottom */
+        .candidate-bottom {
+            margin-top: auto;
+        }
+
         /* Alignment score — compact single-line */
         .alignment-score {
             display: none;
-            margin-top: 10px;
+            margin-top: 8px;
             padding-top: 8px;
             border-top: 1px solid #f1f5f9;
             overflow: visible;
@@ -1706,19 +1720,21 @@ function renderCandidateCol(c, race) {
         ${hasIssues ? renderStancePills(c, selectedIssueList) : renderTopIssuesPreview(c)}
         ${hasIssues ? renderOtherIssues(c) : ''}
 
-        ${hasIdentity ? `
-        <div class="candidate-endorsements visible">
-            ${isEndorsed ? `
-            <div class="endorsement-chips">
-                ${matchedEndorsements.map(gid => {
-                    const g = IDENTITY_GROUPS.find(x => x.id === gid);
-                    return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
-                }).join('')}
-            </div>` : `
-            <div style="font-size:11px;color:var(--text-muted);font-style:italic;">Not endorsed by selected groups</div>`}
-        </div>` : ''}
+        <div class="candidate-bottom">
+            ${hasIdentity ? `
+            <div class="candidate-endorsements visible">
+                ${isEndorsed ? `
+                <div class="endorsement-chips">
+                    ${matchedEndorsements.map(gid => {
+                        const g = IDENTITY_GROUPS.find(x => x.id === gid);
+                        return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
+                    }).join('')}
+                </div>` : `
+                <div style="font-size:11px;color:var(--text-muted);font-style:italic;">Not endorsed by selected groups</div>`}
+            </div>` : ''}
 
-        ${renderAlignmentBar(c)}
+            ${renderAlignmentBar(c)}
+        </div>
     </div>`;
 }
 
