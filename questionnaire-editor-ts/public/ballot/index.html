@@ -105,71 +105,164 @@
             margin-top: 12px;
         }
 
-        /* ========== APPROACH TOGGLE ========== */
-        .view-toggle {
+        /* ========== FILTER BAR MARGIN ========== */
+
+        /* ========== FILTER BAR ========== */
+        .filter-bar {
             display: flex;
-            gap: 2px;
-            background: var(--bg);
+            align-items: center;
+            gap: 8px;
+            background: white;
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 3px;
-            margin: 24px 0;
-        }
-        .view-toggle button {
-            flex: 1;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 7px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            background: transparent;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-        .view-toggle button.active {
-            background: white;
-            color: var(--text);
+            padding: 8px 12px;
+            margin: 24px 0 16px;
             box-shadow: var(--shadow);
+            flex-wrap: wrap;
+            position: relative;
         }
-        .view-toggle button:hover:not(.active) {
-            color: var(--text);
-        }
-
-        /* ========== ISSUE PICKER ========== */
-        .section-label {
+        .filter-bar-label {
             font-size: 13px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
             color: var(--text-muted);
-            margin-bottom: 10px;
+            white-space: nowrap;
         }
-
-        .picker-section {
+        .filter-dropdown {
+            position: relative;
+        }
+        .filter-dropdown-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: white;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+        }
+        .filter-dropdown-btn:hover {
+            border-color: var(--border-hover);
+            background: var(--bg);
+        }
+        .filter-dropdown-btn.has-selections {
+            border-color: var(--coral);
+            background: var(--coral-light);
+            color: var(--coral);
+        }
+        .filter-dropdown-btn.identity-btn.has-selections {
+            border-color: var(--purple);
+            background: var(--purple-light);
+            color: var(--purple);
+        }
+        .filter-dropdown-btn .badge {
+            background: var(--coral);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 0 6px;
+            border-radius: 8px;
+            min-width: 18px;
+            text-align: center;
+            line-height: 18px;
+        }
+        .filter-dropdown-btn.identity-btn .badge {
+            background: var(--purple);
+        }
+        .filter-dropdown-btn .caret {
+            font-size: 10px;
+            transition: transform 0.2s;
+        }
+        .filter-dropdown.open .filter-dropdown-btn .caret {
+            transform: rotate(180deg);
+        }
+        .filter-popover {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            z-index: 200;
             background: white;
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 20px 24px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
+            padding: 16px;
+            box-shadow: var(--shadow-lg);
+            min-width: 340px;
+            max-width: 440px;
         }
-        .picker-section h2 {
-            font-size: 17px;
+        .filter-dropdown.open .filter-popover {
+            display: block;
+        }
+        .filter-popover h3 {
+            font-size: 14px;
             font-weight: 600;
             margin-bottom: 4px;
         }
-        .picker-section p {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 14px;
+        .filter-popover p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
         }
-
-        .pill-grid {
+        .filter-popover .pill-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
         }
+        .filter-popover .pill {
+            font-size: 12px;
+            padding: 6px 12px;
+        }
+        .filter-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 150;
+        }
+        .filter-overlay.visible {
+            display: block;
+        }
+        .filter-active-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-left: 4px;
+        }
+        .filter-active-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .filter-active-tag:hover {
+            opacity: 0.7;
+        }
+        .filter-active-tag.issue-tag { background: var(--coral-light); color: var(--coral); }
+        .filter-active-tag.identity-tag { background: var(--purple-light); color: var(--purple); }
+        .filter-active-tag .remove {
+            font-size: 10px;
+            margin-left: 2px;
+        }
+        .clear-all-link {
+            font-size: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+        .clear-all-link:hover { color: var(--coral); text-decoration: underline; }
+
+        /* Pill base styles */
         .pill {
             display: inline-flex;
             align-items: center;
@@ -209,8 +302,6 @@
             background: rgba(240, 100, 73, 0.15);
             color: var(--coral);
         }
-
-        /* Identity pills have different selected color */
         .pill.identity-pill.selected {
             border-color: var(--purple);
             background: var(--purple-light);
@@ -220,55 +311,6 @@
             background: rgba(139, 92, 246, 0.15);
             color: var(--purple);
         }
-
-        /* ========== ACTIVE FILTERS ========== */
-        .active-filters {
-            display: none;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 14px 20px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-        }
-        .active-filters.visible { display: block; }
-        .active-filters-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        .active-filters-header span {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-        .clear-all {
-            font-size: 12px;
-            color: var(--coral);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-        }
-        .clear-all:hover { text-decoration: underline; }
-        .filter-summary {
-            font-size: 13px;
-            color: var(--text-secondary);
-            line-height: 1.8;
-        }
-        .filter-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            margin: 0 2px;
-        }
-        .filter-tag.issue-tag { background: var(--coral-light); color: var(--coral); }
-        .filter-tag.identity-tag { background: var(--purple-light); color: var(--purple); }
 
         /* ========== RACE CARDS ========== */
         .races-section {
@@ -651,27 +693,7 @@
         }
 
         /* ========== EMPTY STATE ========== */
-        .empty-state {
-            text-align: center;
-            padding: 48px 24px;
-            color: var(--text-secondary);
-        }
-        .empty-state .icon {
-            font-size: 36px;
-            margin-bottom: 12px;
-        }
-        .empty-state h3 {
-            font-size: 17px;
-            margin-bottom: 6px;
-        }
-        .empty-state p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        /* ========== TRADITIONAL VIEW ========== */
-        .view-panel { display: none; }
-        .view-panel.active { display: block; }
+        /* (empty-state and view-panel removed — single unified view) */
 
         /* ========== ISSUE-FIRST VIEW ========== */
         .issue-group {
@@ -814,69 +836,40 @@
 
 <main class="container">
 
-    <!-- VIEW TOGGLE -->
-    <div class="view-toggle">
-        <button class="active" onclick="switchView('issues')" id="btn-issues">Issues First</button>
-        <button onclick="switchView('identity')" id="btn-identity">Who I Trust</button>
-        <button onclick="switchView('races')" id="btn-races">By Race</button>
-    </div>
+    <!-- FILTER BAR -->
+    <div class="filter-bar" id="filter-bar">
+        <span class="filter-bar-label">Personalize:</span>
 
-    <!-- ISSUE PICKER -->
-    <div class="picker-section" id="issue-picker">
-        <h2>What issues matter to you?</h2>
-        <p>Select the issues you care about. We'll show you where every candidate stands.</p>
-        <div class="pill-grid" id="issue-pills">
-            <!-- Filled by JS -->
+        <div class="filter-dropdown" id="dropdown-issues">
+            <button class="filter-dropdown-btn" onclick="toggleDropdown('issues')">
+                Issues <span class="caret">&#9662;</span>
+            </button>
+            <div class="filter-popover">
+                <h3>What issues matter to you?</h3>
+                <p>We'll show you where every candidate stands.</p>
+                <div class="pill-grid" id="issue-pills"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- IDENTITY / WHO I TRUST PICKER -->
-    <div class="picker-section" id="identity-picker">
-        <h2>Which voices do you trust?</h2>
-        <p>Select endorsing organizations and communities. We'll highlight candidates they back.</p>
-        <div class="pill-grid" id="identity-pills">
-            <!-- Filled by JS -->
+        <div class="filter-dropdown" id="dropdown-identity">
+            <button class="filter-dropdown-btn identity-btn" onclick="toggleDropdown('identity')">
+                Who I Trust <span class="caret">&#9662;</span>
+            </button>
+            <div class="filter-popover">
+                <h3>Which voices do you trust?</h3>
+                <p>We'll highlight candidates endorsed by these groups.</p>
+                <div class="pill-grid" id="identity-pills"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- ACTIVE FILTERS -->
-    <div class="active-filters" id="active-filters">
-        <div class="active-filters-header">
-            <span>Your lens</span>
-            <button class="clear-all" onclick="clearAll()">Clear all</button>
-        </div>
-        <div class="filter-summary" id="filter-summary"></div>
+        <div class="filter-active-tags" id="filter-active-tags"></div>
+        <span class="clear-all-link" id="clear-all-link" style="display:none" onclick="clearAll()">Clear all</span>
     </div>
+    <div class="filter-overlay" id="filter-overlay" onclick="closeDropdowns()"></div>
 
-    <!-- RACE CARDS (By Race view) -->
-    <div class="view-panel active" id="view-races">
-        <div class="races-section" id="race-cards">
-            <!-- Filled by JS -->
-        </div>
-    </div>
-
-    <!-- Issue-First View -->
-    <div class="view-panel" id="view-issues">
-        <div id="issue-groups">
-            <!-- Filled by JS -->
-        </div>
-        <div class="empty-state" id="issues-empty">
-            <div class="icon">&#9757;</div>
-            <h3>Select issues above</h3>
-            <p>Pick the topics that matter to you and we'll compare candidates across every race.</p>
-        </div>
-    </div>
-
-    <!-- Identity-First View -->
-    <div class="view-panel" id="view-identity">
-        <div id="identity-groups">
-            <!-- Filled by JS -->
-        </div>
-        <div class="empty-state" id="identity-empty">
-            <div class="icon">&#129309;</div>
-            <h3>Select groups above</h3>
-            <p>Pick the organizations and communities you trust and we'll show who they endorse.</p>
-        </div>
+    <!-- BALLOT — always visible -->
+    <div class="races-section" id="race-cards">
+        <!-- Filled by JS -->
     </div>
 
 </main>
@@ -1171,7 +1164,7 @@ const RACES = [
 
 let selectedIssues = new Set();
 let selectedIdentities = new Set();
-let currentView = 'races'; // 'races', 'issues', 'identity'
+// Single unified view — no more view switching
 
 // Voter alignment ratings: key = "candidateName:issueId", value = 'agree' | 'disagree'
 let voterRatings = {};
@@ -1184,7 +1177,7 @@ function init() {
     renderIssuePills();
     renderIdentityPills();
     renderRaceCards();
-    switchView('issues');
+    renderFilterBarState();
 }
 
 // ============================================================
@@ -1252,73 +1245,76 @@ function toggleIdentity(identityId) {
 function clearAll() {
     selectedIssues.clear();
     selectedIdentities.clear();
+    voterRatings = {};
     update();
 }
 
 function update() {
     renderIssuePills();
     renderIdentityPills();
-    renderActiveFilters();
+    renderFilterBarState();
     renderRaceCards();
-    renderIssueFirstView();
-    renderIdentityFirstView();
 }
 
 // ============================================================
-// ACTIVE FILTERS
+// FILTER BAR
 // ============================================================
 
-function renderActiveFilters() {
-    const el = document.getElementById('active-filters');
-    const summary = document.getElementById('filter-summary');
+function toggleDropdown(which) {
+    const el = document.getElementById('dropdown-' + which);
+    const overlay = document.getElementById('filter-overlay');
+    const wasOpen = el.classList.contains('open');
 
-    if (selectedIssues.size === 0 && selectedIdentities.size === 0) {
-        el.classList.remove('visible');
-        return;
+    closeDropdowns();
+
+    if (!wasOpen) {
+        el.classList.add('open');
+        overlay.classList.add('visible');
     }
+}
 
-    el.classList.add('visible');
-    let html = '';
+function closeDropdowns() {
+    document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+    document.getElementById('filter-overlay').classList.remove('visible');
+}
+
+function renderFilterBarState() {
+    // Update dropdown button labels with counts
+    const issueBtn = document.querySelector('#dropdown-issues .filter-dropdown-btn');
+    const identBtn = document.querySelector('#dropdown-identity .filter-dropdown-btn');
 
     if (selectedIssues.size > 0) {
-        html += 'Issues: ';
-        for (const id of selectedIssues) {
-            const issue = ISSUES.find(i => i.id === id);
-            html += `<span class="filter-tag issue-tag">${issue.icon} ${issue.label}</span>`;
-        }
+        issueBtn.classList.add('has-selections');
+        issueBtn.innerHTML = `Issues <span class="badge">${selectedIssues.size}</span> <span class="caret">&#9662;</span>`;
+    } else {
+        issueBtn.classList.remove('has-selections');
+        issueBtn.innerHTML = `Issues <span class="caret">&#9662;</span>`;
     }
+
     if (selectedIdentities.size > 0) {
-        if (selectedIssues.size > 0) html += '<br>';
-        html += 'Trusted voices: ';
-        for (const id of selectedIdentities) {
-            const group = IDENTITY_GROUPS.find(g => g.id === id);
-            html += `<span class="filter-tag identity-tag">${group.icon} ${group.label}</span>`;
-        }
+        identBtn.classList.add('has-selections');
+        identBtn.innerHTML = `Who I Trust <span class="badge">${selectedIdentities.size}</span> <span class="caret">&#9662;</span>`;
+    } else {
+        identBtn.classList.remove('has-selections');
+        identBtn.innerHTML = `Who I Trust <span class="caret">&#9662;</span>`;
     }
 
-    summary.innerHTML = html;
-}
+    // Render inline active tags
+    const tagsEl = document.getElementById('filter-active-tags');
+    const clearLink = document.getElementById('clear-all-link');
+    let tagHtml = '';
 
-// ============================================================
-// VIEW SWITCHING
-// ============================================================
-
-function switchView(view) {
-    currentView = view;
-    document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-' + view).classList.add('active');
-
-    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
-
-    if (view === 'races') {
-        document.getElementById('view-races').classList.add('active');
-    } else if (view === 'issues') {
-        document.getElementById('view-issues').classList.add('active');
-        renderIssueFirstView();
-    } else if (view === 'identity') {
-        document.getElementById('view-identity').classList.add('active');
-        renderIdentityFirstView();
+    for (const id of selectedIssues) {
+        const issue = ISSUES.find(i => i.id === id);
+        tagHtml += `<span class="filter-active-tag issue-tag" onclick="toggleIssue('${id}')">${issue.icon} ${issue.label} <span class="remove">&times;</span></span>`;
     }
+    for (const id of selectedIdentities) {
+        const group = IDENTITY_GROUPS.find(g => g.id === id);
+        tagHtml += `<span class="filter-active-tag identity-tag" onclick="toggleIdentity('${id}')">${group.icon} ${group.label} <span class="remove">&times;</span></span>`;
+    }
+
+    tagsEl.innerHTML = tagHtml;
+    clearLink.style.display = (selectedIssues.size > 0 || selectedIdentities.size > 0) ? '' : 'none';
 }
 
 // ============================================================
@@ -1426,9 +1422,7 @@ function calculateMatch(candidate) {
 }
 
 function renderCurrentView() {
-    if (currentView === 'races') renderRaceCards();
-    else if (currentView === 'issues') renderIssueFirstView();
-    else if (currentView === 'identity') renderIdentityFirstView();
+    renderRaceCards();
 }
 
 function renderAlignmentBar(candidate) {
@@ -1464,10 +1458,15 @@ function renderAlignmentBar(candidate) {
 
 function renderCandidateCol(c, race) {
     const selectedIssueList = [...selectedIssues].map(id => ISSUES.find(i => i.id === id));
+    const hasIdentity = selectedIdentities.size > 0;
+    const matchedEndorsements = hasIdentity
+        ? [...selectedIdentities].filter(gid => c.endorsements.includes(gid))
+        : [];
+    const isEndorsed = matchedEndorsements.length > 0;
 
-    return `<div class="candidate-col">
+    return `<div class="candidate-col" style="${isEndorsed ? 'background: #faf9ff;' : ''}">
         <div class="candidate-name-row">
-            <div class="candidate-avatar">${c.initials}</div>
+            <div class="candidate-avatar" style="${isEndorsed ? 'border-color: var(--purple); color: var(--purple);' : ''}">${c.initials}</div>
             <div class="candidate-info">
                 <h4>${c.name}</h4>
                 <span class="candidate-meta">
@@ -1479,160 +1478,24 @@ function renderCandidateCol(c, race) {
 
         ${renderStancePills(c, selectedIssueList)}
 
-        ${c.endorsements.length > 0 ? `
-        <div class="candidate-endorsements ${selectedIdentities.size > 0 || c.endorsements.length > 0 ? 'visible' : ''}">
-            <div class="endorsements-label">Endorsed by</div>
+        ${hasIdentity ? `
+        <div class="candidate-endorsements visible" style="margin-top:12px;">
+            ${isEndorsed ? `
+            <div class="endorsements-label">Endorsed by your trusted voices</div>
             <div class="endorsement-chips">
-                ${c.endorsements.map(eid => {
-                    const group = IDENTITY_GROUPS.find(g => g.id === eid);
-                    if (!group) return '';
-                    const highlighted = selectedIdentities.has(eid);
-                    return `<span class="endorsement-chip ${highlighted ? 'highlighted' : ''}">
-                        <span class="chip-icon">${group.icon}</span> ${group.label}
-                    </span>`;
+                ${matchedEndorsements.map(gid => {
+                    const g = IDENTITY_GROUPS.find(x => x.id === gid);
+                    return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
                 }).join('')}
-            </div>
+            </div>` : `
+            <div style="font-size:12px;color:var(--text-muted);font-style:italic;">Not endorsed by your selected groups</div>`}
         </div>` : ''}
 
         ${renderAlignmentBar(c)}
     </div>`;
 }
 
-// Old calculateMatch removed — replaced by voter-rating-based version above
-
-// ============================================================
-// ISSUE-FIRST VIEW
-// ============================================================
-
-function renderIssueFirstView() {
-    const container = document.getElementById('issue-groups');
-    const empty = document.getElementById('issues-empty');
-
-    if (selectedIssues.size === 0) {
-        container.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-    }
-
-    empty.style.display = 'none';
-
-    const selectedIssueList = [...selectedIssues].map(id => ISSUES.find(i => i.id === id));
-    let html = '';
-
-    for (const race of RACES) {
-        if (race.candidates.length === 0) continue;
-
-        html += `<div class="race-card fade-in">
-            <div class="race-header">
-                <span class="race-name">${race.name}</span>
-                <span class="race-type-badge race-type-${race.type}">${race.type}</span>
-            </div>
-            <div class="candidates-grid">
-                ${race.candidates.map(c => {
-                    const matchedEndorsements = [...selectedIdentities].filter(gid => c.endorsements.includes(gid));
-
-                    return `<div class="candidate-col">
-                        <div class="candidate-name-row">
-                            <div class="candidate-avatar">${c.initials}</div>
-                            <div class="candidate-info">
-                                <h4>${c.name}</h4>
-                                <span class="candidate-meta">
-                                    ${c.party}
-                                    ${c.incumbent ? `<span class="incumbent-badge">Incumbent</span>` : ''}
-                                </span>
-                            </div>
-                        </div>
-
-                        ${renderStancePills(c, selectedIssueList)}
-
-                        ${matchedEndorsements.length > 0 ? `
-                        <div class="candidate-endorsements visible">
-                            <div class="endorsements-label">Endorsed by</div>
-                            <div class="endorsement-chips">
-                                ${matchedEndorsements.map(gid => {
-                                    const g = IDENTITY_GROUPS.find(x => x.id === gid);
-                                    return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
-                                }).join('')}
-                            </div>
-                        </div>` : ''}
-
-                        ${renderAlignmentBar(c)}
-                    </div>`;
-                }).join('')}
-            </div>
-        </div>`;
-    }
-
-    container.innerHTML = html;
-}
-
-// ============================================================
-// IDENTITY-FIRST VIEW
-// ============================================================
-
-function renderIdentityFirstView() {
-    const container = document.getElementById('identity-groups');
-    const empty = document.getElementById('identity-empty');
-
-    if (selectedIdentities.size === 0) {
-        container.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-    }
-
-    empty.style.display = 'none';
-
-    const selectedGroupList = [...selectedIdentities].map(id => IDENTITY_GROUPS.find(g => g.id === id));
-    const selectedIssueList = [...selectedIssues].map(id => ISSUES.find(i => i.id === id));
-    let html = '';
-
-    for (const race of RACES) {
-        if (race.candidates.length === 0) continue;
-
-        html += `<div class="race-card fade-in">
-            <div class="race-header">
-                <span class="race-name">${race.name}</span>
-                <span class="race-type-badge race-type-${race.type}">${race.type}</span>
-            </div>
-            <div class="candidates-grid">
-                ${race.candidates.map(c => {
-                    const matchedGroups = selectedGroupList.filter(g => c.endorsements.includes(g.id));
-                    const isEndorsed = matchedGroups.length > 0;
-
-                    return `<div class="candidate-col" style="${isEndorsed ? 'background: #faf9ff;' : ''}">
-                        <div class="candidate-name-row">
-                            <div class="candidate-avatar" style="${isEndorsed ? 'border-color: var(--purple); color: var(--purple);' : ''}">${c.initials}</div>
-                            <div class="candidate-info">
-                                <h4>${c.name}</h4>
-                                <span class="candidate-meta">
-                                    ${c.party}
-                                    ${c.incumbent ? `<span class="incumbent-badge">Incumbent</span>` : ''}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="candidate-endorsements visible" style="margin-top:12px;">
-                            ${matchedGroups.length > 0 ? `
-                            <div class="endorsements-label">Endorsed by your trusted voices</div>
-                            <div class="endorsement-chips">
-                                ${matchedGroups.map(g => {
-                                    return `<span class="endorsement-chip highlighted"><span class="chip-icon">${g.icon}</span> ${g.label}</span>`;
-                                }).join('')}
-                            </div>` : `
-                            <div style="font-size:12px;color:var(--text-muted);font-style:italic;">Not endorsed by your selected groups</div>`}
-                        </div>
-
-                        ${renderStancePills(c, selectedIssueList)}
-
-                        ${renderAlignmentBar(c)}
-                    </div>`;
-                }).join('')}
-            </div>
-        </div>`;
-    }
-
-    container.innerHTML = html;
-}
+// Old separate view functions removed — unified into single race card view
 
 // ============================================================
 // GO
