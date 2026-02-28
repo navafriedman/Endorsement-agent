@@ -261,6 +261,16 @@
             margin-left: auto;
         }
         .clear-all-link:hover { color: var(--coral); text-decoration: underline; }
+        .filter-bar-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            margin: -8px 0 16px;
+            transition: opacity 0.2s;
+        }
+        .filter-bar-hint.hidden {
+            display: none;
+        }
 
         /* Pill base styles */
         .pill {
@@ -592,6 +602,38 @@
             font-size: 12px;
         }
 
+        /* Top issues preview (before filters) */
+        .top-issues-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .top-issues-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            width: 100%;
+            margin-bottom: 2px;
+        }
+        .top-issue-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            background: #f1f5f9;
+            color: var(--text-secondary);
+        }
+        .top-issue-tag .tag-icon {
+            font-size: 12px;
+            line-height: 1;
+        }
+
         /* Match indicator */
         /* Agree / Disagree segmented toggle — inline with issue header */
         .align-toggle {
@@ -836,7 +878,7 @@
             .issue-candidates-row { grid-template-columns: 1fr; }
             .issue-candidate-cell { border-right: none; border-bottom: 1px solid var(--border); }
             .issue-candidate-cell:last-child { border-bottom: none; }
-            .picker-section { padding: 16px; }
+            .filter-popover { min-width: 280px; left: -40px; }
         }
 
         /* ========== TRANSITIONS ========== */
@@ -862,11 +904,11 @@
 <!-- HERO -->
 <section class="hero">
     <div class="container">
-        <h1>What's on Your Ballot</h1>
-        <div class="subtitle">Fort Worth, TX &mdash; Tarrant County</div>
+        <h1>Your Personalized Ballot Guide</h1>
+        <div class="subtitle">See every race, compare candidates, and find who aligns with you.</div>
         <div class="election-date">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Texas Primary &mdash; March 3, 2026
+            Texas Primary &mdash; March 3, 2026 &mdash; Fort Worth, Tarrant County
         </div>
     </div>
 </section>
@@ -875,32 +917,35 @@
 
     <!-- FILTER BAR -->
     <div class="filter-bar" id="filter-bar">
-        <span class="filter-bar-label">Personalize:</span>
+        <span class="filter-bar-label">Build your ballot:</span>
 
         <div class="filter-dropdown" id="dropdown-issues">
             <button class="filter-dropdown-btn" onclick="toggleDropdown('issues')">
-                Issues <span class="caret">&#9662;</span>
+                Issues I care about <span class="caret">&#9662;</span>
             </button>
             <div class="filter-popover">
                 <h3>What issues matter to you?</h3>
-                <p>We'll show you where every candidate stands.</p>
+                <p>Pick topics and we'll show each candidate's stance side by side, so you can mark where you agree.</p>
                 <div class="pill-grid" id="issue-pills"></div>
             </div>
         </div>
 
         <div class="filter-dropdown" id="dropdown-identity">
             <button class="filter-dropdown-btn identity-btn" onclick="toggleDropdown('identity')">
-                Who I Trust <span class="caret">&#9662;</span>
+                Groups I trust <span class="caret">&#9662;</span>
             </button>
             <div class="filter-popover">
                 <h3>Which voices do you trust?</h3>
-                <p>We'll highlight candidates endorsed by these groups.</p>
+                <p>Select organizations you trust and we'll show which candidates they endorse.</p>
                 <div class="pill-grid" id="identity-pills"></div>
             </div>
         </div>
 
         <div class="filter-active-tags" id="filter-active-tags"></div>
         <span class="clear-all-link" id="clear-all-link" style="display:none" onclick="clearAll()">Clear all</span>
+    </div>
+    <div class="filter-bar-hint" id="filter-bar-hint">
+        Select issues or groups above to compare candidates on what matters to you
     </div>
     <div class="filter-overlay" id="filter-overlay" onclick="closeDropdowns()"></div>
 
@@ -915,8 +960,7 @@
 <footer class="page-footer">
     <div class="container">
         Nonpartisan. Private. No account needed. &mdash; <a href="#">change.vote</a><br>
-        Sources linked per candidate. Endorsement data crawled from public records.<br>
-        Prototype: identity/issue-focused ballot page
+        All candidate positions sourced and linked. Endorsement data from public records.
     </div>
 </footer>
 
@@ -1320,20 +1364,30 @@ function renderFilterBarState() {
     const issueBtn = document.querySelector('#dropdown-issues .filter-dropdown-btn');
     const identBtn = document.querySelector('#dropdown-identity .filter-dropdown-btn');
 
+    const hasAny = selectedIssues.size > 0 || selectedIdentities.size > 0;
+
     if (selectedIssues.size > 0) {
         issueBtn.classList.add('has-selections');
-        issueBtn.innerHTML = `Issues <span class="badge">${selectedIssues.size}</span> <span class="caret">&#9662;</span>`;
+        issueBtn.innerHTML = `Issues I care about <span class="badge">${selectedIssues.size}</span> <span class="caret">&#9662;</span>`;
     } else {
         issueBtn.classList.remove('has-selections');
-        issueBtn.innerHTML = `Issues <span class="caret">&#9662;</span>`;
+        issueBtn.innerHTML = `Issues I care about <span class="caret">&#9662;</span>`;
     }
 
     if (selectedIdentities.size > 0) {
         identBtn.classList.add('has-selections');
-        identBtn.innerHTML = `Who I Trust <span class="badge">${selectedIdentities.size}</span> <span class="caret">&#9662;</span>`;
+        identBtn.innerHTML = `Groups I trust <span class="badge">${selectedIdentities.size}</span> <span class="caret">&#9662;</span>`;
     } else {
         identBtn.classList.remove('has-selections');
-        identBtn.innerHTML = `Who I Trust <span class="caret">&#9662;</span>`;
+        identBtn.innerHTML = `Groups I trust <span class="caret">&#9662;</span>`;
+    }
+
+    // Show/hide hint text
+    const hint = document.getElementById('filter-bar-hint');
+    if (hasAny) {
+        hint.classList.add('hidden');
+    } else {
+        hint.classList.remove('hidden');
     }
 
     // Render inline active tags
@@ -1351,7 +1405,7 @@ function renderFilterBarState() {
     }
 
     tagsEl.innerHTML = tagHtml;
-    clearLink.style.display = (selectedIssues.size > 0 || selectedIdentities.size > 0) ? '' : 'none';
+    clearLink.style.display = hasAny ? '' : 'none';
 }
 
 // ============================================================
@@ -1484,8 +1538,22 @@ function renderAlignmentBar(candidate) {
     </div>`;
 }
 
+function renderTopIssuesPreview(candidate) {
+    const issueIds = Object.keys(candidate.issues);
+    if (issueIds.length === 0) return '';
+
+    const topIssues = issueIds.slice(0, 3).map(id => ISSUES.find(i => i.id === id)).filter(Boolean);
+    if (topIssues.length === 0) return '';
+
+    return `<div class="top-issues-preview">
+        <div class="top-issues-label">Top issues</div>
+        ${topIssues.map(issue => `<span class="top-issue-tag"><span class="tag-icon">${issue.icon}</span> ${issue.label}</span>`).join('')}
+    </div>`;
+}
+
 function renderCandidateCol(c, race) {
     const selectedIssueList = [...selectedIssues].map(id => ISSUES.find(i => i.id === id));
+    const hasIssues = selectedIssues.size > 0;
     const hasIdentity = selectedIdentities.size > 0;
     const matchedEndorsements = hasIdentity
         ? [...selectedIdentities].filter(gid => c.endorsements.includes(gid))
@@ -1504,7 +1572,7 @@ function renderCandidateCol(c, race) {
             </div>
         </div>
 
-        ${renderStancePills(c, selectedIssueList)}
+        ${hasIssues ? renderStancePills(c, selectedIssueList) : renderTopIssuesPreview(c)}
 
         ${hasIdentity ? `
         <div class="candidate-endorsements visible" style="margin-top:12px;">
