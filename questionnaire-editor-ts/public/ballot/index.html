@@ -686,83 +686,96 @@
             border-radius: var(--radius-sm);
         }
 
-        /* Alignment score */
+        /* Alignment score — follows same visual pattern as endorsements section */
         .alignment-score {
             display: none;
             margin-top: 14px;
-            padding: 10px 12px;
-            border-radius: var(--radius-sm);
-            background: #f8fafc;
-            border: 1px solid #f1f5f9;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
         }
-        .alignment-score.visible { display: flex; align-items: center; justify-content: space-between; }
-        .alignment-left {
+        .alignment-score.visible { display: block; }
+        .alignment-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
-        .alignment-title {
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-        .alignment-info {
-            position: relative;
-            cursor: help;
-        }
-        .alignment-info-icon {
-            width: 15px;
-            height: 15px;
+        .alignment-label .info-dot {
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
-            border: 1px solid #cbd5e1;
+            border: 1.5px solid var(--border);
             background: white;
-            color: #94a3b8;
-            font-size: 10px;
+            color: var(--text-muted);
+            font-size: 9px;
+            font-weight: 700;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            cursor: help;
+            position: relative;
+            text-transform: none;
+            letter-spacing: 0;
         }
-        .alignment-info .align-tooltip {
+        .alignment-label .info-dot .info-tip {
             display: none;
             position: absolute;
             bottom: calc(100% + 8px);
-            right: -8px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 240px;
             background: #1e293b;
             color: white;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 400;
             line-height: 1.5;
             padding: 10px 12px;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             z-index: 100;
+            text-transform: none;
+            letter-spacing: 0;
         }
-        .align-tooltip::after {
+        .alignment-label .info-dot .info-tip::after {
             content: '';
             position: absolute;
             top: 100%;
-            right: 12px;
+            left: 50%;
+            transform: translateX(-50%);
             border: 5px solid transparent;
             border-top-color: #1e293b;
         }
-        .align-tooltip a {
+        .alignment-label .info-dot .info-tip a {
             color: #93c5fd;
             text-decoration: underline;
         }
-        .alignment-info:hover .align-tooltip {
+        .alignment-label .info-dot:hover .info-tip {
             display: block;
         }
-        .alignment-fraction {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1;
+        .alignment-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
         }
-        .alignment-fraction .of-total {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-muted);
+        .alignment-chip.high {
+            background: var(--green-light);
+            color: #065f46;
+        }
+        .alignment-chip.medium {
+            background: var(--amber-light);
+            color: #92400e;
+        }
+        .alignment-chip.low {
+            background: var(--rose-light);
+            color: #9f1239;
         }
 
         /* ========== NO CANDIDATES ========== */
@@ -1521,15 +1534,14 @@ function renderAlignmentBar(candidate) {
 
     if (!hasRatings) return '';
 
+    const pct = Math.round((agreed / total) * 100);
+    const level = pct >= 60 ? 'high' : pct >= 30 ? 'medium' : 'low';
+
     return `<div class="alignment-score visible">
-        <div class="alignment-left">
-            <span class="alignment-title">Your alignment</span>
-            <span class="alignment-info">
-                <span class="alignment-info-icon">?</span>
-                <span class="align-tooltip">This score counts how many of your positions and trusted endorsements match this candidate. <a href="https://example.com/how-alignment-works" target="_blank">Learn more</a></span>
-            </span>
+        <div class="alignment-label">Your alignment
+            <span class="info-dot">?<span class="info-tip">Based on positions you rated and endorsements from your trusted groups. <a href="https://example.com/how-alignment-works" target="_blank">Learn more</a></span></span>
         </div>
-        <span class="alignment-fraction">${agreed} <span class="of-total">of ${total}</span></span>
+        <span class="alignment-chip ${level}">${agreed} of ${total} match</span>
     </div>`;
 }
 
