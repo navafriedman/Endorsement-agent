@@ -1554,16 +1554,24 @@ function renderCurrentView() {
 function renderAlignmentBar(candidate) {
     const { agreed, total, hasRatings } = calculateMatch(candidate);
 
-    if (!hasRatings) return '';
+    if (!hasRatings || total < 2) return '';
 
-    const pct = Math.round((agreed / total) * 100);
-    const level = pct >= 60 ? 'high' : pct >= 30 ? 'medium' : 'low';
+    const pct = agreed / total;
+    const level = pct >= 0.75 ? 'high' : pct >= 0.5 ? 'medium' : 'low';
+
+    let chipText;
+    if (total === 2) {
+        chipText = `Matches on ${agreed} of ${total}`;
+    } else {
+        const label = pct >= 0.75 ? 'Strong' : pct >= 0.5 ? 'Good' : 'Low';
+        chipText = `${label} alignment · ${agreed} of ${total}`;
+    }
 
     return `<div class="alignment-score visible">
         <div class="alignment-label">Your alignment
-            <span class="info-dot">?<span class="info-tip">Based on ${total} factor${total !== 1 ? 's' : ''}: positions you rated and endorsements from your trusted groups. <a href="https://example.com/how-alignment-works" target="_blank">Learn more</a></span></span>
+            <span class="info-dot">?<span class="info-tip">Based on ${total} factors: positions you rated and endorsements from your trusted groups. <a href="https://example.com/how-alignment-works" target="_blank">Learn more</a></span></span>
         </div>
-        <span class="alignment-chip ${level}">${pct}% match</span>
+        <span class="alignment-chip ${level}">${chipText}</span>
     </div>`;
 }
 
