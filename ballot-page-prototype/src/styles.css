@@ -373,6 +373,8 @@ body {
    ============================================================ */
 .candidate-headers {
   display: grid;
+}
+.candidate-headers.has-issues {
   border-bottom: 1px solid var(--border);
 }
 .candidate-headers.cols-1 { grid-template-columns: 1fr; }
@@ -456,6 +458,31 @@ body {
   background: var(--purple-light);
   color: var(--purple);
   font-weight: 600;
+}
+.endorsement-more {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.endorsement-more:hover {
+  background: var(--purple-light);
+  color: var(--purple);
+}
+
+/* Header stance pills (top 3 stances at a glance) */
+.header-stance-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
 }
 
 /* Alignment chip */

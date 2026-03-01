@@ -297,16 +297,68 @@ const PARTY_LOGO: Record<string, string> = {
 };
 
 function renderCandidateHeader(c: Candidate): string {
-  // Endorsements
+  // Top stance pills: collect first 3 stances from selected issues
+  let stancePillsHtml = '';
+  const selectedIssueIds = [...state.selectedIssues];
+  if (selectedIssueIds.length > 0) {
+    const topStances: { label: string; colors: { bg: string; text: string } }[] = [];
+    for (const issueId of selectedIssueIds) {
+      const pos = c.issues[issueId];
+      if (!pos) continue;
+      const colors = ISSUE_COLORS[issueId];
+      for (const s of pos.stances) {
+        topStances.push({ label: s, colors: { bg: colors?.bg ?? '#f1f5f9', text: colors?.text ?? '#475569' } });
+        if (topStances.length >= 3) break;
+      }
+      if (topStances.length >= 3) break;
+    }
+    if (topStances.length > 0) {
+      stancePillsHtml = `<div class="header-stance-pills">${
+        topStances.map(s =>
+          `<span class="stance-pill" style="background:${s.colors.bg};color:${s.colors.text}">${esc(s.label)}</span>`
+        ).join('')
+      }</div>`;
+    }
+  }
+
+  // Endorsements: show max 3, then "+N others" with expand
   let endorsementsHtml = '';
   if (c.endorsements.length > 0) {
-    const chips = c.endorsements.map(eid => {
+    // Prioritize selected (highlighted) endorsements first
+    const sorted = [...c.endorsements].sort((a, b) => {
+      const aH = state.selectedIdentities.has(a) ? 0 : 1;
+      const bH = state.selectedIdentities.has(b) ? 0 : 1;
+      return aH - bH;
+    });
+
+    const maxVisible = 3;
+    const visible = sorted.slice(0, maxVisible);
+    const overflow = sorted.slice(maxVisible);
+
+    const visibleChips = visible.map(eid => {
       const group = IDENTITY_GROUPS.find(g => g.id === eid);
       if (!group) return '';
       const highlighted = state.selectedIdentities.has(eid);
       return `<span class="endorsement-chip ${highlighted ? 'highlighted' : ''}">${group.icon} ${esc(group.label)}</span>`;
     }).join('');
-    endorsementsHtml = `<div class="endorsement-chips">${chips}</div>`;
+
+    let overflowHtml = '';
+    if (overflow.length > 0) {
+      const overflowKey = `endorsements:${c.name}`;
+      const overflowOpen = state.isExpanded(overflowKey);
+      const overflowChips = overflow.map(eid => {
+        const group = IDENTITY_GROUPS.find(g => g.id === eid);
+        if (!group) return '';
+        const highlighted = state.selectedIdentities.has(eid);
+        return `<span class="endorsement-chip ${highlighted ? 'highlighted' : ''}">${group.icon} ${esc(group.label)}</span>`;
+      }).join('');
+
+      overflowHtml = overflowOpen
+        ? overflowChips
+        : `<span class="endorsement-more" data-endorsement-toggle="${esc(c.name)}">+${overflow.length} more</span>`;
+    }
+
+    endorsementsHtml = `<div class="endorsement-chips">${visibleChips}${overflowHtml}</div>`;
   }
 
   // Alignment score (includes cross-race inferences)
@@ -331,6 +383,7 @@ function renderCandidateHeader(c: Candidate): string {
         </span>
       </div>
     </div>
+    ${stancePillsHtml}
     ${endorsementsHtml}
     ${alignmentHtml}
   </div>`;
@@ -507,12 +560,14 @@ export function renderRaceCards(): void {
       otherSection = renderOtherIssuesSection(race, numCandidates);
     }
 
+    const hasIssueSections = issueSections.length > 0;
+
     return `<div class="race-card fade-in">
       <div class="race-header">
         <span class="race-name">${esc(race.name)}</span>
         <span class="race-badge ${race.type}">${race.type}</span>
       </div>
-      <div class="candidate-headers cols-${numCandidates}">
+      <div class="candidate-headers cols-${numCandidates} ${hasIssueSections ? 'has-issues' : ''}">
         ${candidateHeaders}
       </div>
       ${issueSections}

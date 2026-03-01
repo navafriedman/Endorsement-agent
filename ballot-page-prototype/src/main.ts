@@ -100,6 +100,14 @@ app.addEventListener('click', (e) => {
     return;
   }
 
+  // Endorsement "more" toggle
+  const endorsementToggle = target.closest('[data-endorsement-toggle]') as HTMLElement | null;
+  if (endorsementToggle) {
+    const candidateName = endorsementToggle.getAttribute('data-endorsement-toggle')!;
+    state.toggleExpanded(`endorsements:${candidateName}`);
+    return;
+  }
+
   // Address submit
   if (target.closest('#address-btn')) {
     const input = document.getElementById('address-input') as HTMLInputElement;
