@@ -74,138 +74,107 @@ body {
   text-decoration: none;
 }
 .logo span { color: var(--text); }
-.header-location {
+.header-tagline {
   font-size: 13px;
   color: var(--text-muted);
   font-weight: 500;
 }
 
 /* ============================================================
-   HERO
+   UNIFIED TOOLBAR (address + election + filters)
    ============================================================ */
-.hero {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  color: white;
-  padding: 40px 0 36px;
-}
-.hero h1 {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  margin-bottom: 4px;
-}
-.hero-subtitle {
-  font-size: 15px;
-  opacity: 0.7;
-  margin-bottom: 16px;
-}
-.election-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255,255,255,0.12);
-  padding: 5px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-/* Address input */
-.address-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-  max-width: 500px;
-}
-.address-input-wrap {
-  flex: 1;
+.toolbar {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 20px 0 4px;
+  box-shadow: var(--shadow);
   position: relative;
 }
-.address-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  flex-wrap: wrap;
+}
+.toolbar-top {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+/* Address section */
+.toolbar-address {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+.toolbar-addr-icon {
+  width: 15px;
+  height: 15px;
   color: var(--text-muted);
+  flex-shrink: 0;
 }
-.address-input {
-  width: 100%;
-  padding: 10px 12px 10px 36px;
-  border: 1.5px solid rgba(255,255,255,0.25);
-  border-radius: var(--radius);
-  font-size: 14px;
-  background: rgba(255,255,255,0.1);
-  color: white;
+.toolbar-addr-input {
+  flex: 1;
+  min-width: 140px;
+  padding: 5px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  background: white;
+  color: var(--text);
   outline: none;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s;
 }
-.address-input::placeholder { color: rgba(255,255,255,0.5); }
-.address-input:focus {
-  border-color: rgba(255,255,255,0.5);
-  background: rgba(255,255,255,0.15);
-}
-.address-btn {
-  padding: 10px 20px;
+.toolbar-addr-input::placeholder { color: var(--text-muted); }
+.toolbar-addr-input:focus { border-color: var(--coral); }
+.toolbar-addr-btn {
+  padding: 5px 14px;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   background: var(--coral);
   color: white;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s;
 }
-.address-btn:hover { background: var(--coral-hover); }
+.toolbar-addr-btn:hover { background: var(--coral-hover); }
 
-.address-confirmed {
+.toolbar-address-confirmed {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(16,185,129,0.15);
-  border: 1px solid rgba(16,185,129,0.3);
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  font-size: 14px;
+  gap: 6px;
+  font-size: 13px;
   font-weight: 500;
-  margin-bottom: 14px;
-  color: #6ee7b7;
+  color: #059669;
 }
-.address-confirmed svg { color: #6ee7b7; flex-shrink: 0; }
-.address-change {
+.toolbar-addr-check { color: #059669; flex-shrink: 0; }
+.toolbar-addr-change {
   background: none;
   border: none;
-  color: rgba(255,255,255,0.6);
-  font-size: 12px;
+  color: var(--text-muted);
+  font-size: 11px;
   cursor: pointer;
   text-decoration: underline;
-  margin-left: 4px;
 }
-.address-change:hover { color: white; }
+.toolbar-addr-change:hover { color: var(--text-secondary); }
 
-/* ============================================================
-   FILTER BAR
-   ============================================================ */
-.filter-bar {
-  display: flex;
+/* Election badge (compact, right-aligned) */
+.toolbar-election {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 8px 12px;
-  margin: 24px 0 4px;
-  box-shadow: var(--shadow);
-  flex-wrap: wrap;
-  position: relative;
-}
-.filter-bar-label {
-  font-size: 13px;
+  gap: 5px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
   white-space: nowrap;
+  margin-left: auto;
 }
 
 /* Dropdown triggers */
@@ -741,9 +710,10 @@ body {
    RESPONSIVE
    ============================================================ */
 @media (max-width: 700px) {
-  .hero { padding: 32px 0 28px; }
-  .hero h1 { font-size: 22px; }
-  .address-row { flex-direction: column; max-width: none; }
+  /* Toolbar stacks */
+  .toolbar-top { flex-direction: column; align-items: stretch; gap: 6px; }
+  .toolbar-address { flex-wrap: wrap; }
+  .toolbar-election { margin-left: 0; }
 
   /* Stack candidates vertically */
   .candidate-headers.cols-2,

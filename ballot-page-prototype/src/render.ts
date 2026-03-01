@@ -136,63 +136,57 @@ export function renderShell(): string {
     <header class="header">
       <div class="container">
         <a class="logo" href="#">change<span>.vote</span></a>
-        <span class="header-location" id="header-location">Fort Worth, TX</span>
+        <span class="header-tagline">Your Personalized Ballot Guide</span>
       </div>
     </header>
 
-    <section class="hero">
-      <div class="container">
-        <h1>Your Personalized Ballot Guide</h1>
-        <div class="hero-subtitle">See every race, compare candidates, and find who aligns with you.</div>
-        <div class="address-row" id="address-row">
-          <div class="address-input-wrap">
-            <svg class="address-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <input type="text" class="address-input" id="address-input" placeholder="Enter your address to see your specific ballot...">
-          </div>
-          <button class="address-btn" id="address-btn">Find my ballot</button>
-        </div>
-        <div class="address-confirmed" id="address-confirmed" style="display:none">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          <span id="address-confirmed-text"></span>
-          <button class="address-change" id="address-change">Change</button>
-        </div>
-        <div class="election-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="3" y="4" width="18" height="18" rx="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-          Texas Primary — March 3, 2026 — Fort Worth, Tarrant County
-        </div>
-      </div>
-    </section>
-
     <main class="container">
-      <div class="filter-bar" id="filter-bar">
-        <span class="filter-bar-label">Build your ballot:</span>
-        <div class="filter-dropdown" id="dropdown-issues">
-          <button class="filter-dropdown-btn" data-dropdown="issues">
-            Issues I care about <span class="caret">&#9662;</span>
-          </button>
-          <div class="filter-popover">
-            <h3>What issues matter to you?</h3>
-            <p>Pick topics and we'll show each candidate's stance side by side.</p>
-            <div class="pill-grid" id="issue-pills"></div>
+      <div class="toolbar" id="toolbar">
+        <div class="toolbar-row toolbar-top">
+          <div class="toolbar-address" id="toolbar-address">
+            <svg class="toolbar-addr-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <input type="text" class="toolbar-addr-input" id="address-input" placeholder="Enter your address...">
+            <button class="toolbar-addr-btn" id="address-btn">Find ballot</button>
+          </div>
+          <div class="toolbar-address-confirmed" id="address-confirmed" style="display:none">
+            <svg class="toolbar-addr-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span id="address-confirmed-text"></span>
+            <button class="toolbar-addr-change" id="address-change">Change</button>
+          </div>
+          <div class="toolbar-election">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            TX Primary — Mar 3, 2026
           </div>
         </div>
-        <div class="filter-dropdown" id="dropdown-identity">
-          <button class="filter-dropdown-btn identity-btn" data-dropdown="identity">
-            Groups I trust <span class="caret">&#9662;</span>
-          </button>
-          <div class="filter-popover">
-            <h3>Which voices do you trust?</h3>
-            <p>Select organizations you trust and we'll show who they endorse.</p>
-            <div class="pill-grid" id="identity-pills"></div>
+        <div class="toolbar-row toolbar-filters">
+          <div class="filter-dropdown" id="dropdown-issues">
+            <button class="filter-dropdown-btn" data-dropdown="issues">
+              Issues I care about <span class="caret">&#9662;</span>
+            </button>
+            <div class="filter-popover">
+              <h3>What issues matter to you?</h3>
+              <p>Pick topics and we'll show each candidate's stance side by side.</p>
+              <div class="pill-grid" id="issue-pills"></div>
+            </div>
           </div>
+          <div class="filter-dropdown" id="dropdown-identity">
+            <button class="filter-dropdown-btn identity-btn" data-dropdown="identity">
+              Groups I trust <span class="caret">&#9662;</span>
+            </button>
+            <div class="filter-popover">
+              <h3>Which voices do you trust?</h3>
+              <p>Select organizations you trust and we'll show who they endorse.</p>
+              <div class="pill-grid" id="identity-pills"></div>
+            </div>
+          </div>
+          <div class="filter-active-tags" id="filter-active-tags"></div>
+          <button class="clear-all-link" id="clear-all" style="display:none">Clear all</button>
         </div>
-        <div class="filter-active-tags" id="filter-active-tags"></div>
-        <button class="clear-all-link" id="clear-all" style="display:none">Clear all</button>
       </div>
       <div class="filter-bar-hint" id="filter-hint">
         Select issues or groups above to compare candidates on what matters to you

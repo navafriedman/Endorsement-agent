@@ -105,22 +105,19 @@ app.addEventListener('click', (e) => {
     const input = document.getElementById('address-input') as HTMLInputElement;
     const val = input.value.trim();
     if (val) {
-      const row = document.getElementById('address-row')!;
+      const row = document.getElementById('toolbar-address')!;
       const confirmed = document.getElementById('address-confirmed')!;
       const confirmedText = document.getElementById('address-confirmed-text')!;
       row.style.display = 'none';
       confirmed.style.display = 'inline-flex';
-      confirmedText.textContent = `Showing ballot for: ${val}`;
-      // Update header location
-      const loc = document.getElementById('header-location');
-      if (loc) loc.textContent = val;
+      confirmedText.textContent = val;
     }
     return;
   }
 
   // Address change
   if (target.closest('#address-change')) {
-    const row = document.getElementById('address-row')!;
+    const row = document.getElementById('toolbar-address')!;
     const confirmed = document.getElementById('address-confirmed')!;
     row.style.display = '';
     confirmed.style.display = 'none';
