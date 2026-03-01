@@ -95,25 +95,47 @@ app.addEventListener('click', (e) => {
   // Other issues toggle
   const otherToggle = target.closest('[data-other-toggle]') as HTMLElement | null;
   if (otherToggle) {
-    const candidateName = otherToggle.getAttribute('data-other-toggle')!;
-    state.toggleExpanded(`other:${candidateName}`);
+    const raceId = otherToggle.getAttribute('data-other-toggle')!;
+    state.toggleExpanded(`other:${raceId}`);
     return;
   }
 
-  // Issue row expand/collapse
-  const issueRow = target.closest('.issue-row') as HTMLElement | null;
-  if (issueRow) {
-    const key = issueRow.getAttribute('data-expand-key');
-    if (key) {
-      state.toggleExpanded(key);
+  // Address submit
+  if (target.closest('#address-btn')) {
+    const input = document.getElementById('address-input') as HTMLInputElement;
+    const val = input.value.trim();
+    if (val) {
+      const row = document.getElementById('address-row')!;
+      const confirmed = document.getElementById('address-confirmed')!;
+      const confirmedText = document.getElementById('address-confirmed-text')!;
+      row.style.display = 'none';
+      confirmed.style.display = 'inline-flex';
+      confirmedText.textContent = `Showing ballot for: ${val}`;
+      // Update header location
+      const loc = document.getElementById('header-location');
+      if (loc) loc.textContent = val;
     }
+    return;
+  }
+
+  // Address change
+  if (target.closest('#address-change')) {
+    const row = document.getElementById('address-row')!;
+    const confirmed = document.getElementById('address-confirmed')!;
+    row.style.display = '';
+    confirmed.style.display = 'none';
+    const input = document.getElementById('address-input') as HTMLInputElement;
+    input.focus();
     return;
   }
 });
 
-// Also close dropdowns on Escape
+// Address submit on Enter
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && state.openDropdown) {
     state.setDropdown(null);
+  }
+  if (e.key === 'Enter' && (e.target as HTMLElement).id === 'address-input') {
+    document.getElementById('address-btn')?.click();
   }
 });
