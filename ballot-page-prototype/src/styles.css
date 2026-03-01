@@ -509,7 +509,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  margin-top: 6px;
+  margin-top: 8px;
   min-width: 0;
 }
 .endorsement-chip {
@@ -551,28 +551,7 @@ body {
   color: var(--purple-text);
 }
 
-/* Header sections (positions / endorsed by) */
-.header-section {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-}
-.header-section-label {
-  display: block;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  margin-bottom: 4px;
-}
-
-/* Header stance pills (top 3 stances at a glance) */
-.header-stance-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
+/* (header-section / header-section-label / header-stance-pills removed — chrome stripped) */
 
 /* Alignment chip */
 .alignment-score {
@@ -611,12 +590,11 @@ body {
 .issue-section.compact { border-top: 1px solid #f1f5f9; }
 
 .issue-section-header {
-  padding: 10px 20px;
+  padding: 6px 20px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #fafbfd;
-  border-left: 3px solid var(--border);
+  gap: 6px;
+  border-top: 1px solid var(--border);
 }
 .issue-section-header.compact {
   padding: 8px 20px;
@@ -624,9 +602,9 @@ body {
 }
 .issue-section-icon { font-size: 16px; line-height: 1; }
 .issue-section-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 .issue-section-header.compact .issue-section-label {
   font-size: 13px;
@@ -647,7 +625,7 @@ body {
    POSITION CELL (one candidate's take on one issue)
    ============================================================ */
 .position-cell {
-  padding: 12px 20px 14px;
+  padding: 10px 20px 12px;
   min-width: 0;
   transition: background 0.15s;
 }
@@ -687,12 +665,10 @@ body {
 }
 
 .position-quote {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.55;
-  margin-bottom: 4px;
-  padding-left: 12px;
-  border-left: 3px solid var(--border);
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 2px;
 }
 .position-quote-compact {
   font-size: 13px;
@@ -717,23 +693,21 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 10px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--border);
+  margin-top: 6px;
 }
 
 .align-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  min-height: 36px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1.5px solid #e2e8f0;
+  gap: 4px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
   background: white;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;

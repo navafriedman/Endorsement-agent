@@ -323,34 +323,6 @@ const PARTY_LOGO: Record<string, string> = {
 };
 
 function renderCandidateHeader(c: Candidate): string {
-  // Top stance pills: collect first 3 stances from selected issues
-  let stancePillsHtml = '';
-  const selectedIssueIds = [...state.selectedIssues];
-  if (selectedIssueIds.length > 0) {
-    const topStances: { label: string; colors: { bg: string; text: string } }[] = [];
-    for (const issueId of selectedIssueIds) {
-      const pos = c.issues[issueId];
-      if (!pos) continue;
-      const colors = ISSUE_COLORS[issueId];
-      for (const s of pos.stances) {
-        topStances.push({ label: s, colors: { bg: colors?.bg ?? '#f1f5f9', text: colors?.text ?? '#475569' } });
-        if (topStances.length >= 3) break;
-      }
-      if (topStances.length >= 3) break;
-    }
-    if (topStances.length > 0) {
-      stancePillsHtml = `
-        <div class="header-section">
-          <span class="header-section-label">Positions</span>
-          <div class="header-stance-pills">${
-            topStances.map(s =>
-              `<span class="stance-pill" style="background:${s.colors.bg};color:${s.colors.text}">${esc(s.label)}</span>`
-            ).join('')
-          }</div>
-        </div>`;
-    }
-  }
-
   // Endorsements: always show max 3, then "+N more" with expand
   let endorsementsHtml = '';
   if (c.endorsements.length > 0) {
@@ -379,11 +351,7 @@ function renderCandidateHeader(c: Candidate): string {
       ? `<button type="button" class="endorsement-more" data-endorsement-toggle="${esc(c.name)}" aria-label="Show ${overflowCount} more endorsements">+${overflowCount} more</button>`
       : '';
 
-    endorsementsHtml = `
-      <div class="header-section">
-        <span class="header-section-label">Endorsed by</span>
-        <div class="endorsement-chips">${chips}${overflowBtn}</div>
-      </div>`;
+    endorsementsHtml = `<div class="endorsement-chips">${chips}${overflowBtn}</div>`;
   }
 
   // Alignment score (includes cross-race inferences)
@@ -408,7 +376,6 @@ function renderCandidateHeader(c: Candidate): string {
         </span>
       </div>
     </div>
-    ${stancePillsHtml}
     ${endorsementsHtml}
     ${alignmentHtml}
   </div>`;
@@ -453,13 +420,10 @@ function renderPositionCell(c: Candidate, issueId: string): string {
     `<span class="stance-pill" style="background:${colors?.bg ?? '#f1f5f9'};color:${colors?.text ?? '#475569'}">${esc(s)}</span>`
   ).join('');
 
-  const borderColor = colors?.border ?? 'var(--border)';
-
   return `<div class="position-cell ${ratedClass}">
     <div class="position-cell-name">${esc(c.name)}</div>
     <div class="stance-pills-block">${stancePills}</div>
-    <div class="position-quote" style="border-left-color:${borderColor}">${esc(pos.position)}</div>
-    <div class="position-source">Source: ${esc(pos.source)}</div>
+    <div class="position-quote">${esc(pos.position)}</div>
     ${alignBar}
   </div>`;
 }
@@ -470,12 +434,11 @@ function renderPositionCell(c: Candidate, issueId: string): string {
 
 function renderIssueSection(issueId: string, candidates: Candidate[], numCols: number): string {
   const issue = ISSUES.find(i => i.id === issueId)!;
-  const colors = ISSUE_COLORS[issueId];
 
   const cells = candidates.map(c => renderPositionCell(c, issueId)).join('');
 
   return `<section class="issue-section" aria-label="${esc(issue.label)}">
-    <div class="issue-section-header" style="border-left-color:${colors?.border ?? 'var(--border)'}">
+    <div class="issue-section-header">
       <span class="issue-section-icon" aria-hidden="true">${issue.icon}</span>
       <h4 class="issue-section-label">${esc(issue.label)}</h4>
     </div>
@@ -525,7 +488,7 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
     }).join('');
 
     return `<section class="issue-section compact" aria-label="${esc(issue.label)}">
-      <div class="issue-section-header compact" style="border-left-color:${colors?.border ?? 'var(--border)'}">
+      <div class="issue-section-header compact">
         <span class="issue-section-icon" aria-hidden="true">${issue.icon}</span>
         <h4 class="issue-section-label">${esc(issue.label)}</h4>
       </div>
