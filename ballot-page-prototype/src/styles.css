@@ -413,12 +413,9 @@ body {
 
 .candidate-header-cell {
   padding: 16px 20px 14px;
-  border-left: 3px solid transparent;
   min-width: 0;
 }
 .candidate-header-cell:not(:last-child) { border-right: 1px solid var(--border); }
-.candidate-header-cell.dem { border-left-color: var(--dem); background: var(--dem-light); }
-.candidate-header-cell.rep { border-left-color: var(--rep); background: var(--rep-light); }
 
 .candidate-name-row {
   display: flex;
@@ -436,16 +433,17 @@ body {
   font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  color: var(--text-muted);
 }
-.candidate-avatar.dem {
-  background: var(--dem-light);
-  border: 2px solid var(--dem-border);
-  color: var(--dem);
-}
-.candidate-avatar.rep {
-  background: var(--rep-light);
-  border: 2px solid var(--rep-border);
-  color: var(--rep);
+
+/* Party logo next to label */
+.party-logo {
+  width: 16px;
+  height: 16px;
+  vertical-align: -3px;
+  margin-right: 1px;
 }
 .candidate-info { min-width: 0; }
 .candidate-info h4 {

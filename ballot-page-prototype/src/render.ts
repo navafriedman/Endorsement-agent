@@ -68,11 +68,19 @@ function compareStances(stancesA: string[], stancesB: string[]): 'similar' | 'op
 
 type InferResult = { rating: 'agree' | 'disagree'; from: string } | null;
 
-function getInferredAlignment(candidate: Candidate, issueId: string, raceCandidates: Candidate[]): InferResult {
+// Collect every candidate across all races for cross-race inference
+function allCandidates(): Candidate[] {
+  const out: Candidate[] = [];
+  RACES.forEach(r => r.candidates.forEach(c => out.push(c)));
+  return out;
+}
+
+function getInferredAlignment(candidate: Candidate, issueId: string): InferResult {
   const pos = candidate.issues[issueId];
   if (!pos) return null;
 
-  for (const other of raceCandidates) {
+  // Search ALL candidates across ALL races for an explicit rating on this issue
+  for (const other of allCandidates()) {
     if (other.name === candidate.name) continue;
     const otherPos = other.issues[issueId];
     if (!otherPos) continue;
@@ -93,24 +101,21 @@ function getInferredAlignment(candidate: Candidate, issueId: string, raceCandida
   return null;
 }
 
-function getFullAlignmentScore(candidateName: string, raceCandidates: Candidate[]): { score: number; total: number } | null {
-  const candidate = raceCandidates.find(c => c.name === candidateName);
-  if (!candidate) return null;
-
+function getFullAlignmentScore(candidate: Candidate): { score: number; total: number } | null {
   let agrees = 0;
   let total = 0;
 
   for (const issueId of state.selectedIssues) {
     if (!candidate.issues[issueId]) continue;
 
-    const key = `${candidateName}:${issueId}`;
+    const key = `${candidate.name}:${issueId}`;
     const explicit = state.getAlignment(key);
 
     if (explicit) {
       total++;
       if (explicit === 'agree') agrees++;
     } else {
-      const inferred = getInferredAlignment(candidate, issueId, raceCandidates);
+      const inferred = getInferredAlignment(candidate, issueId);
       if (inferred) {
         total++;
         if (inferred.rating === 'agree') agrees++;
@@ -292,9 +297,12 @@ export function renderIdentityPills(): void {
 // CANDIDATE HEADER (top of race card)
 // ============================================================
 
-function renderCandidateHeader(c: Candidate, raceCandidates: Candidate[]): string {
-  const partyClass = c.party === 'Democratic' ? 'dem' : 'rep';
+const PARTY_LOGO: Record<string, string> = {
+  Democratic: '<svg class="party-logo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B82F6"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">D</text></svg>',
+  Republican: '<svg class="party-logo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#EF4444"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">R</text></svg>',
+};
 
+function renderCandidateHeader(c: Candidate): string {
   // Endorsements
   let endorsementsHtml = '';
   if (c.endorsements.length > 0) {
@@ -307,9 +315,9 @@ function renderCandidateHeader(c: Candidate, raceCandidates: Candidate[]): strin
     endorsementsHtml = `<div class="endorsement-chips">${chips}</div>`;
   }
 
-  // Alignment score (includes inferences)
+  // Alignment score (includes cross-race inferences)
   let alignmentHtml = '';
-  const alignResult = getFullAlignmentScore(c.name, raceCandidates);
+  const alignResult = getFullAlignmentScore(c);
   if (alignResult) {
     const level = alignResult.score >= 60 ? 'high' : alignResult.score >= 30 ? 'medium' : 'low';
     alignmentHtml = `<div class="alignment-score visible">
@@ -318,13 +326,13 @@ function renderCandidateHeader(c: Candidate, raceCandidates: Candidate[]): strin
     </div>`;
   }
 
-  return `<div class="candidate-header-cell ${partyClass}">
+  return `<div class="candidate-header-cell">
     <div class="candidate-name-row">
-      <div class="candidate-avatar ${partyClass}">${esc(c.initials)}</div>
+      <div class="candidate-avatar">${esc(c.initials)}</div>
       <div class="candidate-info">
         <h4>${esc(c.name)}</h4>
         <span class="candidate-meta">
-          ${esc(c.party)}
+          ${PARTY_LOGO[c.party] ?? ''} ${esc(c.party)}
           ${c.incumbent ? ' <span class="incumbent-badge">Incumbent</span>' : ''}
         </span>
       </div>
@@ -338,12 +346,12 @@ function renderCandidateHeader(c: Candidate, raceCandidates: Candidate[]): strin
 // POSITION CELL (one candidate's position on one issue)
 // ============================================================
 
-function renderPositionCell(c: Candidate, issueId: string, raceCandidates: Candidate[]): string {
+function renderPositionCell(c: Candidate, issueId: string): string {
   const pos = c.issues[issueId];
   const key = `${c.name}:${issueId}`;
   const colors = ISSUE_COLORS[issueId];
   const explicitAlignment = state.getAlignment(key);
-  const inferred = !explicitAlignment ? getInferredAlignment(c, issueId, raceCandidates) : null;
+  const inferred = !explicitAlignment ? getInferredAlignment(c, issueId) : null;
   const alignment = explicitAlignment ?? inferred?.rating ?? null;
   const isInferred = !explicitAlignment && inferred !== null;
 
@@ -392,7 +400,7 @@ function renderIssueSection(issueId: string, candidates: Candidate[], numCols: n
   const issue = ISSUES.find(i => i.id === issueId)!;
   const colors = ISSUE_COLORS[issueId];
 
-  const cells = candidates.map(c => renderPositionCell(c, issueId, candidates)).join('');
+  const cells = candidates.map(c => renderPositionCell(c, issueId)).join('');
 
   return `<div class="issue-section">
     <div class="issue-section-header" style="border-left-color:${colors?.border ?? 'var(--border)'}">
@@ -488,7 +496,7 @@ export function renderRaceCards(): void {
 
     // Candidate headers row
     const candidateHeaders = race.candidates.map(c =>
-      renderCandidateHeader(c, race.candidates)
+      renderCandidateHeader(c)
     ).join('');
 
     // Selected issue sections
