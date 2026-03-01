@@ -185,15 +185,58 @@ export function renderIdentityPills(): void {
 // ISSUE ROW (compact, expandable, with stance pills)
 // ============================================================
 
-function renderIssueRow(c: Candidate, issueId: string, isSelected: boolean): string {
+// Selected issues: show position text + source directly, no toggle needed
+function renderSelectedIssueBlock(c: Candidate, issueId: string): string {
+  const issue = ISSUES.find(i => i.id === issueId)!;
+  const pos = c.issues[issueId];
+  const key = `${c.name}:${issueId}`;
+  const alignment = state.getAlignment(key);
+  const colors = ISSUE_COLORS[issueId];
+  const ratedClass = alignment === 'agree' ? 'rated-agree' : alignment === 'disagree' ? 'rated-disagree' : '';
+  const borderColor = colors?.border ?? 'var(--border)';
+
+  if (!pos) {
+    return `<div class="issue-block ${ratedClass}">
+      <div class="issue-block-header">
+        <span class="issue-icon">${issue.icon}</span>
+        <span class="issue-block-label">${esc(issue.label)}</span>
+        <span class="align-btns always-visible">
+          <button class="align-btn ${alignment === 'agree' ? 'active-agree' : ''}" data-align="agree" data-align-key="${esc(key)}" title="I agree">${THUMB_UP}</button>
+          <button class="align-btn ${alignment === 'disagree' ? 'active-disagree' : ''}" data-align="disagree" data-align-key="${esc(key)}" title="I disagree">${THUMB_DOWN}</button>
+        </span>
+      </div>
+      <div class="issue-block-empty">No position found</div>
+    </div>`;
+  }
+
+  const stancePills = pos.stances.map(s =>
+    `<span class="stance-pill" style="background:${colors?.bg ?? '#f1f5f9'};color:${colors?.text ?? '#475569'}">${esc(s)}</span>`
+  ).join('');
+
+  return `<div class="issue-block ${ratedClass}">
+    <div class="issue-block-header">
+      <span class="issue-icon">${issue.icon}</span>
+      <span class="issue-block-label">${esc(issue.label)}</span>
+      <span class="stance-pills-inline">${stancePills}</span>
+      <span class="align-btns always-visible">
+        <button class="align-btn ${alignment === 'agree' ? 'active-agree' : ''}" data-align="agree" data-align-key="${esc(key)}" title="I agree">${THUMB_UP}</button>
+        <button class="align-btn ${alignment === 'disagree' ? 'active-disagree' : ''}" data-align="disagree" data-align-key="${esc(key)}" title="I disagree">${THUMB_DOWN}</button>
+      </span>
+    </div>
+    <div class="issue-block-body" style="border-left-color:${borderColor}">
+      <div class="issue-block-text">${esc(pos.position)}</div>
+      <div class="issue-block-source">Source: ${esc(pos.source)}</div>
+    </div>
+  </div>`;
+}
+
+// Other (non-selected) issues: compact expandable rows
+function renderOtherIssueRow(c: Candidate, issueId: string): string {
   const issue = ISSUES.find(i => i.id === issueId)!;
   const pos = c.issues[issueId];
   const key = `${c.name}:${issueId}`;
   const expanded = state.isExpanded(key);
-  const alignment = state.getAlignment(key);
   const colors = ISSUE_COLORS[issueId];
-
-  const ratedClass = alignment === 'agree' ? 'rated-agree' : alignment === 'disagree' ? 'rated-disagree' : '';
 
   let stancePills = '';
   if (pos) {
@@ -219,15 +262,11 @@ function renderIssueRow(c: Candidate, issueId: string, isSelected: boolean): str
     </div>`;
   }
 
-  return `<div class="issue-row ${expanded ? 'expanded' : ''} ${ratedClass}" data-expand-key="${esc(key)}" data-candidate="${esc(c.name)}" data-issue-id="${issueId}">
+  return `<div class="issue-row ${expanded ? 'expanded' : ''}" data-expand-key="${esc(key)}">
     <div class="issue-row-header">
-      ${isSelected ? '' : `<span class="issue-icon">${issue.icon}</span>`}
+      <span class="issue-icon">${issue.icon}</span>
       <span class="issue-row-label">${esc(issue.label)}</span>
       ${stancePills}
-      <span class="align-btns">
-        <button class="align-btn ${alignment === 'agree' ? 'active-agree' : ''}" data-align="agree" data-align-key="${esc(key)}" title="I agree">${THUMB_UP}</button>
-        <button class="align-btn ${alignment === 'disagree' ? 'active-disagree' : ''}" data-align="disagree" data-align-key="${esc(key)}" title="I disagree">${THUMB_DOWN}</button>
-      </span>
       <span class="issue-row-caret">&#9654;</span>
     </div>
     ${detail}
@@ -244,13 +283,13 @@ function renderCandidateCol(c: Candidate, raceName: string): string {
   const otherIssueIds = allCandidateIssueIds.filter(id => !state.selectedIssues.has(id));
   const hasOtherIssues = otherIssueIds.length > 0;
 
-  // Selected issues first
+  // Selected issues: show full position text directly
   let issuesHtml = '';
   if (selectedIssueIds.length > 0) {
-    issuesHtml = selectedIssueIds.map(id => renderIssueRow(c, id, true)).join('');
+    issuesHtml = selectedIssueIds.map(id => renderSelectedIssueBlock(c, id)).join('');
   }
 
-  // Other issues toggle
+  // Other issues: compact expandable rows behind a toggle
   let otherHtml = '';
   if (hasOtherIssues && selectedIssueIds.length > 0) {
     const otherKey = `other:${c.name}`;
@@ -261,11 +300,8 @@ function renderCandidateCol(c: Candidate, raceName: string): string {
         Other issues (${otherIssueIds.length})
       </div>
       <div class="other-issues-content ${otherOpen ? 'visible' : ''}" data-other-content="${esc(c.name)}">
-        ${otherIssueIds.map(id => renderIssueRow(c, id, false)).join('')}
+        ${otherIssueIds.map(id => renderOtherIssueRow(c, id)).join('')}
       </div>`;
-  } else if (!selectedIssueIds.length && allCandidateIssueIds.length > 0) {
-    // No filters: show nothing or show all compactly
-    // Show nothing — the hint below the filter bar guides them
   }
 
   // Endorsements
