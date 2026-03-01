@@ -16,14 +16,51 @@ const app = document.getElementById('app')!;
 app.innerHTML = renderShell();
 
 // ============================================================
+// FOCUS SAVE / RESTORE
+// ============================================================
+
+function saveFocus(): { key: string | null; scrollY: number } {
+  const active = document.activeElement as HTMLElement | null;
+  const scrollY = window.scrollY;
+  if (!active || active === document.body) return { key: null, scrollY };
+
+  // Build a selector that can find this element after re-render
+  if (active.dataset.align && active.dataset.alignKey) {
+    return { key: `[data-align="${active.dataset.align}"][data-align-key="${CSS.escape(active.dataset.alignKey)}"]`, scrollY };
+  }
+  if (active.dataset.otherToggle) {
+    return { key: `[data-other-toggle="${CSS.escape(active.dataset.otherToggle)}"]`, scrollY };
+  }
+  if (active.dataset.endorsementToggle) {
+    return { key: `[data-endorsement-toggle="${CSS.escape(active.dataset.endorsementToggle)}"]`, scrollY };
+  }
+  if (active.id) {
+    return { key: `#${CSS.escape(active.id)}`, scrollY };
+  }
+  return { key: null, scrollY };
+}
+
+function restoreFocus(saved: { key: string | null; scrollY: number }): void {
+  if (saved.key) {
+    const el = document.querySelector(saved.key) as HTMLElement | null;
+    if (el) {
+      el.focus({ preventScroll: true });
+    }
+  }
+  window.scrollTo(0, saved.scrollY);
+}
+
+// ============================================================
 // RENDER CYCLE
 // ============================================================
 
 function renderAll(): void {
+  const focus = saveFocus();
   renderFilterBar();
   renderIssuePills();
   renderIdentityPills();
   renderRaceCards();
+  restoreFocus(focus);
 }
 
 renderAll();
@@ -38,7 +75,11 @@ app.addEventListener('click', (e) => {
 
   // Filter overlay click — close dropdowns
   if (target.id === 'filter-overlay') {
+    const triggerBtn = state.openDropdown
+      ? document.querySelector(`[data-dropdown="${state.openDropdown}"]`) as HTMLElement | null
+      : null;
     state.setDropdown(null);
+    if (triggerBtn) triggerBtn.focus();
     return;
   }
 
@@ -47,6 +88,14 @@ app.addEventListener('click', (e) => {
   if (dropdownBtn) {
     const which = dropdownBtn.getAttribute('data-dropdown') as 'issues' | 'identity';
     state.toggleDropdown(which);
+    // If we just opened, move focus into the popover
+    if (state.openDropdown === which) {
+      requestAnimationFrame(() => {
+        const popover = dropdownBtn.closest('.filter-dropdown')?.querySelector('.filter-popover') as HTMLElement | null;
+        const firstPill = popover?.querySelector('.pill') as HTMLElement | null;
+        if (firstPill) firstPill.focus();
+      });
+    }
     return;
   }
 
@@ -108,21 +157,6 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Address submit
-  if (target.closest('#address-btn')) {
-    const input = document.getElementById('address-input') as HTMLInputElement;
-    const val = input.value.trim();
-    if (val) {
-      const row = document.getElementById('toolbar-address')!;
-      const confirmed = document.getElementById('address-confirmed')!;
-      const confirmedText = document.getElementById('address-confirmed-text')!;
-      row.style.display = 'none';
-      confirmed.style.display = 'inline-flex';
-      confirmedText.textContent = val;
-    }
-    return;
-  }
-
   // Address change
   if (target.closest('#address-change')) {
     const row = document.getElementById('toolbar-address')!;
@@ -135,12 +169,29 @@ app.addEventListener('click', (e) => {
   }
 });
 
-// Address submit on Enter
+// Address form submission
+const addressForm = document.getElementById('toolbar-address') as HTMLFormElement | null;
+if (addressForm) {
+  addressForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = document.getElementById('address-input') as HTMLInputElement;
+    const val = input.value.trim();
+    if (val) {
+      const row = document.getElementById('toolbar-address')!;
+      const confirmed = document.getElementById('address-confirmed')!;
+      const confirmedText = document.getElementById('address-confirmed-text')!;
+      row.style.display = 'none';
+      confirmed.style.display = 'inline-flex';
+      confirmedText.textContent = val;
+    }
+  });
+}
+
+// Keyboard handlers
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && state.openDropdown) {
+    const triggerBtn = document.querySelector(`[data-dropdown="${state.openDropdown}"]`) as HTMLElement | null;
     state.setDropdown(null);
-  }
-  if (e.key === 'Enter' && (e.target as HTMLElement).id === 'address-input') {
-    document.getElementById('address-btn')?.click();
+    if (triggerBtn) triggerBtn.focus();
   }
 });
