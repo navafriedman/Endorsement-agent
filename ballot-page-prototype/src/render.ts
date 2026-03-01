@@ -141,6 +141,7 @@ export function renderShell(): string {
     </header>
 
     <main class="container">
+      <h2 class="ballot-headline">Build your ballot in seconds.</h2>
       <div class="toolbar" id="toolbar">
         <div class="toolbar-row toolbar-top">
           <div class="toolbar-address" id="toolbar-address">
@@ -313,15 +314,19 @@ function renderCandidateHeader(c: Candidate): string {
       if (topStances.length >= 3) break;
     }
     if (topStances.length > 0) {
-      stancePillsHtml = `<div class="header-stance-pills">${
-        topStances.map(s =>
-          `<span class="stance-pill" style="background:${s.colors.bg};color:${s.colors.text}">${esc(s.label)}</span>`
-        ).join('')
-      }</div>`;
+      stancePillsHtml = `
+        <div class="header-section">
+          <span class="header-section-label">Positions</span>
+          <div class="header-stance-pills">${
+            topStances.map(s =>
+              `<span class="stance-pill" style="background:${s.colors.bg};color:${s.colors.text}">${esc(s.label)}</span>`
+            ).join('')
+          }</div>
+        </div>`;
     }
   }
 
-  // Endorsements: show max 3, then "+N others" with expand
+  // Endorsements: always show max 3, then "+N more" with expand
   let endorsementsHtml = '';
   if (c.endorsements.length > 0) {
     // Prioritize selected (highlighted) endorsements first
@@ -331,34 +336,29 @@ function renderCandidateHeader(c: Candidate): string {
       return aH - bH;
     });
 
-    const maxVisible = 3;
-    const visible = sorted.slice(0, maxVisible);
-    const overflow = sorted.slice(maxVisible);
+    const MAX_VISIBLE = 3;
+    const overflowKey = `endorsements:${c.name}`;
+    const isOpen = state.isExpanded(overflowKey);
+    const showAll = isOpen || sorted.length <= MAX_VISIBLE;
+    const visible = showAll ? sorted : sorted.slice(0, MAX_VISIBLE);
+    const overflowCount = sorted.length - MAX_VISIBLE;
 
-    const visibleChips = visible.map(eid => {
+    const chips = visible.map(eid => {
       const group = IDENTITY_GROUPS.find(g => g.id === eid);
       if (!group) return '';
       const highlighted = state.selectedIdentities.has(eid);
       return `<span class="endorsement-chip ${highlighted ? 'highlighted' : ''}">${group.icon} ${esc(group.label)}</span>`;
     }).join('');
 
-    let overflowHtml = '';
-    if (overflow.length > 0) {
-      const overflowKey = `endorsements:${c.name}`;
-      const overflowOpen = state.isExpanded(overflowKey);
-      const overflowChips = overflow.map(eid => {
-        const group = IDENTITY_GROUPS.find(g => g.id === eid);
-        if (!group) return '';
-        const highlighted = state.selectedIdentities.has(eid);
-        return `<span class="endorsement-chip ${highlighted ? 'highlighted' : ''}">${group.icon} ${esc(group.label)}</span>`;
-      }).join('');
+    const overflowBtn = (!showAll && overflowCount > 0)
+      ? `<span class="endorsement-more" data-endorsement-toggle="${esc(c.name)}">+${overflowCount} more</span>`
+      : '';
 
-      overflowHtml = overflowOpen
-        ? overflowChips
-        : `<span class="endorsement-more" data-endorsement-toggle="${esc(c.name)}">+${overflow.length} more</span>`;
-    }
-
-    endorsementsHtml = `<div class="endorsement-chips">${visibleChips}${overflowHtml}</div>`;
+    endorsementsHtml = `
+      <div class="header-section">
+        <span class="header-section-label">Endorsed by</span>
+        <div class="endorsement-chips">${chips}${overflowBtn}</div>
+      </div>`;
   }
 
   // Alignment score (includes cross-race inferences)
@@ -404,17 +404,21 @@ function renderPositionCell(c: Candidate, issueId: string): string {
 
   const ratedClass = alignment === 'agree' ? 'rated-agree' : alignment === 'disagree' ? 'rated-disagree' : '';
 
+  const agreeClass = explicitAlignment === 'agree' ? 'active-agree' : isInferred && alignment === 'agree' ? 'inferred-agree' : '';
+  const disagreeClass = explicitAlignment === 'disagree' ? 'active-disagree' : isInferred && alignment === 'disagree' ? 'inferred-disagree' : '';
+  const inferredTag = isInferred ? `<span class="inferred-badge">Inferred</span>` : '';
+
+  const alignBar = `<div class="align-bar">
+    <button class="align-pill ${agreeClass}" data-align="agree" data-align-key="${esc(key)}">${THUMB_UP} Agree</button>
+    <button class="align-pill ${disagreeClass}" data-align="disagree" data-align-key="${esc(key)}">${THUMB_DOWN} Disagree</button>
+    ${inferredTag}
+  </div>`;
+
   if (!pos) {
     return `<div class="position-cell ${ratedClass}">
       <div class="position-cell-name">${esc(c.name)}</div>
       <div class="position-empty">No position found</div>
-      <div class="position-actions">
-        <span class="align-btns always-visible">
-          <button class="align-btn ${explicitAlignment === 'agree' ? 'active-agree' : isInferred && alignment === 'agree' ? 'inferred-agree' : ''}" data-align="agree" data-align-key="${esc(key)}" title="I agree">${THUMB_UP}</button>
-          <button class="align-btn ${explicitAlignment === 'disagree' ? 'active-disagree' : isInferred && alignment === 'disagree' ? 'inferred-disagree' : ''}" data-align="disagree" data-align-key="${esc(key)}" title="I disagree">${THUMB_DOWN}</button>
-        </span>
-        ${isInferred ? `<span class="inferred-badge">Inferred</span>` : ''}
-      </div>
+      ${alignBar}
     </div>`;
   }
 
@@ -429,13 +433,7 @@ function renderPositionCell(c: Candidate, issueId: string): string {
     <div class="stance-pills-block">${stancePills}</div>
     <div class="position-quote" style="border-left-color:${borderColor}">${esc(pos.position)}</div>
     <div class="position-source">Source: ${esc(pos.source)}</div>
-    <div class="position-actions">
-      <span class="align-btns always-visible">
-        <button class="align-btn ${explicitAlignment === 'agree' ? 'active-agree' : isInferred && alignment === 'agree' ? 'inferred-agree' : ''}" data-align="agree" data-align-key="${esc(key)}" title="I agree">${THUMB_UP}</button>
-        <button class="align-btn ${explicitAlignment === 'disagree' ? 'active-disagree' : isInferred && alignment === 'disagree' ? 'inferred-disagree' : ''}" data-align="disagree" data-align-key="${esc(key)}" title="I disagree">${THUMB_DOWN}</button>
-      </span>
-      ${isInferred ? `<span class="inferred-badge">Inferred</span>` : ''}
-    </div>
+    ${alignBar}
   </div>`;
 }
 
@@ -524,11 +522,17 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
 // RACE CARDS
 // ============================================================
 
+const RACE_TYPE_ORDER: Record<string, number> = { federal: 0, state: 1, local: 2 };
+
 export function renderRaceCards(): void {
   const el = document.getElementById('race-cards')!;
   const selectedIssueIds = [...state.selectedIssues];
 
-  el.innerHTML = RACES.map(race => {
+  const sortedRaces = [...RACES].sort((a, b) =>
+    (RACE_TYPE_ORDER[a.type] ?? 9) - (RACE_TYPE_ORDER[b.type] ?? 9)
+  );
+
+  el.innerHTML = sortedRaces.map(race => {
     if (race.candidates.length === 0) {
       return `<div class="race-card fade-in">
         <div class="race-header">

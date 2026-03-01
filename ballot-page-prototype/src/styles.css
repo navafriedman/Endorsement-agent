@@ -81,6 +81,17 @@ body {
 }
 
 /* ============================================================
+   BALLOT HEADLINE
+   ============================================================ */
+.ballot-headline {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text);
+  margin: 24px 0 0;
+}
+
+/* ============================================================
    UNIFIED TOOLBAR (address + election + filters)
    ============================================================ */
 .toolbar {
@@ -477,12 +488,27 @@ body {
   color: var(--purple);
 }
 
+/* Header sections (positions / endorsed by) */
+.header-section {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.header-section-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
 /* Header stance pills (top 3 stances at a glance) */
 .header-stance-pills {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  margin-bottom: 6px;
 }
 
 /* Alignment chip */
@@ -621,56 +647,64 @@ body {
 }
 
 /* ============================================================
-   AGREE / DISAGREE BUTTONS
+   AGREE / DISAGREE — pill-shaped bar
    ============================================================ */
-.position-actions {
+.align-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
 }
 
-.align-btns {
-  display: inline-flex;
-  gap: 3px;
-  flex-shrink: 0;
-}
-.align-btns.always-visible { opacity: 1; }
-
-.align-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: 1.5px solid #e2e8f0;
-  background: white;
-  cursor: pointer;
+.align-pill {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
   transition: all 0.15s;
-  padding: 0;
+  white-space: nowrap;
 }
-.align-btn svg { width: 13px; height: 13px; }
-.align-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
-.align-btn.active-agree { background: #dcfce7; border-color: #86efac; }
-.align-btn.active-agree svg { fill: #16a34a; }
-.align-btn.active-disagree { background: #fff7ed; border-color: #fdba74; }
-.align-btn.active-disagree svg { fill: #ea580c; }
-.align-btn:not(.active-agree):not(.active-disagree):not(.inferred-agree):not(.inferred-disagree) svg { fill: #94a3b8; }
+.align-pill svg { width: 13px; height: 13px; fill: #94a3b8; transition: fill 0.15s; }
+.align-pill:hover { border-color: #cbd5e1; background: #f8fafc; }
 
-/* Inferred alignment — lighter version */
-.align-btn.inferred-agree {
+/* Active states */
+.align-pill.active-agree {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #15803d;
+}
+.align-pill.active-agree svg { fill: #16a34a; }
+.align-pill.active-disagree {
+  background: #fff7ed;
+  border-color: #fdba74;
+  color: #c2410c;
+}
+.align-pill.active-disagree svg { fill: #ea580c; }
+
+/* Inferred states (dashed border) */
+.align-pill.inferred-agree {
   background: #dcfce7;
   border-color: #bbf7d0;
   border-style: dashed;
+  color: #15803d;
 }
-.align-btn.inferred-agree svg { fill: #4ade80; }
-.align-btn.inferred-disagree {
+.align-pill.inferred-agree svg { fill: #4ade80; }
+.align-pill.inferred-disagree {
   background: #fff7ed;
   border-color: #fed7aa;
   border-style: dashed;
+  color: #c2410c;
 }
-.align-btn.inferred-disagree svg { fill: #fb923c; }
+.align-pill.inferred-disagree svg { fill: #fb923c; }
 
 .inferred-badge {
   font-size: 10px;
