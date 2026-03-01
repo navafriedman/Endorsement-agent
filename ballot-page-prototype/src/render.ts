@@ -26,6 +26,8 @@ function countEndorsements(groupId: string): number {
 
 const THUMB_UP = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M2 20h2V9H2v11zm20-9a2 2 0 0 0-2-2h-6.32l.95-4.57.03-.32a1.5 1.5 0 0 0-.44-1.06L13.17 2 7.59 7.59A2 2 0 0 0 7 9v10a2 2 0 0 0 2 2h9a2 2 0 0 0 1.84-1.22l3.02-7.05A2 2 0 0 0 22 11z"/></svg>';
 const THUMB_DOWN = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M22 4h-2v11h2V4zM2 13a2 2 0 0 0 2 2h6.32l-.95 4.57-.03.32c0 .4.16.77.44 1.06L10.83 22l5.58-5.59A2 2 0 0 0 17 15V5a2 2 0 0 0-2-2H6a2 2 0 0 0-1.84 1.22l-3.02 7.05A2 2 0 0 0 2 13z"/></svg>';
+const ICON_EXTERNAL = '<svg class="source-link-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+const ICON_CHEVRON = '<svg class="detail-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
 
 // ============================================================
 // STANCE COMPARISON (for alignment inference)
@@ -420,11 +422,20 @@ function renderPositionCell(c: Candidate, issueId: string): string {
     `<span class="stance-pill" style="background:${colors?.bg ?? '#f1f5f9'};color:${colors?.text ?? '#475569'}">${esc(s)}</span>`
   ).join('');
 
+  const detailKey = `detail:${c.name}:${issueId}`;
+  const detailOpen = state.isExpanded(detailKey);
+
   return `<div class="position-cell ${ratedClass}">
     <div class="position-cell-name">${esc(c.name)}</div>
     <div class="stance-pills-block">${stancePills}</div>
-    <div class="position-quote">${esc(pos.position)}</div>
     ${alignBar}
+    <button type="button" class="detail-toggle ${detailOpen ? 'open' : ''}" data-detail-toggle="${esc(detailKey)}" aria-expanded="${detailOpen}">
+      ${ICON_CHEVRON} Details
+    </button>
+    <div class="position-detail ${detailOpen ? 'visible' : ''}">
+      <div class="position-quote">${esc(pos.position)}</div>
+      <span class="source-link">${ICON_EXTERNAL} ${esc(pos.source)}</span>
+    </div>
   </div>`;
 }
 
@@ -498,11 +509,21 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
     </section>`;
   }).join('');
 
+  // Collect issue labels for preview
+  const otherLabels = [...allOtherIds].slice(0, 4).map(id => {
+    const i = ISSUES.find(x => x.id === id)!;
+    return `<span class="other-issue-tag">${i.icon} ${esc(i.label)}</span>`;
+  }).join('');
+  const moreCount = allOtherIds.size > 4 ? ` <span class="other-issue-more">+${allOtherIds.size - 4} more</span>` : '';
+
   return `
-    <button type="button" class="other-issues-toggle ${otherOpen ? 'open' : ''}" data-other-toggle="${esc(race.id)}" aria-expanded="${otherOpen}">
-      <span class="toggle-caret" aria-hidden="true">&#9654;</span>
-      Other issues (${allOtherIds.size})
-    </button>
+    <div class="other-issues-banner">
+      <button type="button" class="other-issues-toggle ${otherOpen ? 'open' : ''}" data-other-toggle="${esc(race.id)}" aria-expanded="${otherOpen}">
+        <span class="toggle-caret" aria-hidden="true">&#9654;</span>
+        <span class="other-issues-label">Other issues (${allOtherIds.size})</span>
+      </button>
+      <div class="other-issue-tags">${otherLabels}${moreCount}</div>
+    </div>
     <div class="other-issues-content ${otherOpen ? 'visible' : ''}" data-other-content="${esc(race.id)}">
       ${otherRows}
     </div>`;

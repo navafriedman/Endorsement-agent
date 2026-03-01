@@ -28,6 +28,9 @@ function saveFocus(): { key: string | null; scrollY: number } {
   if (active.dataset.align && active.dataset.alignKey) {
     return { key: `[data-align="${active.dataset.align}"][data-align-key="${CSS.escape(active.dataset.alignKey)}"]`, scrollY };
   }
+  if (active.dataset.detailToggle) {
+    return { key: `[data-detail-toggle="${CSS.escape(active.dataset.detailToggle)}"]`, scrollY };
+  }
   if (active.dataset.otherToggle) {
     return { key: `[data-other-toggle="${CSS.escape(active.dataset.otherToggle)}"]`, scrollY };
   }
@@ -138,6 +141,14 @@ app.addEventListener('click', (e) => {
     const key = alignBtn.getAttribute('data-align-key')!;
     const rating = alignBtn.getAttribute('data-align')! as 'agree' | 'disagree';
     state.toggleAlignment(key, rating);
+    return;
+  }
+
+  // Position detail toggle
+  const detailToggle = target.closest('[data-detail-toggle]') as HTMLElement | null;
+  if (detailToggle) {
+    const key = detailToggle.getAttribute('data-detail-toggle')!;
+    state.toggleExpanded(key);
     return;
   }
 

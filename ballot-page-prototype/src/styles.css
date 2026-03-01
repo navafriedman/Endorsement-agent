@@ -664,21 +664,65 @@ body {
   line-height: 1.5;
 }
 
+/* Detail toggle + collapsible detail pane */
+.detail-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.detail-toggle:hover,
+.detail-toggle:focus-visible { color: var(--primary); }
+.detail-chevron {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s;
+}
+.detail-toggle.open .detail-chevron { transform: rotate(90deg); }
+
+.position-detail {
+  display: none;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.position-detail.visible { display: block; }
+
 .position-quote {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   line-height: 1.5;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
 }
 .position-quote-compact {
   font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.5;
 }
-.position-source {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-bottom: 6px;
+
+/* Source link */
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+}
+.source-link:hover { text-decoration: underline; }
+.source-link-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 .position-empty {
   font-size: 14px;
@@ -760,33 +804,68 @@ body {
 /* ============================================================
    OTHER ISSUES TOGGLE
    ============================================================ */
-.race-card-footer { padding: 0 20px 4px; }
+.race-card-footer { padding: 0; }
+
+.other-issues-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f8fafc;
+  border-top: 1px solid var(--border);
+}
 
 .other-issues-toggle {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  width: 100%;
-  min-height: 36px;
-  padding: 8px 0;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
   cursor: pointer;
   transition: color 0.15s;
   border: none;
-  border-top: 1px dashed #e2e8f0;
   background: none;
   text-align: left;
+  white-space: nowrap;
 }
 .other-issues-toggle:hover,
-.other-issues-toggle:focus-visible { color: var(--purple-text); }
+.other-issues-toggle:focus-visible { color: var(--primary); }
 .other-issues-toggle .toggle-caret {
   font-size: 9px;
   transition: transform 0.2s;
 }
 .other-issues-toggle.open .toggle-caret { transform: rotate(90deg); }
-.other-issues-content { display: none; margin: 0 -20px; }
+.other-issues-label { pointer-events: none; }
+
+.other-issue-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.other-issue-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: white;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.other-issue-more {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.other-issues-content { display: none; }
 .other-issues-content.visible { display: block; }
 
 /* ============================================================
