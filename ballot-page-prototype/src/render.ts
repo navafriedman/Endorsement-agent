@@ -324,7 +324,68 @@ const PARTY_LOGO: Record<string, string> = {
   Republican: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#EF4444"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">R</text></svg>',
 };
 
+function renderInlineIssue(c: Candidate, issueId: string): string {
+  const issue = ISSUES.find(i => i.id === issueId)!;
+  const pos = c.issues[issueId];
+  const key = `${c.name}:${issueId}`;
+  const colors = ISSUE_COLORS[issueId];
+  const explicitAlignment = state.getAlignment(key);
+  const inferred = !explicitAlignment ? getInferredAlignment(c, issueId) : null;
+  const alignment = explicitAlignment ?? inferred?.rating ?? null;
+  const isInferred = !explicitAlignment && inferred !== null;
+
+  const ratedClass = alignment === 'agree' ? 'rated-agree' : alignment === 'disagree' ? 'rated-disagree' : '';
+
+  const agreePressed = explicitAlignment === 'agree' ? 'true' : isInferred && alignment === 'agree' ? 'mixed' : 'false';
+  const disagreePressed = explicitAlignment === 'disagree' ? 'true' : isInferred && alignment === 'disagree' ? 'mixed' : 'false';
+  const agreeClass = explicitAlignment === 'agree' ? 'active-agree' : isInferred && alignment === 'agree' ? 'inferred-agree' : '';
+  const disagreeClass = explicitAlignment === 'disagree' ? 'active-disagree' : isInferred && alignment === 'disagree' ? 'inferred-disagree' : '';
+  const inferredTag = isInferred ? `<span class="inferred-badge">Inferred from ${esc(inferred!.from)}</span>` : '';
+
+  const alignBar = `<div class="align-bar">
+    <button class="align-pill ${agreeClass}" data-align="agree" data-align-key="${esc(key)}" aria-pressed="${agreePressed}">${THUMB_UP} Agree</button>
+    <button class="align-pill ${disagreeClass}" data-align="disagree" data-align-key="${esc(key)}" aria-pressed="${disagreePressed}">${THUMB_DOWN} Disagree</button>
+    ${inferredTag}
+  </div>`;
+
+  if (!pos) {
+    return `<div class="inline-issue ${ratedClass}">
+      <div class="inline-issue-header">
+        <span class="inline-issue-icon" aria-hidden="true">${issue.icon}</span>
+        <span class="position-empty">No position found</span>
+      </div>
+      ${alignBar}
+    </div>`;
+  }
+
+  const stancePills = pos.stances.map(s =>
+    `<span class="stance-pill" style="background:${colors?.bg ?? '#f1f5f9'};color:${colors?.text ?? '#475569'}">${esc(s)}</span>`
+  ).join('');
+
+  const detailKey = `detail:${c.name}:${issueId}`;
+  const detailOpen = state.isExpanded(detailKey);
+
+  return `<div class="inline-issue ${ratedClass}">
+    <div class="inline-issue-header">
+      <span class="inline-issue-icon" aria-hidden="true">${issue.icon}</span>
+      <div class="stance-pills-block">${stancePills}</div>
+    </div>
+    ${alignBar}
+    <button type="button" class="detail-toggle ${detailOpen ? 'open' : ''}" data-detail-toggle="${esc(detailKey)}" aria-expanded="${detailOpen}">
+      ${ICON_CHEVRON} Details
+    </button>
+    <div class="position-detail ${detailOpen ? 'visible' : ''}">
+      <div class="position-quote">${esc(pos.position)}</div>
+      <span class="source-link">${ICON_EXTERNAL} ${esc(pos.source)}</span>
+    </div>
+  </div>`;
+}
+
 function renderCandidateHeader(c: Candidate): string {
+  // Inline issue positions
+  const selectedIssueIds = [...state.selectedIssues];
+  const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id)).join('');
+
   // Endorsements: always show max 3, then "+N more" with expand
   let endorsementsHtml = '';
   if (c.endorsements.length > 0) {
@@ -378,85 +439,10 @@ function renderCandidateHeader(c: Candidate): string {
         </span>
       </div>
     </div>
+    ${issueBlocksHtml}
     ${endorsementsHtml}
     ${alignmentHtml}
   </div>`;
-}
-
-// ============================================================
-// POSITION CELL (one candidate's position on one issue)
-// ============================================================
-
-function renderPositionCell(c: Candidate, issueId: string): string {
-  const pos = c.issues[issueId];
-  const key = `${c.name}:${issueId}`;
-  const colors = ISSUE_COLORS[issueId];
-  const explicitAlignment = state.getAlignment(key);
-  const inferred = !explicitAlignment ? getInferredAlignment(c, issueId) : null;
-  const alignment = explicitAlignment ?? inferred?.rating ?? null;
-  const isInferred = !explicitAlignment && inferred !== null;
-
-  const ratedClass = alignment === 'agree' ? 'rated-agree' : alignment === 'disagree' ? 'rated-disagree' : '';
-
-  const agreePressed = explicitAlignment === 'agree' ? 'true' : isInferred && alignment === 'agree' ? 'mixed' : 'false';
-  const disagreePressed = explicitAlignment === 'disagree' ? 'true' : isInferred && alignment === 'disagree' ? 'mixed' : 'false';
-  const agreeClass = explicitAlignment === 'agree' ? 'active-agree' : isInferred && alignment === 'agree' ? 'inferred-agree' : '';
-  const disagreeClass = explicitAlignment === 'disagree' ? 'active-disagree' : isInferred && alignment === 'disagree' ? 'inferred-disagree' : '';
-  const inferredTag = isInferred ? `<span class="inferred-badge">Inferred from ${esc(inferred!.from)}</span>` : '';
-
-  const alignBar = `<div class="align-bar">
-    <button class="align-pill ${agreeClass}" data-align="agree" data-align-key="${esc(key)}" aria-pressed="${agreePressed}">${THUMB_UP} Agree</button>
-    <button class="align-pill ${disagreeClass}" data-align="disagree" data-align-key="${esc(key)}" aria-pressed="${disagreePressed}">${THUMB_DOWN} Disagree</button>
-    ${inferredTag}
-  </div>`;
-
-  if (!pos) {
-    return `<div class="position-cell ${ratedClass}">
-      <div class="position-cell-name">${esc(c.name)}</div>
-      <div class="position-empty">No position found</div>
-      ${alignBar}
-    </div>`;
-  }
-
-  const stancePills = pos.stances.map(s =>
-    `<span class="stance-pill" style="background:${colors?.bg ?? '#f1f5f9'};color:${colors?.text ?? '#475569'}">${esc(s)}</span>`
-  ).join('');
-
-  const detailKey = `detail:${c.name}:${issueId}`;
-  const detailOpen = state.isExpanded(detailKey);
-
-  return `<div class="position-cell ${ratedClass}">
-    <div class="position-cell-name">${esc(c.name)}</div>
-    <div class="stance-pills-block">${stancePills}</div>
-    ${alignBar}
-    <button type="button" class="detail-toggle ${detailOpen ? 'open' : ''}" data-detail-toggle="${esc(detailKey)}" aria-expanded="${detailOpen}">
-      ${ICON_CHEVRON} Details
-    </button>
-    <div class="position-detail ${detailOpen ? 'visible' : ''}">
-      <div class="position-quote">${esc(pos.position)}</div>
-      <span class="source-link">${ICON_EXTERNAL} ${esc(pos.source)}</span>
-    </div>
-  </div>`;
-}
-
-// ============================================================
-// ISSUE SECTION (one issue, all candidates compared)
-// ============================================================
-
-function renderIssueSection(issueId: string, candidates: Candidate[], numCols: number): string {
-  const issue = ISSUES.find(i => i.id === issueId)!;
-
-  const cells = candidates.map(c => renderPositionCell(c, issueId)).join('');
-
-  return `<section class="issue-section" aria-label="${esc(issue.label)}">
-    <div class="issue-section-header">
-      <span class="issue-section-icon" aria-hidden="true">${issue.icon}</span>
-      <h4 class="issue-section-label">${esc(issue.label)}</h4>
-    </div>
-    <div class="issue-comparison cols-${numCols}">
-      ${cells}
-    </div>
-  </section>`;
 }
 
 // ============================================================
@@ -556,18 +542,10 @@ export function renderRaceCards(): void {
 
     const numCandidates = race.candidates.length;
 
-    // Candidate headers row
+    // Candidate headers row (now includes inline issue positions)
     const candidateHeaders = race.candidates.map(c =>
       renderCandidateHeader(c)
     ).join('');
-
-    // Selected issue sections
-    let issueSections = '';
-    if (selectedIssueIds.length > 0) {
-      issueSections = selectedIssueIds.map(id =>
-        renderIssueSection(id, race.candidates, numCandidates)
-      ).join('');
-    }
 
     // Other issues
     let otherSection = '';
@@ -575,17 +553,14 @@ export function renderRaceCards(): void {
       otherSection = renderOtherIssuesSection(race, numCandidates);
     }
 
-    const hasIssueSections = issueSections.length > 0;
-
     return `<article class="race-card fade-in" aria-label="${esc(race.name)}">
       <div class="race-header">
         <h3 class="race-name">${esc(race.name)}</h3>
         <span class="race-badge ${race.type}">${race.type}</span>
       </div>
-      <div class="candidate-headers cols-${numCandidates} ${hasIssueSections ? 'has-issues' : ''}">
+      <div class="candidate-headers cols-${numCandidates}">
         ${candidateHeaders}
       </div>
-      ${issueSections}
       <div class="race-card-footer">
         ${otherSection}
       </div>

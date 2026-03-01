@@ -445,9 +445,6 @@ body {
 .candidate-headers {
   display: grid;
 }
-.candidate-headers.has-issues {
-  border-bottom: 1px solid var(--border);
-}
 .candidate-headers.cols-1 { grid-template-columns: 1fr; }
 .candidate-headers.cols-2 { grid-template-columns: 1fr 1fr; }
 .candidate-headers.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
@@ -458,6 +455,33 @@ body {
   min-width: 0;
 }
 .candidate-header-cell:not(:last-child) { border-right: 1px solid var(--border); }
+
+/* Inline issue blocks within candidate header */
+.inline-issue {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.inline-issue + .inline-issue { margin-top: 6px; }
+.inline-issue.rated-agree { background: #f0fdf4; border-color: #bbf7d0; }
+.inline-issue.rated-disagree { background: #fffbeb; border-color: #fde68a; }
+
+.inline-issue-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.inline-issue-icon {
+  font-size: 14px;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+.inline-issue .stance-pills-block { margin-bottom: 0; }
+.inline-issue .align-bar { margin-top: 6px; }
+.inline-issue .detail-toggle { margin-top: 4px; }
+.inline-issue .position-detail { margin-top: 6px; padding-top: 6px; }
 
 .candidate-name-row {
   display: flex;
