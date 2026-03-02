@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd ballot-page-prototype && npm install && npm run build",
-  "outputDirectory": "ballot-page-prototype/dist",
+  "buildCommand": "cd questionnaire-editor-ts && npm install && npm run build",
+  "outputDirectory": "questionnaire-editor-ts/public",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/questionnaire-editor-ts/api" }
   ],
