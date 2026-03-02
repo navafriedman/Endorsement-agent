@@ -95,22 +95,16 @@
     <button class="align-pill ${p}" data-align="agree" data-align-key="${d(n)}" aria-pressed="${f}">${M} Agree</button>
     <button class="align-pill ${m}" data-align="disagree" data-align-key="${d(n)}" aria-pressed="${l}">${O} Disagree</button>
     ${b}
-  </div>`;if(!s)return`<div class="inline-issue ${h}">
-      <div class="inline-issue-header">
-        <span class="inline-issue-icon" aria-hidden="true">${i.icon}</span>
-        <span class="position-empty">No position found</span>
-      </div>
-      ${v}
-    </div>`;const A=k(s.stances,a),_=`detail:${t.name}:${e}`,$=o.isExpanded(_);return`<div class="inline-issue ${h}">
+  </div>`;if(!s)return"";const A=k(s.stances,a),$=`detail:${t.name}:${e}`,_=o.isExpanded($);return`<div class="inline-issue ${h}">
     <div class="inline-issue-header">
       <span class="inline-issue-icon" aria-hidden="true">${i.icon}</span>
       <div class="stance-pills-block">${A}</div>
     </div>
     ${v}
-    <button type="button" class="detail-toggle ${$?"open":""}" data-detail-toggle="${d(_)}" aria-expanded="${$}">
+    <button type="button" class="detail-toggle ${_?"open":""}" data-detail-toggle="${d($)}" aria-expanded="${_}">
       ${z} Details
     </button>
-    <div class="position-detail ${$?"visible":""}">
+    <div class="position-detail ${_?"visible":""}">
       <div class="position-quote">${d(s.position)}</div>
       <span class="source-link">${H} ${d(s.source)}</span>
     </div>

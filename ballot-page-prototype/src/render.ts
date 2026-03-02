@@ -366,15 +366,7 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
     ${inferredTag}
   </div>`;
 
-  if (!pos) {
-    return `<div class="inline-issue ${ratedClass}">
-      <div class="inline-issue-header">
-        <span class="inline-issue-icon" aria-hidden="true">${issue.icon}</span>
-        <span class="position-empty">No position found</span>
-      </div>
-      ${alignBar}
-    </div>`;
-  }
+  if (!pos) return '';
 
   const stancePills = renderStancePills(pos.stances, colors);
 
