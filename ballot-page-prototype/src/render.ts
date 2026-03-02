@@ -6,6 +6,12 @@ import { state } from './state';
 // HELPERS
 // ============================================================
 
+function renderStancePills(stances: string[], colors: { bg: string; text: string } | undefined): string {
+  return stances.map(s =>
+    `<span class="stance-pill" style="background:${colors?.bg ?? '#f1f5f9'};color:${colors?.text ?? '#475569'}">${esc(s)}</span>`
+  ).join('');
+}
+
 function esc(s: string): string {
   const div = document.createElement('div');
   div.textContent = s;
@@ -71,19 +77,15 @@ function compareStances(stancesA: string[], stancesB: string[]): 'similar' | 'op
 
 type InferResult = { rating: 'agree' | 'disagree'; from: string } | null;
 
-// Collect every candidate across all races for cross-race inference
-function allCandidates(): Candidate[] {
-  const out: Candidate[] = [];
-  RACES.forEach(r => r.candidates.forEach(c => out.push(c)));
-  return out;
-}
+// All candidates flattened from all races (static data, computed once)
+const ALL_CANDIDATES: Candidate[] = RACES.flatMap(r => r.candidates);
 
 function getInferredAlignment(candidate: Candidate, issueId: string): InferResult {
   const pos = candidate.issues[issueId];
   if (!pos) return null;
 
   // Search ALL candidates across ALL races for an explicit rating on this issue
-  for (const other of allCandidates()) {
+  for (const other of ALL_CANDIDATES) {
     if (other.name === candidate.name) continue;
     const otherPos = other.issues[issueId];
     if (!otherPos) continue;
@@ -359,9 +361,7 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
     </div>`;
   }
 
-  const stancePills = pos.stances.map(s =>
-    `<span class="stance-pill" style="background:${colors?.bg ?? '#f1f5f9'};color:${colors?.text ?? '#475569'}">${esc(s)}</span>`
-  ).join('');
+  const stancePills = renderStancePills(pos.stances, colors);
 
   const detailKey = `detail:${c.name}:${issueId}`;
   const detailOpen = state.isExpanded(detailKey);
@@ -412,7 +412,7 @@ function renderCandidateHeader(c: Candidate): string {
     }).join('');
 
     const overflowBtn = (!showAll && overflowCount > 0)
-      ? `<button type="button" class="endorsement-more" data-endorsement-toggle="${esc(c.name)}" aria-label="Show ${overflowCount} more endorsements">+${overflowCount} more</button>`
+      ? `<button type="button" class="endorsement-more" data-endorsement-toggle="${esc(overflowKey)}" aria-label="Show ${overflowCount} more endorsements">+${overflowCount} more</button>`
       : '';
 
     endorsementsHtml = `<div class="endorsement-chips">${chips}${overflowBtn}</div>`;
@@ -477,9 +477,7 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
           <span class="position-empty" aria-label="No position found">&mdash;</span>
         </div>`;
       }
-      const stancePills = pos.stances.map(s =>
-        `<span class="stance-pill" style="background:${colors?.bg ?? '#f1f5f9'};color:${colors?.text ?? '#475569'}">${esc(s)}</span>`
-      ).join('');
+      const stancePills = renderStancePills(pos.stances, colors);
       return `<div class="position-cell compact">
         <div class="position-cell-name">${esc(c.name)}</div>
         <div class="stance-pills-block">${stancePills}</div>
@@ -507,7 +505,7 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
 
   return `
     <div class="other-issues-banner">
-      <button type="button" class="other-issues-toggle ${otherOpen ? 'open' : ''}" data-other-toggle="${esc(race.id)}" aria-expanded="${otherOpen}">
+      <button type="button" class="other-issues-toggle ${otherOpen ? 'open' : ''}" data-other-toggle="${esc(otherKey)}" aria-expanded="${otherOpen}">
         <span class="toggle-caret" aria-hidden="true">&#9654;</span>
         <span class="other-issues-label">Other issues (${allOtherIds.size})</span>
       </button>
@@ -561,7 +559,7 @@ export function renderRaceCards(): void {
         <h3 class="race-name">${esc(race.name)}</h3>
         <span class="race-badge ${race.type}">${race.type}</span>
         <button type="button" class="race-share-btn" data-share-race="${esc(race.id)}" aria-label="Share ${esc(race.name)}">
-          ${ICON_SHARE} Share
+          ${ICON_SHARE} <span class="share-label">Share</span>
         </button>
       </div>
       <div class="candidate-headers cols-${numCandidates}">

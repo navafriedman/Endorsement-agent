@@ -155,16 +155,14 @@ app.addEventListener('click', (e) => {
   // Other issues toggle
   const otherToggle = target.closest('[data-other-toggle]') as HTMLElement | null;
   if (otherToggle) {
-    const raceId = otherToggle.getAttribute('data-other-toggle')!;
-    state.toggleExpanded(`other:${raceId}`);
+    state.toggleExpanded(otherToggle.getAttribute('data-other-toggle')!);
     return;
   }
 
   // Endorsement "more" toggle
   const endorsementToggle = target.closest('[data-endorsement-toggle]') as HTMLElement | null;
   if (endorsementToggle) {
-    const candidateName = endorsementToggle.getAttribute('data-endorsement-toggle')!;
-    state.toggleExpanded(`endorsements:${candidateName}`);
+    state.toggleExpanded(endorsementToggle.getAttribute('data-endorsement-toggle')!);
     return;
   }
 
@@ -177,11 +175,16 @@ app.addEventListener('click', (e) => {
       navigator.share({ url }).catch(() => {});
     } else if (navigator.clipboard) {
       navigator.clipboard.writeText(url).then(() => {
+        const label = shareBtn.querySelector('.share-label');
+        if (label) label.textContent = 'Copied!';
         shareBtn.classList.add('copied');
-        shareBtn.innerHTML = shareBtn.innerHTML.replace('Share', 'Copied!');
         setTimeout(() => {
-          shareBtn.classList.remove('copied');
-          shareBtn.innerHTML = shareBtn.innerHTML.replace('Copied!', 'Share');
+          const liveBtn = document.querySelector(`[data-share-race="${raceId}"]`);
+          if (liveBtn) {
+            liveBtn.classList.remove('copied');
+            const liveLabel = liveBtn.querySelector('.share-label');
+            if (liveLabel) liveLabel.textContent = 'Share';
+          }
         }, 2000);
       });
     }

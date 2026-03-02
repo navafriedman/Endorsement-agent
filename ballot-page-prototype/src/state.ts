@@ -103,24 +103,6 @@ class AppState {
     this.notify();
   }
 
-  // Calculate alignment score for a candidate
-  getAlignmentScore(candidateName: string): { score: number; total: number } | null {
-    let agrees = 0;
-    let disagrees = 0;
-    let total = 0;
-
-    for (const [key, rating] of this._alignments) {
-      if (key.startsWith(candidateName + ':')) {
-        total++;
-        if (rating === 'agree') agrees++;
-        if (rating === 'disagree') disagrees++;
-      }
-    }
-
-    if (total === 0) return null;
-    const score = Math.round(((agrees) / total) * 100);
-    return { score, total };
-  }
 }
 
 export const state = new AppState();
