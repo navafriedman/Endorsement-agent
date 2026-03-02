@@ -191,6 +191,12 @@ app.addEventListener('click', (e) => {
     return;
   }
 
+  // "Customize" hint — opens the issues dropdown
+  if (target.closest('#hint-customize')) {
+    state.setDropdown('issues');
+    return;
+  }
+
   // Address change
   if (target.closest('#address-change')) {
     const row = document.getElementById('toolbar-address')!;

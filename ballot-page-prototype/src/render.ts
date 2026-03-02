@@ -267,7 +267,15 @@ export function renderFilterBar(): void {
   clearBtn.style.display = state.hasFilters() ? '' : 'none';
 
   // Hint
-  hint.style.display = state.hasFilters() ? 'none' : '';
+  if (state.usingDefaultIssues) {
+    hint.innerHTML = 'Showing top issues by default. <button type="button" class="hint-customize-btn" id="hint-customize">Customize</button>';
+    hint.style.display = '';
+  } else if (state.hasFilters()) {
+    hint.style.display = 'none';
+  } else {
+    hint.textContent = 'Select issues or groups above to compare candidates on what matters to you';
+    hint.style.display = '';
+  }
 
   // Update live status
   updateLiveStatus();

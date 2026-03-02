@@ -386,6 +386,18 @@ body {
   text-align: center;
   margin: 4px 0 16px;
 }
+.hint-customize-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.hint-customize-btn:hover { color: var(--coral-hover); }
 
 /* ============================================================
    PILLS (inside popovers)
