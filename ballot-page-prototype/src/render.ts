@@ -147,6 +147,10 @@ export function renderShell(): string {
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Print my guide
         </button>
+        <a href="https://change.vote/donate" class="header-support-link" target="_blank" rel="noopener">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Support us
+        </a>
       </div>
     </header>
 
@@ -215,6 +219,8 @@ export function renderShell(): string {
         All candidate positions sourced and linked. Endorsement data from public records.
       </div>
     </footer>
+
+    <div id="donation-modal-container"></div>
   `;
 }
 
@@ -531,6 +537,53 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
 }
 
 // ============================================================
+// DONATION CTA — inline card (after 3+ alignments)
+// ============================================================
+
+function renderDonationCard(): string {
+  if (state.donationDismissed || state.alignmentCount < 3) return '';
+  return `<div class="donation-card fade-in">
+    <button type="button" class="donation-dismiss" id="donation-dismiss" aria-label="Dismiss">&times;</button>
+    <div class="donation-card-inner">
+      <div class="donation-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      </div>
+      <div class="donation-text">
+        <strong>This research is free because people like you fund it.</strong>
+        <p>change.vote has no paywalls, no ads, and no partisan funders. A small donation keeps it that way.</p>
+      </div>
+      <div class="donation-actions">
+        <a href="https://change.vote/donate" class="donation-btn primary" target="_blank" rel="noopener">Chip in $10</a>
+        <button type="button" class="donation-btn secondary" id="donation-dismiss-later">Maybe later</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// DONATION CTA — post-print modal
+// ============================================================
+
+export function renderPostPrintModal(): string {
+  return `<div class="donation-modal-overlay" id="donation-modal-overlay">
+    <div class="donation-modal" role="dialog" aria-label="Support change.vote">
+      <button type="button" class="donation-modal-close" id="donation-modal-close" aria-label="Close">&times;</button>
+      <div class="donation-modal-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      </div>
+      <h2>Your guide is printing!</h2>
+      <p>Help us keep this free for every voter.</p>
+      <div class="donation-modal-amounts">
+        <a href="https://change.vote/donate?amount=5" class="donation-amount-btn" target="_blank" rel="noopener">$5</a>
+        <a href="https://change.vote/donate?amount=10" class="donation-amount-btn featured" target="_blank" rel="noopener">$10</a>
+        <a href="https://change.vote/donate?amount=25" class="donation-amount-btn" target="_blank" rel="noopener">$25</a>
+      </div>
+      <button type="button" class="donation-modal-skip" id="donation-modal-skip">No thanks</button>
+    </div>
+  </div>`;
+}
+
+// ============================================================
 // RACE CARDS
 // ============================================================
 
@@ -544,7 +597,9 @@ export function renderRaceCards(): void {
     (RACE_TYPE_ORDER[a.type] ?? 9) - (RACE_TYPE_ORDER[b.type] ?? 9)
   );
 
-  el.innerHTML = sortedRaces.map(race => {
+  const donationCardHtml = renderDonationCard();
+
+  el.innerHTML = sortedRaces.map((race, raceIdx) => {
     if (race.candidates.length === 0) {
       return `<article class="race-card fade-in" aria-label="${esc(race.name)}">
         <div class="race-header">
@@ -568,7 +623,7 @@ export function renderRaceCards(): void {
       otherSection = renderOtherIssuesSection(race, numCandidates);
     }
 
-    return `<article class="race-card fade-in" aria-label="${esc(race.name)}" id="race-${esc(race.id)}">
+    const card = `<article class="race-card fade-in" aria-label="${esc(race.name)}" id="race-${esc(race.id)}">
       <div class="race-header">
         <h3 class="race-name">${esc(race.name)}</h3>
         <span class="race-badge ${race.type}">${race.type}</span>
@@ -583,5 +638,8 @@ export function renderRaceCards(): void {
         ${otherSection}
       </div>
     </article>`;
+
+    // Insert donation card after the first race
+    return raceIdx === 0 ? card + donationCardHtml : card;
   }).join('');
 }

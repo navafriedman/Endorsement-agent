@@ -6,6 +6,7 @@ import {
   renderIssuePills,
   renderIdentityPills,
   renderRaceCards,
+  renderPostPrintModal,
 } from './render';
 
 // ============================================================
@@ -191,9 +192,21 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Print guide
+  // Donation dismiss (inline card)
+  if (target.closest('#donation-dismiss') || target.closest('#donation-dismiss-later')) {
+    state.dismissDonation();
+    return;
+  }
+
+  // Print guide — show post-print donation modal after printing
   if (target.closest('#print-guide')) {
     window.print();
+    const container = document.getElementById('donation-modal-container');
+    if (container) {
+      container.innerHTML = renderPostPrintModal();
+      const overlay = document.getElementById('donation-modal-overlay');
+      if (overlay) overlay.classList.add('visible');
+    }
     return;
   }
 
@@ -233,11 +246,29 @@ if (addressForm) {
   });
 }
 
+// Donation modal handlers
+document.addEventListener('click', (e) => {
+  const target = e.target as HTMLElement;
+  if (target.closest('#donation-modal-close') || target.closest('#donation-modal-skip') || target.id === 'donation-modal-overlay') {
+    const overlay = document.getElementById('donation-modal-overlay');
+    if (overlay) overlay.classList.remove('visible');
+  }
+});
+
 // Keyboard handlers
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && state.openDropdown) {
-    const triggerBtn = document.querySelector(`[data-dropdown="${state.openDropdown}"]`) as HTMLElement | null;
-    state.setDropdown(null);
-    if (triggerBtn) triggerBtn.focus();
+  if (e.key === 'Escape') {
+    // Close donation modal
+    const modal = document.getElementById('donation-modal-overlay');
+    if (modal?.classList.contains('visible')) {
+      modal.classList.remove('visible');
+      return;
+    }
+    // Close dropdown
+    if (state.openDropdown) {
+      const triggerBtn = document.querySelector(`[data-dropdown="${state.openDropdown}"]`) as HTMLElement | null;
+      state.setDropdown(null);
+      if (triggerBtn) triggerBtn.focus();
+    }
   }
 });

@@ -9,12 +9,21 @@ class AppState {
   private _expandedRows = new Set<string>(); // "candidateName:issueId"
   private _alignments = new Map<string, AlignmentRating>(); // "candidateName:issueId" -> rating
   private _usingDefaultIssues = true;
+  private _donationDismissed = false;
+  private _alignmentCount = 0;
   private listeners: Listener[] = [];
 
   get selectedIssues(): ReadonlySet<string> { return this._selectedIssues; }
   get selectedIdentities(): ReadonlySet<string> { return this._selectedIdentities; }
   get openDropdown(): string | null { return this._openDropdown; }
   get usingDefaultIssues(): boolean { return this._usingDefaultIssues; }
+  get donationDismissed(): boolean { return this._donationDismissed; }
+  get alignmentCount(): number { return this._alignmentCount; }
+
+  dismissDonation(): void {
+    this._donationDismissed = true;
+    this.notify();
+  }
 
   subscribe(listener: Listener): () => void {
     this.listeners.push(listener);
@@ -102,6 +111,7 @@ class AppState {
     if (current === rating) {
       this._alignments.delete(key);
     } else {
+      if (!current) this._alignmentCount++;
       this._alignments.set(key, rating);
     }
     this.notify();
