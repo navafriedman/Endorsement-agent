@@ -431,7 +431,6 @@ body {
   border-radius: var(--radius);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
-  overflow: hidden;
 }
 .race-header {
   padding: 14px 20px;
@@ -965,6 +964,14 @@ body {
   background: var(--surface-raised);
   border: 1px solid var(--border);
   white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.other-issue-tag:hover,
+.other-issue-tag:focus-visible {
+  border-color: var(--coral-text);
+  background: var(--coral-light);
+  color: var(--coral-text);
 }
 .other-issue-more {
   font-size: 11px;

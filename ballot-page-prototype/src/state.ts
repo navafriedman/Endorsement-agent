@@ -3,7 +3,7 @@ type Listener = () => void;
 export type AlignmentRating = 'agree' | 'disagree' | null;
 
 class AppState {
-  private _selectedIssues = new Set<string>();
+  private _selectedIssues = new Set<string>(['immigration', 'education', 'healthcare']);
   private _selectedIdentities = new Set<string>();
   private _openDropdown: 'issues' | 'identity' | null = null;
   private _expandedRows = new Set<string>(); // "candidateName:issueId"

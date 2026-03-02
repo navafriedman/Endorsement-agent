@@ -506,7 +506,7 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
   // Collect issue labels for preview
   const otherLabels = [...allOtherIds].slice(0, 4).map(id => {
     const i = ISSUES.find(x => x.id === id)!;
-    return `<span class="other-issue-tag">${i.icon} ${esc(i.label)}</span>`;
+    return `<button type="button" class="other-issue-tag" data-add-issue="${esc(id)}" aria-label="Add ${esc(i.label)} filter">${i.icon} ${esc(i.label)}</button>`;
   }).join('');
   const moreCount = allOtherIds.size > 4 ? ` <span class="other-issue-more">+${allOtherIds.size - 4} more</span>` : '';
 

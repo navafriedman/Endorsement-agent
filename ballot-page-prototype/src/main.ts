@@ -149,6 +149,16 @@ app.addEventListener('click', (e) => {
     return;
   }
 
+  // Other issue tag — click to add that issue
+  const addIssue = target.closest('[data-add-issue]') as HTMLElement | null;
+  if (addIssue) {
+    const issueId = addIssue.getAttribute('data-add-issue')!;
+    if (!state.selectedIssues.has(issueId)) {
+      state.toggleIssue(issueId);
+    }
+    return;
+  }
+
   // Other issues toggle
   const otherToggle = target.closest('[data-other-toggle]') as HTMLElement | null;
   if (otherToggle) {
