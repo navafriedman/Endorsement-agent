@@ -28,6 +28,7 @@ const THUMB_UP = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M2 20h2V9
 const THUMB_DOWN = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M22 4h-2v11h2V4zM2 13a2 2 0 0 0 2 2h6.32l-.95 4.57-.03.32c0 .4.16.77.44 1.06L10.83 22l5.58-5.59A2 2 0 0 0 17 15V5a2 2 0 0 0-2-2H6a2 2 0 0 0-1.84 1.22l-3.02 7.05A2 2 0 0 0 2 13z"/></svg>';
 const ICON_EXTERNAL = '<svg class="source-link-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
 const ICON_CHEVRON = '<svg class="detail-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+const ICON_SHARE = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>';
 
 // ============================================================
 // STANCE COMPARISON (for alignment inference)
@@ -432,7 +433,10 @@ function renderCandidateHeader(c: Candidate): string {
     <div class="candidate-name-row">
       <div class="candidate-avatar" aria-hidden="true">${esc(c.initials)}</div>
       <div class="candidate-info">
-        <h4>${esc(c.name)}</h4>
+        <div class="candidate-name-line">
+          <h4>${esc(c.name)}</h4>
+          ${alignmentHtml}
+        </div>
         <span class="candidate-meta">
           ${PARTY_LOGO[c.party] ?? ''} ${esc(c.party)}
           ${c.incumbent ? ' <span class="incumbent-badge">Incumbent</span>' : ''}
@@ -441,7 +445,6 @@ function renderCandidateHeader(c: Candidate): string {
     </div>
     ${issueBlocksHtml}
     ${endorsementsHtml}
-    ${alignmentHtml}
   </div>`;
 }
 
@@ -553,10 +556,13 @@ export function renderRaceCards(): void {
       otherSection = renderOtherIssuesSection(race, numCandidates);
     }
 
-    return `<article class="race-card fade-in" aria-label="${esc(race.name)}">
+    return `<article class="race-card fade-in" aria-label="${esc(race.name)}" id="race-${esc(race.id)}">
       <div class="race-header">
         <h3 class="race-name">${esc(race.name)}</h3>
         <span class="race-badge ${race.type}">${race.type}</span>
+        <button type="button" class="race-share-btn" data-share-race="${esc(race.id)}" aria-label="Share ${esc(race.name)}">
+          ${ICON_SHARE} Share
+        </button>
       </div>
       <div class="candidate-headers cols-${numCandidates}">
         ${candidateHeaders}

@@ -422,11 +422,33 @@ body {
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
   background: var(--bg);
 }
-.race-name { font-size: 16px; font-weight: 700; }
+.race-name { font-size: 16px; font-weight: 700; flex: 1; }
+
+.race-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.race-share-btn:hover { background: var(--bg); color: var(--text); }
+.race-share-btn.copied { border-color: #22c55e; color: #16a34a; }
+.race-share-btn svg {
+  width: 14px;
+  height: 14px;
+}
 .race-badge {
   font-size: 11px;
   font-weight: 600;
@@ -489,6 +511,22 @@ body {
   gap: 10px;
   margin-bottom: 6px;
 }
+.candidate-name-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.candidate-name-line h4 { margin: 0; }
+.candidate-name-line .alignment-score {
+  margin: 0;
+  padding: 0;
+}
+.candidate-name-line .alignment-chip {
+  font-size: 10px;
+  padding: 1px 6px;
+}
+.candidate-name-line .alignment-detail { display: none; }
+
 .candidate-avatar {
   width: 40px;
   height: 40px;

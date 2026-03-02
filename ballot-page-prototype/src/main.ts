@@ -168,6 +168,26 @@ app.addEventListener('click', (e) => {
     return;
   }
 
+  // Share race
+  const shareBtn = target.closest('[data-share-race]') as HTMLElement | null;
+  if (shareBtn) {
+    const raceId = shareBtn.getAttribute('data-share-race')!;
+    const url = `${window.location.origin}${window.location.pathname}#race-${raceId}`;
+    if (navigator.share) {
+      navigator.share({ url }).catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(() => {
+        shareBtn.classList.add('copied');
+        shareBtn.innerHTML = shareBtn.innerHTML.replace('Share', 'Copied!');
+        setTimeout(() => {
+          shareBtn.classList.remove('copied');
+          shareBtn.innerHTML = shareBtn.innerHTML.replace('Copied!', 'Share');
+        }, 2000);
+      });
+    }
+    return;
+  }
+
   // Address change
   if (target.closest('#address-change')) {
     const row = document.getElementById('toolbar-address')!;
