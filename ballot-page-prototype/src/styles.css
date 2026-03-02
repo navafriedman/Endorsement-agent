@@ -582,50 +582,80 @@ body {
   letter-spacing: 0.3px;
 }
 
-.endorsement-chips {
+/* Endorsements — compact inline row near candidate name */
+.endorsement-inline {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 4px;
-  margin-top: 8px;
+  margin-top: 4px;
   min-width: 0;
 }
-.endorsement-chip {
+.endorsement-chip-inline {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
+  gap: 2px;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 10px;
   font-weight: 500;
-  background: rgba(0,0,0,0.05);
-  color: var(--text-secondary);
-  transition: all 0.15s;
+  background: rgba(0,0,0,0.04);
+  color: var(--text-muted);
   white-space: nowrap;
+  line-height: 1.6;
 }
-.endorsement-chip.highlighted {
+.endorsement-chip-inline.highlighted {
   background: var(--purple-light);
   color: var(--purple-text);
   font-weight: 600;
 }
-.endorsement-more {
+.endorsement-overflow-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.endorsement-overflow-btn {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 2px 10px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
   background: var(--bg);
   color: var(--text-muted);
   cursor: pointer;
+  border: 1px solid var(--border);
   transition: all 0.15s;
-  white-space: nowrap;
-  border: none;
+  line-height: 1.6;
 }
-.endorsement-more:hover,
-.endorsement-more:focus-visible {
+.endorsement-overflow-btn:hover,
+.endorsement-overflow-btn:focus-visible {
   background: var(--purple-light);
   color: var(--purple-text);
+  border-color: var(--purple-text);
+}
+.endorsement-overflow-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  box-shadow: var(--shadow-md);
+  min-width: 140px;
+  max-width: 220px;
+}
+.endorsement-overflow-popover .endorsement-chip-inline {
+  margin: 2px 0;
+}
+.endorsement-overflow-wrap:hover .endorsement-overflow-popover,
+.endorsement-overflow-wrap:focus-within .endorsement-overflow-popover {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 /* (header-section / header-section-label / header-stance-pills removed — chrome stripped) */

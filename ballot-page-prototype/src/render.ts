@@ -387,7 +387,7 @@ function renderCandidateHeader(c: Candidate): string {
   const selectedIssueIds = [...state.selectedIssues];
   const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id)).join('');
 
-  // Endorsements: always show max 3, then "+N more" with expand
+  // Endorsements: compact inline (1-2 chips + "+N more" popover)
   let endorsementsHtml = '';
   if (c.endorsements.length > 0) {
     // Prioritize selected (highlighted) endorsements first
@@ -397,25 +397,32 @@ function renderCandidateHeader(c: Candidate): string {
       return aH - bH;
     });
 
-    const MAX_VISIBLE = 3;
-    const overflowKey = `endorsements:${c.name}`;
-    const isOpen = state.isExpanded(overflowKey);
-    const showAll = isOpen || sorted.length <= MAX_VISIBLE;
-    const visible = showAll ? sorted : sorted.slice(0, MAX_VISIBLE);
-    const overflowCount = sorted.length - MAX_VISIBLE;
+    const MAX_INLINE = 2;
+    const visible = sorted.slice(0, MAX_INLINE);
+    const overflowCount = sorted.length - MAX_INLINE;
 
     const chips = visible.map(eid => {
       const group = IDENTITY_GROUPS.find(g => g.id === eid);
       if (!group) return '';
       const highlighted = state.selectedIdentities.has(eid);
-      return `<span class="endorsement-chip ${highlighted ? 'highlighted' : ''}"><span aria-hidden="true">${group.icon}</span> ${esc(group.label)}</span>`;
+      return `<span class="endorsement-chip-inline ${highlighted ? 'highlighted' : ''}">${group.icon} ${esc(group.label)}</span>`;
     }).join('');
 
-    const overflowBtn = (!showAll && overflowCount > 0)
-      ? `<button type="button" class="endorsement-more" data-endorsement-toggle="${esc(overflowKey)}" aria-label="Show ${overflowCount} more endorsements">+${overflowCount} more</button>`
-      : '';
+    let overflowHtml = '';
+    if (overflowCount > 0) {
+      const overflowChips = sorted.slice(MAX_INLINE).map(eid => {
+        const group = IDENTITY_GROUPS.find(g => g.id === eid);
+        if (!group) return '';
+        const highlighted = state.selectedIdentities.has(eid);
+        return `<span class="endorsement-chip-inline ${highlighted ? 'highlighted' : ''}">${group.icon} ${esc(group.label)}</span>`;
+      }).join('');
+      overflowHtml = `<span class="endorsement-overflow-wrap">
+        <button type="button" class="endorsement-overflow-btn" aria-label="${overflowCount} more endorsements">+${overflowCount}</button>
+        <div class="endorsement-overflow-popover">${overflowChips}</div>
+      </span>`;
+    }
 
-    endorsementsHtml = `<div class="endorsement-chips">${chips}${overflowBtn}</div>`;
+    endorsementsHtml = `<div class="endorsement-inline">${chips}${overflowHtml}</div>`;
   }
 
   // Alignment score (includes cross-race inferences)
@@ -441,10 +448,10 @@ function renderCandidateHeader(c: Candidate): string {
           ${PARTY_LOGO[c.party] ?? ''} ${esc(c.party)}
           ${c.incumbent ? ' <span class="incumbent-badge">Incumbent</span>' : ''}
         </span>
+        ${endorsementsHtml}
       </div>
     </div>
     ${issueBlocksHtml}
-    ${endorsementsHtml}
   </div>`;
 }
 

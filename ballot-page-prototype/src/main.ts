@@ -34,9 +34,6 @@ function saveFocus(): { key: string | null; scrollY: number } {
   if (active.dataset.otherToggle) {
     return { key: `[data-other-toggle="${CSS.escape(active.dataset.otherToggle)}"]`, scrollY };
   }
-  if (active.dataset.endorsementToggle) {
-    return { key: `[data-endorsement-toggle="${CSS.escape(active.dataset.endorsementToggle)}"]`, scrollY };
-  }
   if (active.id) {
     return { key: `#${CSS.escape(active.id)}`, scrollY };
   }
@@ -156,13 +153,6 @@ app.addEventListener('click', (e) => {
   const otherToggle = target.closest('[data-other-toggle]') as HTMLElement | null;
   if (otherToggle) {
     state.toggleExpanded(otherToggle.getAttribute('data-other-toggle')!);
-    return;
-  }
-
-  // Endorsement "more" toggle
-  const endorsementToggle = target.closest('[data-endorsement-toggle]') as HTMLElement | null;
-  if (endorsementToggle) {
-    state.toggleExpanded(endorsementToggle.getAttribute('data-endorsement-toggle')!);
     return;
   }
 
