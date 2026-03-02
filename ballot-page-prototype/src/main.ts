@@ -170,6 +170,7 @@ app.addEventListener('click', (e) => {
   // Share race
   const shareBtn = target.closest('[data-share-race]') as HTMLElement | null;
   if (shareBtn) {
+    state.recordEngagement();
     const raceId = shareBtn.getAttribute('data-share-race')!;
     const url = `${window.location.origin}${window.location.pathname}#race-${raceId}`;
     if (navigator.share) {
@@ -236,6 +237,7 @@ if (addressForm) {
     const input = document.getElementById('address-input') as HTMLInputElement;
     const val = input.value.trim();
     if (val) {
+      state.recordEngagement();
       const row = document.getElementById('toolbar-address')!;
       const confirmed = document.getElementById('address-confirmed')!;
       const confirmedText = document.getElementById('address-confirmed-text')!;

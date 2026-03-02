@@ -10,7 +10,7 @@ class AppState {
   private _alignments = new Map<string, AlignmentRating>(); // "candidateName:issueId" -> rating
   private _usingDefaultIssues = true;
   private _donationDismissed = false;
-  private _alignmentCount = 0;
+  private _engagementCount = 0;
   private listeners: Listener[] = [];
 
   get selectedIssues(): ReadonlySet<string> { return this._selectedIssues; }
@@ -18,7 +18,11 @@ class AppState {
   get openDropdown(): string | null { return this._openDropdown; }
   get usingDefaultIssues(): boolean { return this._usingDefaultIssues; }
   get donationDismissed(): boolean { return this._donationDismissed; }
-  get alignmentCount(): number { return this._alignmentCount; }
+  get engagementCount(): number { return this._engagementCount; }
+
+  recordEngagement(): void {
+    this._engagementCount++;
+  }
 
   dismissDonation(): void {
     this._donationDismissed = true;
@@ -38,6 +42,7 @@ class AppState {
 
   toggleIssue(id: string): void {
     this._usingDefaultIssues = false;
+    this._engagementCount++;
     if (this._selectedIssues.has(id)) {
       this._selectedIssues.delete(id);
     } else {
@@ -47,6 +52,7 @@ class AppState {
   }
 
   toggleIdentity(id: string): void {
+    this._engagementCount++;
     if (this._selectedIdentities.has(id)) {
       this._selectedIdentities.delete(id);
     } else {
@@ -111,7 +117,7 @@ class AppState {
     if (current === rating) {
       this._alignments.delete(key);
     } else {
-      if (!current) this._alignmentCount++;
+      if (!current) this._engagementCount++;
       this._alignments.set(key, rating);
     }
     this.notify();

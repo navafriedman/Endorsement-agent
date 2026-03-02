@@ -542,7 +542,7 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
 // ============================================================
 
 function renderDonationCard(): string {
-  if (state.donationDismissed || state.alignmentCount < 3) return '';
+  if (state.donationDismissed || state.engagementCount < 3) return '';
   return `<div class="donation-card fade-in">
     <button type="button" class="donation-dismiss" id="donation-dismiss" aria-label="Dismiss">&times;</button>
     <div class="donation-card-inner">
