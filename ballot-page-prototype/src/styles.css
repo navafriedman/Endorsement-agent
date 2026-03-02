@@ -26,7 +26,7 @@
   --rep-light: #fef2f2;
   --rep-border: #fecaca;
   --bg: #f8fafc;
-  --bg-white: #ffffff;
+
   --border: #e2e8f0;
   --border-hover: #cbd5e1;
   --text: #1e293b;
@@ -37,6 +37,21 @@
   --shadow: 0 1px 3px rgba(0,0,0,0.08);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
   --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+  --primary: var(--coral);
+  --surface-raised: #ffffff;
+  --surface-inset: #f8fafc;
+  --border-soft: rgba(0,0,0,0.06);
+  --agree-bg: #f0fdf4;
+  --agree-border: #bbf7d0;
+  --agree-text: #15803d;
+  --agree-icon: #16a34a;
+  --disagree-bg: #fffbeb;
+  --disagree-border: #fde68a;
+  --disagree-text: #c2410c;
+  --disagree-icon: #ea580c;
+  --success: #059669;
+  --copied-border: #22c55e;
+  --copied-text: #16a34a;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -101,7 +116,7 @@ body {
    HEADER
    ============================================================ */
 .header {
-  background: white;
+  background: var(--surface-raised);
   border-bottom: 1px solid var(--border);
   padding: 14px 0;
   position: sticky;
@@ -141,7 +156,7 @@ body {
    UNIFIED TOOLBAR (address + election + filters)
    ============================================================ */
 .toolbar {
-  background: white;
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin: 20px 0 4px;
@@ -183,7 +198,7 @@ body {
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 13px;
-  background: white;
+  background: var(--surface-raised);
   color: var(--text);
   transition: border-color 0.15s;
 }
@@ -211,9 +226,9 @@ body {
   gap: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: #059669;
+  color: var(--success);
 }
-.toolbar-addr-check { color: #059669; flex-shrink: 0; }
+.toolbar-addr-check { color: var(--success); flex-shrink: 0; }
 .toolbar-addr-change {
   background: none;
   border: none;
@@ -251,7 +266,7 @@ body {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  background: white;
+  background: var(--surface-raised);
   color: var(--text-secondary);
   transition: all 0.15s;
 }
@@ -297,7 +312,7 @@ body {
   top: calc(100% + 6px);
   left: 0;
   z-index: 200;
-  background: white;
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 16px;
@@ -387,7 +402,7 @@ body {
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  background: white;
+  background: var(--surface-raised);
   color: var(--text-secondary);
   user-select: none;
   transition: all 0.15s;
@@ -411,7 +426,7 @@ body {
    RACE CARDS
    ============================================================ */
 .race-card {
-  background: white;
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 20px;
@@ -435,7 +450,7 @@ body {
   padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: #fff;
+  background: var(--surface-raised);
   color: var(--text-secondary);
   font-size: 12px;
   font-weight: 500;
@@ -444,7 +459,7 @@ body {
   white-space: nowrap;
 }
 .race-share-btn:hover { background: var(--bg); color: var(--text); }
-.race-share-btn.copied { border-color: #22c55e; color: #16a34a; }
+.race-share-btn.copied { border-color: var(--copied-border); color: var(--copied-text); }
 .race-share-btn svg {
   width: 14px;
   height: 14px;
@@ -487,8 +502,8 @@ body {
   transition: background 0.15s;
 }
 .inline-issue + .inline-issue { margin-top: 6px; }
-.inline-issue.rated-agree { background: #f0fdf4; border-color: #bbf7d0; }
-.inline-issue.rated-disagree { background: #fffbeb; border-color: #fde68a; }
+.inline-issue.rated-agree { background: var(--agree-bg); border-color: var(--agree-border); }
+.inline-issue.rated-disagree { background: var(--disagree-bg); border-color: var(--disagree-border); }
 
 .inline-issue-header {
   display: flex;
@@ -649,7 +664,7 @@ body {
 .issue-section {
   border-top: 1px solid var(--border);
 }
-.issue-section.compact { border-top: 1px solid #f1f5f9; }
+.issue-section.compact { border-top: 1px solid var(--border-soft); }
 
 .issue-section-header {
   padding: 6px 20px;
@@ -660,7 +675,7 @@ body {
 }
 .issue-section-header.compact {
   padding: 8px 20px;
-  background: #fcfcfd;
+  background: var(--surface-inset);
 }
 .issue-section-icon { font-size: 16px; line-height: 1; }
 .issue-section-label {
@@ -696,8 +711,8 @@ body {
 .position-cell.compact:hover,
 .position-cell.compact:focus-within { opacity: 1; }
 
-.position-cell.rated-agree { background: #f0fdf4; }
-.position-cell.rated-disagree { background: #fffbeb; }
+.position-cell.rated-agree { background: var(--agree-bg); }
+.position-cell.rated-disagree { background: var(--disagree-bg); }
 
 /* Mobile-only candidate label inside cells */
 .position-cell-name {
@@ -809,8 +824,8 @@ body {
   min-height: 30px;
   padding: 4px 10px;
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  background: white;
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
@@ -820,37 +835,37 @@ body {
 }
 .align-pill svg { width: 13px; height: 13px; fill: var(--text-muted); transition: fill 0.15s; }
 .align-pill:hover,
-.align-pill:focus-visible { border-color: #cbd5e1; background: #f8fafc; }
+.align-pill:focus-visible { border-color: var(--border-hover); background: var(--surface-inset); }
 
 /* Active states */
 .align-pill.active-agree {
-  background: #dcfce7;
-  border-color: #86efac;
-  color: #15803d;
+  background: var(--agree-bg);
+  border-color: var(--agree-border);
+  color: var(--agree-text);
 }
-.align-pill.active-agree svg { fill: #16a34a; }
+.align-pill.active-agree svg { fill: var(--agree-icon); }
 .align-pill.active-disagree {
-  background: #fff7ed;
-  border-color: #fdba74;
-  color: #c2410c;
+  background: var(--disagree-bg);
+  border-color: var(--disagree-border);
+  color: var(--disagree-text);
 }
-.align-pill.active-disagree svg { fill: #ea580c; }
+.align-pill.active-disagree svg { fill: var(--disagree-icon); }
 
 /* Inferred states (dashed border) */
 .align-pill.inferred-agree {
-  background: #dcfce7;
-  border-color: #bbf7d0;
+  background: var(--agree-bg);
+  border-color: var(--agree-border);
   border-style: dashed;
-  color: #15803d;
+  color: var(--agree-text);
 }
-.align-pill.inferred-agree svg { fill: #4ade80; }
+.align-pill.inferred-agree svg { fill: var(--agree-border); }
 .align-pill.inferred-disagree {
-  background: #fff7ed;
-  border-color: #fed7aa;
+  background: var(--disagree-bg);
+  border-color: var(--disagree-border);
   border-style: dashed;
-  color: #c2410c;
+  color: var(--disagree-text);
 }
-.align-pill.inferred-disagree svg { fill: #fb923c; }
+.align-pill.inferred-disagree svg { fill: var(--disagree-border); }
 
 .inferred-badge {
   font-size: 10px;
@@ -874,7 +889,7 @@ body {
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: #f8fafc;
+  background: var(--surface-inset);
   border-top: 1px solid var(--border);
 }
 
@@ -917,7 +932,7 @@ body {
   font-size: 11px;
   font-weight: 500;
   color: var(--text-secondary);
-  background: white;
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   white-space: nowrap;
 }
@@ -984,7 +999,7 @@ body {
 
   .position-cell:not(:last-child) {
     border-right: none;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--border-soft);
   }
 
   /* Show candidate name labels inside position cells */
