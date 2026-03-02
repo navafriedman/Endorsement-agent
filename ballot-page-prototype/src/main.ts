@@ -191,6 +191,12 @@ app.addEventListener('click', (e) => {
     return;
   }
 
+  // Print guide
+  if (target.closest('#print-guide')) {
+    window.print();
+    return;
+  }
+
   // "Customize" hint — opens the issues dropdown
   if (target.closest('#hint-customize')) {
     state.setDropdown('issues');

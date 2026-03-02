@@ -125,8 +125,8 @@ body {
 }
 .header .container {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 .logo {
   font-size: 18px;
@@ -139,6 +139,30 @@ body {
   font-size: 13px;
   color: var(--text-muted);
   font-weight: 500;
+}
+.print-guide-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-left: auto;
+}
+.print-guide-btn:hover {
+  border-color: var(--coral);
+  color: var(--coral);
+  background: var(--coral-light);
+}
+.print-guide-btn svg {
+  width: 15px;
+  height: 15px;
 }
 
 /* ============================================================
@@ -386,18 +410,49 @@ body {
   text-align: center;
   margin: 4px 0 16px;
 }
-.hint-customize-btn {
-  background: none;
-  border: none;
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+.filter-bar-hint.defaults-active {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: auto;
+  margin: 8px auto 16px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--coral-light), #fef9f0);
+  border: 1px solid rgba(240,100,73,0.15);
+  color: var(--text-secondary);
+  font-weight: 500;
+  animation: hintSlideIn 0.3s ease;
 }
-.hint-customize-btn:hover { color: var(--coral-hover); }
+@keyframes hintSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hint-sparkle {
+  font-size: 15px;
+  line-height: 1;
+}
+.hint-customize-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--coral);
+  border: none;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.15s;
+  letter-spacing: 0.2px;
+}
+.hint-customize-btn:hover { background: var(--coral-hover); }
+.hint-customize-btn svg {
+  width: 12px;
+  height: 12px;
+}
 
 /* ============================================================
    PILLS (inside popovers)
@@ -774,12 +829,12 @@ body {
 }
 .stance-pill {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 8px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 /* Detail toggle + collapsible detail pane */
@@ -861,20 +916,20 @@ body {
 .align-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  min-height: 30px;
-  padding: 4px 10px;
-  border-radius: 16px;
+  gap: 3px;
+  min-height: 24px;
+  padding: 2px 8px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface-raised);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 }
-.align-pill svg { width: 13px; height: 13px; fill: var(--text-muted); transition: fill 0.15s; }
+.align-pill svg { width: 11px; height: 11px; fill: var(--text-muted); transition: fill 0.15s; }
 .align-pill:hover,
 .align-pill:focus-visible { border-color: var(--border-hover); background: var(--surface-inset); }
 
@@ -1067,4 +1122,29 @@ body {
   .race-header { padding: 12px 14px; }
   .race-card-footer { padding: 0 14px 4px; }
   .other-issues-content.visible { margin: 0 -14px; }
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  body { background: white; font-size: 12px; }
+  .header { position: static; border: none; box-shadow: none; }
+  .print-guide-btn,
+  .toolbar,
+  .filter-bar-hint,
+  .filter-overlay,
+  .race-share-btn,
+  .align-bar,
+  .detail-toggle,
+  .other-issues-toggle,
+  .other-issue-tags,
+  .endorsement-overflow-btn,
+  .endorsement-overflow-popover,
+  .race-card-footer,
+  .footer { display: none !important; }
+  .race-card { box-shadow: none; break-inside: avoid; border: 1px solid #ccc; margin-bottom: 12px; }
+  .position-detail { display: block !important; border: none; margin-top: 4px; padding-top: 0; }
+  .inline-issue { border: none; padding: 4px 0; }
+  .candidate-headers { gap: 0; }
 }

@@ -143,6 +143,10 @@ export function renderShell(): string {
       <div class="container">
         <a class="logo" href="/">change<span>.vote</span></a>
         <span class="header-tagline">Your Personalized Ballot Guide</span>
+        <button type="button" class="print-guide-btn" id="print-guide" aria-label="Print your ballot guide">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print my guide
+        </button>
       </div>
     </header>
 
@@ -268,11 +272,14 @@ export function renderFilterBar(): void {
 
   // Hint
   if (state.usingDefaultIssues) {
-    hint.innerHTML = 'Showing top issues by default. <button type="button" class="hint-customize-btn" id="hint-customize">Customize</button>';
+    hint.classList.add('defaults-active');
+    hint.innerHTML = `<span class="hint-sparkle" aria-hidden="true">✨</span> Showing top issues by default <button type="button" class="hint-customize-btn" id="hint-customize"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Customize</button>`;
     hint.style.display = '';
   } else if (state.hasFilters()) {
+    hint.classList.remove('defaults-active');
     hint.style.display = 'none';
   } else {
+    hint.classList.remove('defaults-active');
     hint.textContent = 'Select issues or groups above to compare candidates on what matters to you';
     hint.style.display = '';
   }
