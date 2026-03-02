@@ -449,6 +449,16 @@ body {
   letter-spacing: 0.2px;
 }
 .hint-customize-btn:hover { background: var(--coral-hover); }
+.hint-customize-btn.subtle {
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.hint-customize-btn.subtle:hover {
+  background: var(--coral-light);
+  color: var(--coral);
+  border-color: var(--coral);
+}
 .hint-customize-btn svg {
   width: 12px;
   height: 12px;
