@@ -3,8 +3,7 @@ import { state } from './state';
 import {
   renderShell,
   renderFilterBar,
-  renderIssuePills,
-  renderIdentityPills,
+  renderFilterPills,
   renderRaceCards,
   renderPostPrintModal,
 } from './render';
@@ -35,6 +34,9 @@ function saveFocus(): { key: string | null; scrollY: number } {
   if (active.dataset.otherToggle) {
     return { key: `[data-other-toggle="${CSS.escape(active.dataset.otherToggle)}"]`, scrollY };
   }
+  if (active.dataset.ratingToggle) {
+    return { key: `[data-rating-toggle="${CSS.escape(active.dataset.ratingToggle)}"]`, scrollY };
+  }
   if (active.id) {
     return { key: `#${CSS.escape(active.id)}`, scrollY };
   }
@@ -58,8 +60,7 @@ function restoreFocus(saved: { key: string | null; scrollY: number }): void {
 function renderAll(): void {
   const focus = saveFocus();
   renderFilterBar();
-  renderIssuePills();
-  renderIdentityPills();
+  renderFilterPills();
   renderRaceCards();
   restoreFocus(focus);
 }
@@ -84,10 +85,10 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Dropdown toggle buttons
+  // Dropdown toggle button (unified)
   const dropdownBtn = target.closest('[data-dropdown]') as HTMLElement | null;
   if (dropdownBtn) {
-    const which = dropdownBtn.getAttribute('data-dropdown') as 'issues' | 'identity';
+    const which = dropdownBtn.getAttribute('data-dropdown') as 'filters';
     state.toggleDropdown(which);
     // If we just opened, move focus into the popover
     if (state.openDropdown === which) {
@@ -129,6 +130,14 @@ app.addEventListener('click', (e) => {
   // Clear all
   if (target.closest('#clear-all')) {
     state.clearAll();
+    return;
+  }
+
+  // Rate stances toggle
+  const ratingToggle = target.closest('[data-rating-toggle]') as HTMLElement | null;
+  if (ratingToggle) {
+    const raceId = ratingToggle.getAttribute('data-rating-toggle')!;
+    state.toggleRatingMode(raceId);
     return;
   }
 
@@ -211,9 +220,9 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // "Customize" hint — opens the issues dropdown
+  // "Customize" hint — opens the filters dropdown
   if (target.closest('#hint-customize')) {
-    state.setDropdown('issues');
+    state.setDropdown('filters');
     return;
   }
 

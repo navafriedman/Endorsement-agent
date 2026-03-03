@@ -304,11 +304,6 @@ body {
   background: var(--coral-light);
   color: var(--coral-text);
 }
-.filter-dropdown-btn.identity-btn.has-selections {
-  border-color: var(--purple-text);
-  background: var(--purple-light);
-  color: var(--purple-text);
-}
 .filter-dropdown-btn .badge {
   background: var(--coral);
   color: white;
@@ -320,7 +315,6 @@ body {
   text-align: center;
   line-height: 18px;
 }
-.filter-dropdown-btn.identity-btn .badge { background: var(--purple); }
 .filter-dropdown-btn .caret {
   font-size: 10px;
   transition: transform 0.2s;
@@ -354,6 +348,14 @@ body {
   font-size: 12px;
   color: var(--text-muted);
   margin-bottom: 10px;
+}
+
+/* Unified popover sections */
+.popover-section { }
+.popover-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
 }
 
 .filter-overlay {
@@ -734,7 +736,27 @@ body {
   gap: 4px;
 }
 
-/* (header-section / header-section-label / header-stance-pills removed — chrome stripped) */
+/* Endorsement match block (when groups are selected) */
+.endorsement-match-block {
+  margin-top: 6px;
+}
+.endorsement-match-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.endorsement-match-score.high { background: var(--green-light); color: #065f46; }
+.endorsement-match-score.medium { background: var(--purple-light); color: var(--purple-text); }
+.endorsement-match-score.low { background: var(--bg); color: var(--text-muted); }
+.endorsement-check {
+  font-size: 10px;
+  color: var(--purple-text);
+}
 
 /* Alignment chip */
 .alignment-score {
@@ -987,7 +1009,55 @@ body {
 /* ============================================================
    OTHER ISSUES TOGGLE
    ============================================================ */
+/* Race card footer & actions bar */
 .race-card-footer { padding: 0; }
+
+.race-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-inset);
+}
+.race-card-actions:empty {
+  display: none;
+}
+
+.rate-stances-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 4px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.rate-stances-btn svg {
+  width: 12px;
+  height: 12px;
+  fill: var(--text-muted);
+}
+.rate-stances-btn:hover,
+.rate-stances-btn:focus-visible {
+  border-color: var(--coral);
+  color: var(--coral);
+  background: var(--coral-light);
+}
+.rate-stances-btn:hover svg,
+.rate-stances-btn:focus-visible svg { fill: var(--coral); }
+.rate-stances-btn.active {
+  border-color: var(--agree-border);
+  background: var(--agree-bg);
+  color: var(--agree-text);
+}
+.rate-stances-btn.active svg { fill: var(--agree-icon); stroke: var(--agree-icon); }
 
 .other-issues-banner {
   display: flex;

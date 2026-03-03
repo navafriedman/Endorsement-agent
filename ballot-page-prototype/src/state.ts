@@ -5,12 +5,13 @@ export type AlignmentRating = 'agree' | 'disagree' | null;
 class AppState {
   private _selectedIssues = new Set<string>(['immigration', 'education', 'healthcare']);
   private _selectedIdentities = new Set<string>();
-  private _openDropdown: 'issues' | 'identity' | null = null;
+  private _openDropdown: 'filters' | null = null;
   private _expandedRows = new Set<string>(); // "candidateName:issueId"
   private _alignments = new Map<string, AlignmentRating>(); // "candidateName:issueId" -> rating
   private _usingDefaultIssues = true;
   private _donationDismissed = false;
   private _engagementCount = 0;
+  private _ratingModeRaces = new Set<string>(); // race IDs where rate-stances is open
   private listeners: Listener[] = [];
 
   get selectedIssues(): ReadonlySet<string> { return this._selectedIssues; }
@@ -61,12 +62,12 @@ class AppState {
     this.notify();
   }
 
-  setDropdown(which: 'issues' | 'identity' | null): void {
+  setDropdown(which: 'filters' | null): void {
     this._openDropdown = which;
     this.notify();
   }
 
-  toggleDropdown(which: 'issues' | 'identity'): void {
+  toggleDropdown(which: 'filters'): void {
     this._openDropdown = this._openDropdown === which ? null : which;
     this.notify();
   }
@@ -76,6 +77,7 @@ class AppState {
     this._selectedIdentities.clear();
     this._alignments.clear();
     this._expandedRows.clear();
+    this._ratingModeRaces.clear();
     this._usingDefaultIssues = false;
     this.notify();
   }
@@ -94,6 +96,20 @@ class AppState {
       this._expandedRows.delete(key);
     } else {
       this._expandedRows.add(key);
+    }
+    this.notify();
+  }
+
+  // Rating mode per race
+  isRatingMode(raceId: string): boolean {
+    return this._ratingModeRaces.has(raceId);
+  }
+
+  toggleRatingMode(raceId: string): void {
+    if (this._ratingModeRaces.has(raceId)) {
+      this._ratingModeRaces.delete(raceId);
+    } else {
+      this._ratingModeRaces.add(raceId);
     }
     this.notify();
   }

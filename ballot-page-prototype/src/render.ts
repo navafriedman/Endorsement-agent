@@ -180,24 +180,22 @@ export function renderShell(): string {
           </div>
         </div>
         <div class="toolbar-row toolbar-filters">
-          <div class="filter-dropdown" id="dropdown-issues">
-            <button class="filter-dropdown-btn" data-dropdown="issues" aria-expanded="false" aria-haspopup="true" aria-controls="popover-issues">
-              Issues I care about <span class="caret" aria-hidden="true">&#9662;</span>
+          <div class="filter-dropdown" id="dropdown-filters">
+            <button class="filter-dropdown-btn" data-dropdown="filters" aria-expanded="false" aria-haspopup="true" aria-controls="popover-filters">
+              What matters to you? <span class="caret" aria-hidden="true">&#9662;</span>
             </button>
-            <div class="filter-popover" id="popover-issues" role="dialog" aria-label="Select issues">
-              <h2 class="filter-popover-heading">What issues matter to you?</h2>
-              <p>Pick topics and we'll show each candidate's stance side by side.</p>
-              <div class="pill-grid" id="issue-pills" role="group" aria-label="Issue filters"></div>
-            </div>
-          </div>
-          <div class="filter-dropdown" id="dropdown-identity">
-            <button class="filter-dropdown-btn identity-btn" data-dropdown="identity" aria-expanded="false" aria-haspopup="true" aria-controls="popover-identity">
-              Groups I trust <span class="caret" aria-hidden="true">&#9662;</span>
-            </button>
-            <div class="filter-popover" id="popover-identity" role="dialog" aria-label="Select groups">
-              <h2 class="filter-popover-heading">Which voices do you trust?</h2>
-              <p>Select organizations you trust and we'll show who they endorse.</p>
-              <div class="pill-grid" id="identity-pills" role="group" aria-label="Group filters"></div>
+            <div class="filter-popover" id="popover-filters" role="dialog" aria-label="Select issues and groups">
+              <div class="popover-section">
+                <h2 class="filter-popover-heading">Issues</h2>
+                <p>Pick topics to compare candidate stances side by side.</p>
+                <div class="pill-grid" id="issue-pills" role="group" aria-label="Issue filters"></div>
+              </div>
+              <div class="popover-divider"></div>
+              <div class="popover-section">
+                <h2 class="filter-popover-heading">Groups you trust</h2>
+                <p>Select organizations and we'll highlight who they endorse.</p>
+                <div class="pill-grid" id="identity-pills" role="group" aria-label="Group filters"></div>
+              </div>
             </div>
           </div>
           <div class="filter-active-tags" id="filter-active-tags" role="list" aria-label="Active filters"></div>
@@ -229,37 +227,28 @@ export function renderShell(): string {
 // ============================================================
 
 export function renderFilterBar(): void {
-  const issuesBtn = document.querySelector('#dropdown-issues .filter-dropdown-btn') as HTMLElement;
-  const identityBtn = document.querySelector('#dropdown-identity .filter-dropdown-btn') as HTMLElement;
-  const issuesDD = document.getElementById('dropdown-issues')!;
-  const identityDD = document.getElementById('dropdown-identity')!;
+  const filtersBtn = document.querySelector('#dropdown-filters .filter-dropdown-btn') as HTMLElement;
+  const filtersDD = document.getElementById('dropdown-filters')!;
   const overlay = document.getElementById('filter-overlay')!;
   const tagsEl = document.getElementById('filter-active-tags')!;
   const clearBtn = document.getElementById('clear-all')!;
   const hint = document.getElementById('filter-hint')!;
 
   // Dropdown open state + aria-expanded
-  const issuesOpen = state.openDropdown === 'issues';
-  const identityOpen = state.openDropdown === 'identity';
-  issuesDD.classList.toggle('open', issuesOpen);
-  identityDD.classList.toggle('open', identityOpen);
-  issuesBtn.setAttribute('aria-expanded', String(issuesOpen));
-  identityBtn.setAttribute('aria-expanded', String(identityOpen));
+  const filtersOpen = state.openDropdown === 'filters';
+  filtersDD.classList.toggle('open', filtersOpen);
+  filtersBtn.setAttribute('aria-expanded', String(filtersOpen));
   overlay.classList.toggle('visible', state.openDropdown !== null);
 
-  // Button state
+  // Button state — show combined count
   const issueCount = state.selectedIssues.size;
   const identityCount = state.selectedIdentities.size;
+  const totalCount = issueCount + identityCount;
 
-  issuesBtn.classList.toggle('has-selections', issueCount > 0);
-  issuesBtn.innerHTML = issueCount > 0
-    ? `Issues I care about <span class="badge">${issueCount}</span> <span class="caret" aria-hidden="true">&#9662;</span>`
-    : 'Issues I care about <span class="caret" aria-hidden="true">&#9662;</span>';
-
-  identityBtn.classList.toggle('has-selections', identityCount > 0);
-  identityBtn.innerHTML = identityCount > 0
-    ? `Groups I trust <span class="badge">${identityCount}</span> <span class="caret" aria-hidden="true">&#9662;</span>`
-    : 'Groups I trust <span class="caret" aria-hidden="true">&#9662;</span>';
+  filtersBtn.classList.toggle('has-selections', totalCount > 0);
+  filtersBtn.innerHTML = totalCount > 0
+    ? `What matters to you? <span class="badge">${totalCount}</span> <span class="caret" aria-hidden="true">&#9662;</span>`
+    : 'What matters to you? <span class="caret" aria-hidden="true">&#9662;</span>';
 
   // Active tags (as buttons in a list)
   let tags = '';
@@ -311,12 +300,13 @@ function updateLiveStatus(): void {
 }
 
 // ============================================================
-// PILLS (inside popovers)
+// PILLS (inside unified popover)
 // ============================================================
 
-export function renderIssuePills(): void {
-  const el = document.getElementById('issue-pills')!;
-  el.innerHTML = ISSUES.map(issue => {
+export function renderFilterPills(): void {
+  // Issue pills
+  const issueEl = document.getElementById('issue-pills')!;
+  issueEl.innerHTML = ISSUES.map(issue => {
     const count = countCandidatesWithIssue(issue.id);
     const selected = state.selectedIssues.has(issue.id);
     return `<button class="pill ${selected ? 'selected' : ''}" data-issue="${issue.id}" aria-pressed="${selected}">
@@ -325,11 +315,10 @@ export function renderIssuePills(): void {
       <span class="pill-count">${count}</span>
     </button>`;
   }).join('');
-}
 
-export function renderIdentityPills(): void {
-  const el = document.getElementById('identity-pills')!;
-  el.innerHTML = IDENTITY_GROUPS.map(group => {
+  // Identity pills
+  const identityEl = document.getElementById('identity-pills')!;
+  identityEl.innerHTML = IDENTITY_GROUPS.map(group => {
     const count = countEndorsements(group.id);
     const selected = state.selectedIdentities.has(group.id);
     return `<button class="pill identity ${selected ? 'selected' : ''}" data-identity="${group.id}" aria-pressed="${selected}">
@@ -349,7 +338,7 @@ const PARTY_LOGO: Record<string, string> = {
   Republican: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#EF4444"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">R</text></svg>',
 };
 
-function renderInlineIssue(c: Candidate, issueId: string): string {
+function renderInlineIssue(c: Candidate, issueId: string, ratingMode: boolean): string {
   const issue = ISSUES.find(i => i.id === issueId)!;
   const pos = c.issues[issueId];
   const key = `${c.name}:${issueId}`;
@@ -361,6 +350,21 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
 
   const ratedClass = alignment === 'agree' ? 'rated-agree' : alignment === 'disagree' ? 'rated-disagree' : '';
 
+  if (!pos) return '';
+
+  const stancePills = renderStancePills(pos.stances, colors);
+
+  // Compact view: just icon + stance pills
+  if (!ratingMode) {
+    return `<div class="inline-issue ${ratedClass}">
+      <div class="inline-issue-header">
+        <span class="inline-issue-icon" aria-hidden="true">${issue.icon}</span>
+        <div class="stance-pills-block">${stancePills}</div>
+      </div>
+    </div>`;
+  }
+
+  // Rating mode: full UI with agree/disagree + details
   const agreePressed = explicitAlignment === 'agree' ? 'true' : isInferred && alignment === 'agree' ? 'mixed' : 'false';
   const disagreePressed = explicitAlignment === 'disagree' ? 'true' : isInferred && alignment === 'disagree' ? 'mixed' : 'false';
   const agreeClass = explicitAlignment === 'agree' ? 'active-agree' : isInferred && alignment === 'agree' ? 'inferred-agree' : '';
@@ -372,10 +376,6 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
     <button class="align-pill ${disagreeClass}" data-align="disagree" data-align-key="${esc(key)}" aria-pressed="${disagreePressed}">${THUMB_DOWN} Disagree</button>
     ${inferredTag}
   </div>`;
-
-  if (!pos) return '';
-
-  const stancePills = renderStancePills(pos.stances, colors);
 
   const detailKey = `detail:${c.name}:${issueId}`;
   const detailOpen = state.isExpanded(detailKey);
@@ -396,39 +396,28 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
   </div>`;
 }
 
-function renderCandidateHeader(c: Candidate): string {
-  // Inline issue positions
-  const selectedIssueIds = [...state.selectedIssues];
-  const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id)).join('');
-
-  // Endorsements: compact inline (1-2 chips + "+N more" popover)
-  let endorsementsHtml = '';
-  if (c.endorsements.length > 0) {
-    // Prioritize selected (highlighted) endorsements first
-    const sorted = [...c.endorsements].sort((a, b) => {
-      const aH = state.selectedIdentities.has(a) ? 0 : 1;
-      const bH = state.selectedIdentities.has(b) ? 0 : 1;
-      return aH - bH;
-    });
+function renderEndorsementMatch(c: Candidate): string {
+  const selectedGroups = [...state.selectedIdentities];
+  if (selectedGroups.length === 0) {
+    // No groups selected — show endorsements as compact chips
+    if (c.endorsements.length === 0) return '';
 
     const MAX_INLINE = 2;
-    const visible = sorted.slice(0, MAX_INLINE);
-    const overflowCount = sorted.length - MAX_INLINE;
+    const visible = c.endorsements.slice(0, MAX_INLINE);
+    const overflowCount = c.endorsements.length - MAX_INLINE;
 
     const chips = visible.map(eid => {
       const group = IDENTITY_GROUPS.find(g => g.id === eid);
       if (!group) return '';
-      const highlighted = state.selectedIdentities.has(eid);
-      return `<span class="endorsement-chip-inline ${highlighted ? 'highlighted' : ''}">${group.icon} ${esc(group.label)}</span>`;
+      return `<span class="endorsement-chip-inline">${group.icon} ${esc(group.label)}</span>`;
     }).join('');
 
     let overflowHtml = '';
     if (overflowCount > 0) {
-      const overflowChips = sorted.slice(MAX_INLINE).map(eid => {
+      const overflowChips = c.endorsements.slice(MAX_INLINE).map(eid => {
         const group = IDENTITY_GROUPS.find(g => g.id === eid);
         if (!group) return '';
-        const highlighted = state.selectedIdentities.has(eid);
-        return `<span class="endorsement-chip-inline ${highlighted ? 'highlighted' : ''}">${group.icon} ${esc(group.label)}</span>`;
+        return `<span class="endorsement-chip-inline">${group.icon} ${esc(group.label)}</span>`;
       }).join('');
       overflowHtml = `<span class="endorsement-overflow-wrap">
         <button type="button" class="endorsement-overflow-btn" aria-label="${overflowCount} more endorsements">+${overflowCount}</button>
@@ -436,10 +425,47 @@ function renderCandidateHeader(c: Candidate): string {
       </span>`;
     }
 
-    endorsementsHtml = `<div class="endorsement-inline">${chips}${overflowHtml}</div>`;
+    return `<div class="endorsement-inline">${chips}${overflowHtml}</div>`;
   }
 
-  // Alignment score (includes cross-race inferences)
+  // Groups are selected — show endorsement match prominently
+  const matchCount = selectedGroups.filter(gid => c.endorsements.includes(gid)).length;
+  const totalSelected = selectedGroups.length;
+
+  // Build endorsement list with match highlighting
+  const sorted = [...c.endorsements].sort((a, b) => {
+    const aH = state.selectedIdentities.has(a) ? 0 : 1;
+    const bH = state.selectedIdentities.has(b) ? 0 : 1;
+    return aH - bH;
+  });
+
+  const chips = sorted.map(eid => {
+    const group = IDENTITY_GROUPS.find(g => g.id === eid);
+    if (!group) return '';
+    const highlighted = state.selectedIdentities.has(eid);
+    const check = highlighted ? '<span class="endorsement-check" aria-hidden="true">&#10003;</span> ' : '';
+    return `<span class="endorsement-chip-inline ${highlighted ? 'highlighted' : ''}">${check}${group.icon} ${esc(group.label)}</span>`;
+  }).join('');
+
+  const level = matchCount === totalSelected ? 'high' : matchCount > 0 ? 'medium' : 'low';
+
+  return `<div class="endorsement-match-block">
+    <div class="endorsement-match-score ${level}">${matchCount}/${totalSelected} of your groups</div>
+    <div class="endorsement-inline">${chips}</div>
+  </div>`;
+}
+
+function renderCandidateHeader(c: Candidate, raceId: string): string {
+  const ratingMode = state.isRatingMode(raceId);
+
+  // Inline issue positions
+  const selectedIssueIds = [...state.selectedIssues];
+  const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id, ratingMode)).join('');
+
+  // Endorsements (compact or match-focused depending on group selection)
+  const endorsementsHtml = renderEndorsementMatch(c);
+
+  // Alignment score (only show if user has rated stances)
   let alignmentHtml = '';
   const alignResult = getFullAlignmentScore(c);
   if (alignResult) {
@@ -538,7 +564,7 @@ function renderOtherIssuesSection(race: Race, numCols: number): string {
 }
 
 // ============================================================
-// DONATION CTA — inline card (after 3+ alignments)
+// DONATION CTA — inline card (after 3+ engagements)
 // ============================================================
 
 function renderDonationCard(): string {
@@ -612,16 +638,28 @@ export function renderRaceCards(): void {
     }
 
     const numCandidates = race.candidates.length;
+    const ratingMode = state.isRatingMode(race.id);
 
     // Candidate headers row (now includes inline issue positions)
     const candidateHeaders = race.candidates.map(c =>
-      renderCandidateHeader(c)
+      renderCandidateHeader(c, race.id)
     ).join('');
 
     // Other issues
     let otherSection = '';
     if (selectedIssueIds.length > 0) {
       otherSection = renderOtherIssuesSection(race, numCandidates);
+    }
+
+    // Rate stances toggle (only show when there are selected issues)
+    let rateStancesBtn = '';
+    if (selectedIssueIds.length > 0) {
+      const rateIcon = ratingMode
+        ? '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'
+        : `${THUMB_UP}`;
+      const rateLabel = ratingMode ? 'Done rating' : 'Rate stances';
+      const rateClass = ratingMode ? 'rate-stances-btn active' : 'rate-stances-btn';
+      rateStancesBtn = `<button type="button" class="${rateClass}" data-rating-toggle="${esc(race.id)}">${rateIcon} ${rateLabel}</button>`;
     }
 
     const card = `<article class="race-card fade-in" aria-label="${esc(race.name)}" id="race-${esc(race.id)}">
@@ -636,6 +674,9 @@ export function renderRaceCards(): void {
         ${candidateHeaders}
       </div>
       <div class="race-card-footer">
+        <div class="race-card-actions">
+          ${rateStancesBtn}
+        </div>
         ${otherSection}
       </div>
     </article>`;
