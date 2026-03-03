@@ -5,6 +5,8 @@ import {
   renderFilterBar,
   renderFilterPills,
   renderRaceCards,
+  renderBallotBar,
+  renderBallotSummary,
   renderPostPrintModal,
 } from './render';
 
@@ -24,21 +26,20 @@ function saveFocus(): { key: string | null; scrollY: number } {
   const scrollY = window.scrollY;
   if (!active || active === document.body) return { key: null, scrollY };
 
-  // Build a selector that can find this element after re-render
   if (active.dataset.align && active.dataset.alignKey) {
     return { key: `[data-align="${active.dataset.align}"][data-align-key="${CSS.escape(active.dataset.alignKey)}"]`, scrollY };
-  }
-  if (active.dataset.detailToggle) {
-    return { key: `[data-detail-toggle="${CSS.escape(active.dataset.detailToggle)}"]`, scrollY };
-  }
-  if (active.dataset.otherToggle) {
-    return { key: `[data-other-toggle="${CSS.escape(active.dataset.otherToggle)}"]`, scrollY };
   }
   if (active.dataset.issueExpand) {
     return { key: `[data-issue-expand="${CSS.escape(active.dataset.issueExpand)}"]`, scrollY };
   }
   if (active.dataset.endorseExpand) {
     return { key: `[data-endorse-expand="${CSS.escape(active.dataset.endorseExpand)}"]`, scrollY };
+  }
+  if (active.dataset.selectCandidate && active.dataset.selectRace) {
+    return { key: `[data-select-candidate="${CSS.escape(active.dataset.selectCandidate)}"][data-select-race="${CSS.escape(active.dataset.selectRace)}"]`, scrollY };
+  }
+  if (active.dataset.otherToggle) {
+    return { key: `[data-other-toggle="${CSS.escape(active.dataset.otherToggle)}"]`, scrollY };
   }
   if (active.id) {
     return { key: `#${CSS.escape(active.id)}`, scrollY };
@@ -65,6 +66,8 @@ function renderAll(): void {
   renderFilterBar();
   renderFilterPills();
   renderRaceCards();
+  renderBallotBar();
+  renderBallotSummary();
   restoreFocus(focus);
 }
 
@@ -88,12 +91,11 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Dropdown toggle button (unified)
+  // Dropdown toggle button
   const dropdownBtn = target.closest('[data-dropdown]') as HTMLElement | null;
   if (dropdownBtn) {
     const which = dropdownBtn.getAttribute('data-dropdown') as 'filters';
     state.toggleDropdown(which);
-    // If we just opened, move focus into the popover
     if (state.openDropdown === which) {
       requestAnimationFrame(() => {
         const popover = dropdownBtn.closest('.filter-dropdown')?.querySelector('.filter-popover') as HTMLElement | null;
@@ -104,14 +106,14 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Issue pill (inside popover)
+  // Issue pill
   const issuePill = target.closest('[data-issue]') as HTMLElement | null;
   if (issuePill) {
     state.toggleIssue(issuePill.getAttribute('data-issue')!);
     return;
   }
 
-  // Identity pill (inside popover)
+  // Identity pill
   const identityPill = target.closest('[data-identity]') as HTMLElement | null;
   if (identityPill) {
     state.toggleIdentity(identityPill.getAttribute('data-identity')!);
@@ -136,7 +138,16 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Issue row expand/collapse toggle
+  // Candidate selection
+  const selectBtn = target.closest('[data-select-candidate]') as HTMLElement | null;
+  if (selectBtn) {
+    const candidateName = selectBtn.getAttribute('data-select-candidate')!;
+    const raceId = selectBtn.getAttribute('data-select-race')!;
+    state.selectCandidate(raceId, candidateName);
+    return;
+  }
+
+  // Issue row expand/collapse
   const issueExpand = target.closest('[data-issue-expand]') as HTMLElement | null;
   if (issueExpand) {
     state.recordEngagement();
@@ -144,14 +155,14 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Endorsement expand/collapse toggle
+  // Endorsement expand/collapse
   const endorseExpand = target.closest('[data-endorse-expand]') as HTMLElement | null;
   if (endorseExpand) {
     state.toggleExpanded(endorseExpand.getAttribute('data-endorse-expand')!);
     return;
   }
 
-  // Agree/disagree buttons — handle BEFORE other closests so clicks don't bubble
+  // Agree/disagree buttons
   const alignBtn = target.closest('[data-align]') as HTMLElement | null;
   if (alignBtn) {
     e.stopPropagation();
@@ -204,13 +215,49 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Donation dismiss (inline card)
+  // View ballot summary
+  if (target.closest('#view-ballot-summary')) {
+    state.setBallotSummaryOpen(true);
+    return;
+  }
+
+  // Close ballot summary
+  if (target.closest('#ballot-summary-close') || target.closest('#ballot-summary-done')) {
+    state.setBallotSummaryOpen(false);
+    return;
+  }
+
+  // Ballot summary overlay background click
+  if (target.id === 'ballot-summary-overlay') {
+    state.setBallotSummaryOpen(false);
+    return;
+  }
+
+  // Ballot summary "Change" button — jump to race
+  const summaryJump = target.closest('[data-summary-jump]') as HTMLElement | null;
+  if (summaryJump) {
+    const raceId = summaryJump.getAttribute('data-summary-jump')!;
+    state.setBallotSummaryOpen(false);
+    requestAnimationFrame(() => {
+      const raceEl = document.getElementById(`race-${raceId}`);
+      if (raceEl) raceEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    return;
+  }
+
+  // Ballot summary print
+  if (target.closest('#ballot-summary-print')) {
+    window.print();
+    return;
+  }
+
+  // Donation dismiss
   if (target.closest('#donation-dismiss') || target.closest('#donation-dismiss-later')) {
     state.dismissDonation();
     return;
   }
 
-  // Print guide — show post-print donation modal after printing
+  // Print guide
   if (target.closest('#print-guide')) {
     window.print();
     const container = document.getElementById('donation-modal-container');
@@ -222,7 +269,7 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // "Customize" hint — opens the filters dropdown
+  // "Customize" hint
   if (target.closest('#hint-customize')) {
     state.setDropdown('filters');
     return;
@@ -271,6 +318,11 @@ document.addEventListener('click', (e) => {
 // Keyboard handlers
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
+    // Close ballot summary
+    if (state.ballotSummaryOpen) {
+      state.setBallotSummaryOpen(false);
+      return;
+    }
     // Close donation modal
     const modal = document.getElementById('donation-modal-overlay');
     if (modal?.classList.contains('visible')) {

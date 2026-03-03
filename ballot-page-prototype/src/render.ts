@@ -218,6 +218,8 @@ export function renderShell(): string {
       </div>
     </footer>
 
+    <div id="ballot-bar"></div>
+    <div id="ballot-summary-container"></div>
     <div id="donation-modal-container"></div>
   `;
 }
@@ -353,12 +355,9 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
   if (!pos) return '';
 
   const stancePills = renderStancePills(pos.stances, colors);
-
-  // Each issue row is individually expandable
   const expandKey = `issue:${c.name}:${issueId}`;
   const isOpen = state.isExpanded(expandKey);
 
-  // Agree/disagree + details (shown when expanded)
   let expandedContent = '';
   if (isOpen) {
     const agreePressed = explicitAlignment === 'agree' ? 'true' : isInferred && alignment === 'agree' ? 'mixed' : 'false';
@@ -393,8 +392,6 @@ function renderEndorsementMatch(c: Candidate): string {
   if (c.endorsements.length === 0 && state.selectedIdentities.size === 0) return '';
 
   const hasGroups = state.selectedIdentities.size > 0;
-
-  // Sort: matching groups first
   const sorted = [...c.endorsements].sort((a, b) => {
     const aH = state.selectedIdentities.has(a) ? 0 : 1;
     const bH = state.selectedIdentities.has(b) ? 0 : 1;
@@ -416,18 +413,15 @@ function renderEndorsementMatch(c: Candidate): string {
   };
 
   const visibleChips = visible.map(renderChip).join('');
-
   let overflowHtml = '';
   if (overflow.length > 0) {
     if (isExpanded) {
-      const overflowChips = overflow.map(renderChip).join('');
-      overflowHtml = `${overflowChips}<button type="button" class="endorsement-expand-btn" data-endorse-expand="${esc(expandKey)}">Show less</button>`;
+      overflowHtml = `${overflow.map(renderChip).join('')}<button type="button" class="endorsement-expand-btn" data-endorse-expand="${esc(expandKey)}">Show less</button>`;
     } else {
       overflowHtml = `<button type="button" class="endorsement-expand-btn" data-endorse-expand="${esc(expandKey)}">+${overflow.length} more</button>`;
     }
   }
 
-  // Match score badge (only when groups are selected)
   let matchHtml = '';
   if (hasGroups) {
     const matchCount = [...state.selectedIdentities].filter(gid => c.endorsements.includes(gid)).length;
@@ -448,15 +442,12 @@ function renderEndorsementMatch(c: Candidate): string {
   </div>`;
 }
 
-function renderCandidateHeader(c: Candidate): string {
-  // Inline issue positions
+function renderCandidateHeader(c: Candidate, raceId: string): string {
   const selectedIssueIds = [...state.selectedIssues];
   const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id)).join('');
-
-  // Endorsements (compact chips, top 3 + expand)
   const endorsementsHtml = renderEndorsementMatch(c);
 
-  // Alignment score (only show if user has rated stances)
+  // Alignment score
   let alignmentHtml = '';
   const alignResult = getFullAlignmentScore(c);
   if (alignResult) {
@@ -467,7 +458,16 @@ function renderCandidateHeader(c: Candidate): string {
     </div>`;
   }
 
-  return `<div class="candidate-header-cell">
+  // Selection button
+  const isSelected = state.getSelectedCandidate(raceId) === c.name;
+  const selectBtnClass = isSelected ? 'candidate-select-btn selected' : 'candidate-select-btn';
+  const selectIcon = isSelected
+    ? '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>';
+  const selectLabel = isSelected ? 'Selected' : 'Select';
+  const selectedCellClass = isSelected ? 'candidate-header-cell is-selected' : 'candidate-header-cell';
+
+  return `<div class="${selectedCellClass}">
     <div class="candidate-name-row">
       <div class="candidate-avatar" aria-hidden="true">${esc(c.initials)}</div>
       <div class="candidate-info">
@@ -480,6 +480,9 @@ function renderCandidateHeader(c: Candidate): string {
           ${c.incumbent ? ' <span class="incumbent-badge">Incumbent</span>' : ''}
         </span>
       </div>
+      <button type="button" class="${selectBtnClass}" data-select-candidate="${esc(c.name)}" data-select-race="${esc(raceId)}" aria-pressed="${isSelected}">
+        ${selectIcon} ${selectLabel}
+      </button>
     </div>
     ${endorsementsHtml}
     ${issueBlocksHtml}
@@ -630,12 +633,10 @@ export function renderRaceCards(): void {
 
     const numCandidates = race.candidates.length;
 
-    // Candidate headers row (includes inline issue positions)
     const candidateHeaders = race.candidates.map(c =>
-      renderCandidateHeader(c)
+      renderCandidateHeader(c, race.id)
     ).join('');
 
-    // Other issues
     let otherSection = '';
     if (selectedIssueIds.length > 0) {
       otherSection = renderOtherIssuesSection(race, numCandidates);
@@ -660,4 +661,114 @@ export function renderRaceCards(): void {
     // Insert donation card after the first race
     return raceIdx === 0 ? card + donationCardHtml : card;
   }).join('');
+}
+
+// ============================================================
+// FLOATING BALLOT BAR
+// ============================================================
+
+const ICON_CHECK_CIRCLE = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+
+export function renderBallotBar(): void {
+  const el = document.getElementById('ballot-bar')!;
+  const count = state.selectedCandidateCount;
+  const totalRaces = RACES.filter(r => r.candidates.length > 0).length;
+
+  if (count === 0) {
+    el.innerHTML = '';
+    return;
+  }
+
+  el.innerHTML = `<div class="ballot-bar">
+    <div class="ballot-bar-inner">
+      <div class="ballot-bar-info">
+        ${ICON_CHECK_CIRCLE}
+        <span><strong>${count}/${totalRaces}</strong> races decided</span>
+      </div>
+      <button type="button" class="ballot-bar-btn" id="view-ballot-summary">
+        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="10" y1="6" x2="14" y2="6"/><line x1="10" y1="10" x2="14" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        View my ballot
+      </button>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// BALLOT SUMMARY OVERLAY
+// ============================================================
+
+export function renderBallotSummary(): void {
+  const container = document.getElementById('ballot-summary-container')!;
+
+  if (!state.ballotSummaryOpen) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const sortedRaces = [...RACES]
+    .filter(r => r.candidates.length > 0)
+    .sort((a, b) => (RACE_TYPE_ORDER[a.type] ?? 9) - (RACE_TYPE_ORDER[b.type] ?? 9));
+
+  const rows = sortedRaces.map(race => {
+    const picked = state.getSelectedCandidate(race.id);
+    const candidate = picked ? race.candidates.find(c => c.name === picked) : null;
+
+    if (!candidate) {
+      return `<div class="ballot-summary-row undecided">
+        <div class="ballot-summary-race">
+          <span class="race-badge ${race.type}">${race.type}</span>
+          <span class="ballot-summary-race-name">${esc(race.name)}</span>
+        </div>
+        <div class="ballot-summary-pick undecided-pick">
+          <span class="ballot-summary-undecided">Not yet decided</span>
+        </div>
+      </div>`;
+    }
+
+    const endorsements = candidate.endorsements.slice(0, 3).map(eid => {
+      const group = IDENTITY_GROUPS.find(g => g.id === eid);
+      return group ? `<span class="endorsement-chip-inline">${group.icon} ${esc(group.label)}</span>` : '';
+    }).join('');
+
+    return `<div class="ballot-summary-row">
+      <div class="ballot-summary-race">
+        <span class="race-badge ${race.type}">${race.type}</span>
+        <span class="ballot-summary-race-name">${esc(race.name)}</span>
+      </div>
+      <div class="ballot-summary-pick">
+        <div class="ballot-summary-candidate">
+          <div class="candidate-avatar ballot-summary-avatar" aria-hidden="true">${esc(candidate.initials)}</div>
+          <div>
+            <strong>${esc(candidate.name)}</strong>
+            <span class="candidate-meta">${PARTY_LOGO[candidate.party] ?? ''} ${esc(candidate.party)}${candidate.incumbent ? ' · Incumbent' : ''}</span>
+            ${endorsements ? `<div class="endorsement-inline">${endorsements}</div>` : ''}
+          </div>
+        </div>
+        <button type="button" class="ballot-summary-change" data-summary-jump="${esc(race.id)}">Change</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const decidedCount = state.selectedCandidateCount;
+  const totalRaces = sortedRaces.length;
+
+  container.innerHTML = `<div class="ballot-summary-overlay" id="ballot-summary-overlay">
+    <div class="ballot-summary" role="dialog" aria-label="My Ballot">
+      <div class="ballot-summary-header">
+        <h2>My Ballot</h2>
+        <span class="ballot-summary-count">${decidedCount}/${totalRaces} decided</span>
+        <button type="button" class="ballot-summary-close" id="ballot-summary-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="ballot-summary-body">
+        ${rows}
+      </div>
+      <div class="ballot-summary-footer">
+        <button type="button" class="ballot-summary-print" id="ballot-summary-print">
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print my ballot
+        </button>
+        <button type="button" class="ballot-summary-done" id="ballot-summary-done">Done</button>
+      </div>
+    </div>
+  </div>`;
 }
