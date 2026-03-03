@@ -338,7 +338,7 @@ const PARTY_LOGO: Record<string, string> = {
   Republican: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#EF4444"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">R</text></svg>',
 };
 
-function renderInlineIssue(c: Candidate, issueId: string, ratingMode: boolean): string {
+function renderInlineIssue(c: Candidate, issueId: string): string {
   const issue = ISSUES.find(i => i.id === issueId)!;
   const pos = c.issues[issueId];
   const key = `${c.name}:${issueId}`;
@@ -354,115 +354,106 @@ function renderInlineIssue(c: Candidate, issueId: string, ratingMode: boolean): 
 
   const stancePills = renderStancePills(pos.stances, colors);
 
-  // Compact view: just icon + stance pills
-  if (!ratingMode) {
-    return `<div class="inline-issue ${ratedClass}">
-      <div class="inline-issue-header">
-        <span class="inline-issue-icon" aria-hidden="true">${issue.icon}</span>
-        <div class="stance-pills-block">${stancePills}</div>
+  // Each issue row is individually expandable
+  const expandKey = `issue:${c.name}:${issueId}`;
+  const isOpen = state.isExpanded(expandKey);
+
+  // Agree/disagree + details (shown when expanded)
+  let expandedContent = '';
+  if (isOpen) {
+    const agreePressed = explicitAlignment === 'agree' ? 'true' : isInferred && alignment === 'agree' ? 'mixed' : 'false';
+    const disagreePressed = explicitAlignment === 'disagree' ? 'true' : isInferred && alignment === 'disagree' ? 'mixed' : 'false';
+    const agreeClass = explicitAlignment === 'agree' ? 'active-agree' : isInferred && alignment === 'agree' ? 'inferred-agree' : '';
+    const disagreeClass = explicitAlignment === 'disagree' ? 'active-disagree' : isInferred && alignment === 'disagree' ? 'inferred-disagree' : '';
+    const inferredTag = isInferred ? `<span class="inferred-badge">Inferred from ${esc(inferred!.from)}</span>` : '';
+
+    expandedContent = `
+      <div class="align-bar">
+        <button class="align-pill ${agreeClass}" data-align="agree" data-align-key="${esc(key)}" aria-pressed="${agreePressed}">${THUMB_UP} Agree</button>
+        <button class="align-pill ${disagreeClass}" data-align="disagree" data-align-key="${esc(key)}" aria-pressed="${disagreePressed}">${THUMB_DOWN} Disagree</button>
+        ${inferredTag}
       </div>
-    </div>`;
+      <div class="position-detail visible">
+        <div class="position-quote">${esc(pos.position)}</div>
+        <span class="source-link">${ICON_EXTERNAL} ${esc(pos.source)}</span>
+      </div>`;
   }
 
-  // Rating mode: full UI with agree/disagree + details
-  const agreePressed = explicitAlignment === 'agree' ? 'true' : isInferred && alignment === 'agree' ? 'mixed' : 'false';
-  const disagreePressed = explicitAlignment === 'disagree' ? 'true' : isInferred && alignment === 'disagree' ? 'mixed' : 'false';
-  const agreeClass = explicitAlignment === 'agree' ? 'active-agree' : isInferred && alignment === 'agree' ? 'inferred-agree' : '';
-  const disagreeClass = explicitAlignment === 'disagree' ? 'active-disagree' : isInferred && alignment === 'disagree' ? 'inferred-disagree' : '';
-  const inferredTag = isInferred ? `<span class="inferred-badge">Inferred from ${esc(inferred!.from)}</span>` : '';
-
-  const alignBar = `<div class="align-bar">
-    <button class="align-pill ${agreeClass}" data-align="agree" data-align-key="${esc(key)}" aria-pressed="${agreePressed}">${THUMB_UP} Agree</button>
-    <button class="align-pill ${disagreeClass}" data-align="disagree" data-align-key="${esc(key)}" aria-pressed="${disagreePressed}">${THUMB_DOWN} Disagree</button>
-    ${inferredTag}
-  </div>`;
-
-  const detailKey = `detail:${c.name}:${issueId}`;
-  const detailOpen = state.isExpanded(detailKey);
-
-  return `<div class="inline-issue ${ratedClass}">
-    <div class="inline-issue-header">
+  return `<div class="inline-issue ${ratedClass} ${isOpen ? 'expanded' : ''}">
+    <button type="button" class="inline-issue-header" data-issue-expand="${esc(expandKey)}" aria-expanded="${isOpen}">
       <span class="inline-issue-icon" aria-hidden="true">${issue.icon}</span>
       <div class="stance-pills-block">${stancePills}</div>
-    </div>
-    ${alignBar}
-    <button type="button" class="detail-toggle ${detailOpen ? 'open' : ''}" data-detail-toggle="${esc(detailKey)}" aria-expanded="${detailOpen}">
-      ${ICON_CHEVRON} Details
+      <span class="inline-issue-chevron">${ICON_CHEVRON}</span>
     </button>
-    <div class="position-detail ${detailOpen ? 'visible' : ''}">
-      <div class="position-quote">${esc(pos.position)}</div>
-      <span class="source-link">${ICON_EXTERNAL} ${esc(pos.source)}</span>
-    </div>
+    ${expandedContent}
   </div>`;
 }
 
 function renderEndorsementMatch(c: Candidate): string {
-  const selectedGroups = [...state.selectedIdentities];
-  if (selectedGroups.length === 0) {
-    // No groups selected — show endorsements as compact chips
-    if (c.endorsements.length === 0) return '';
+  if (c.endorsements.length === 0 && state.selectedIdentities.size === 0) return '';
 
-    const MAX_INLINE = 2;
-    const visible = c.endorsements.slice(0, MAX_INLINE);
-    const overflowCount = c.endorsements.length - MAX_INLINE;
+  const hasGroups = state.selectedIdentities.size > 0;
 
-    const chips = visible.map(eid => {
-      const group = IDENTITY_GROUPS.find(g => g.id === eid);
-      if (!group) return '';
-      return `<span class="endorsement-chip-inline">${group.icon} ${esc(group.label)}</span>`;
-    }).join('');
-
-    let overflowHtml = '';
-    if (overflowCount > 0) {
-      const overflowChips = c.endorsements.slice(MAX_INLINE).map(eid => {
-        const group = IDENTITY_GROUPS.find(g => g.id === eid);
-        if (!group) return '';
-        return `<span class="endorsement-chip-inline">${group.icon} ${esc(group.label)}</span>`;
-      }).join('');
-      overflowHtml = `<span class="endorsement-overflow-wrap">
-        <button type="button" class="endorsement-overflow-btn" aria-label="${overflowCount} more endorsements">+${overflowCount}</button>
-        <div class="endorsement-overflow-popover">${overflowChips}</div>
-      </span>`;
-    }
-
-    return `<div class="endorsement-inline">${chips}${overflowHtml}</div>`;
-  }
-
-  // Groups are selected — show endorsement match prominently
-  const matchCount = selectedGroups.filter(gid => c.endorsements.includes(gid)).length;
-  const totalSelected = selectedGroups.length;
-
-  // Build endorsement list with match highlighting
+  // Sort: matching groups first
   const sorted = [...c.endorsements].sort((a, b) => {
     const aH = state.selectedIdentities.has(a) ? 0 : 1;
     const bH = state.selectedIdentities.has(b) ? 0 : 1;
     return aH - bH;
   });
 
-  const chips = sorted.map(eid => {
+  const MAX_VISIBLE = 3;
+  const visible = sorted.slice(0, MAX_VISIBLE);
+  const overflow = sorted.slice(MAX_VISIBLE);
+  const expandKey = `endorse:${c.name}`;
+  const isExpanded = state.isExpanded(expandKey);
+
+  const renderChip = (eid: string) => {
     const group = IDENTITY_GROUPS.find(g => g.id === eid);
     if (!group) return '';
     const highlighted = state.selectedIdentities.has(eid);
     const check = highlighted ? '<span class="endorsement-check" aria-hidden="true">&#10003;</span> ' : '';
     return `<span class="endorsement-chip-inline ${highlighted ? 'highlighted' : ''}">${check}${group.icon} ${esc(group.label)}</span>`;
-  }).join('');
+  };
 
-  const level = matchCount === totalSelected ? 'high' : matchCount > 0 ? 'medium' : 'low';
+  const visibleChips = visible.map(renderChip).join('');
+
+  let overflowHtml = '';
+  if (overflow.length > 0) {
+    if (isExpanded) {
+      const overflowChips = overflow.map(renderChip).join('');
+      overflowHtml = `${overflowChips}<button type="button" class="endorsement-expand-btn" data-endorse-expand="${esc(expandKey)}">Show less</button>`;
+    } else {
+      overflowHtml = `<button type="button" class="endorsement-expand-btn" data-endorse-expand="${esc(expandKey)}">+${overflow.length} more</button>`;
+    }
+  }
+
+  // Match score badge (only when groups are selected)
+  let matchHtml = '';
+  if (hasGroups) {
+    const matchCount = [...state.selectedIdentities].filter(gid => c.endorsements.includes(gid)).length;
+    const totalSelected = state.selectedIdentities.size;
+    const level = matchCount === totalSelected ? 'high' : matchCount > 0 ? 'medium' : 'low';
+    matchHtml = `<div class="endorsement-match-score ${level}">${matchCount}/${totalSelected} of your groups</div>`;
+  }
+
+  if (c.endorsements.length === 0 && hasGroups) {
+    return `<div class="endorsement-match-block">
+      <div class="endorsement-match-score low">0/${state.selectedIdentities.size} of your groups</div>
+    </div>`;
+  }
 
   return `<div class="endorsement-match-block">
-    <div class="endorsement-match-score ${level}">${matchCount}/${totalSelected} of your groups</div>
-    <div class="endorsement-inline">${chips}</div>
+    ${matchHtml}
+    <div class="endorsement-inline">${visibleChips}${overflowHtml}</div>
   </div>`;
 }
 
-function renderCandidateHeader(c: Candidate, raceId: string): string {
-  const ratingMode = state.isRatingMode(raceId);
-
+function renderCandidateHeader(c: Candidate): string {
   // Inline issue positions
   const selectedIssueIds = [...state.selectedIssues];
-  const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id, ratingMode)).join('');
+  const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id)).join('');
 
-  // Endorsements (compact or match-focused depending on group selection)
+  // Endorsements (compact chips, top 3 + expand)
   const endorsementsHtml = renderEndorsementMatch(c);
 
   // Alignment score (only show if user has rated stances)
@@ -488,9 +479,9 @@ function renderCandidateHeader(c: Candidate, raceId: string): string {
           ${PARTY_LOGO[c.party] ?? ''} ${esc(c.party)}
           ${c.incumbent ? ' <span class="incumbent-badge">Incumbent</span>' : ''}
         </span>
-        ${endorsementsHtml}
       </div>
     </div>
+    ${endorsementsHtml}
     ${issueBlocksHtml}
   </div>`;
 }
@@ -638,28 +629,16 @@ export function renderRaceCards(): void {
     }
 
     const numCandidates = race.candidates.length;
-    const ratingMode = state.isRatingMode(race.id);
 
-    // Candidate headers row (now includes inline issue positions)
+    // Candidate headers row (includes inline issue positions)
     const candidateHeaders = race.candidates.map(c =>
-      renderCandidateHeader(c, race.id)
+      renderCandidateHeader(c)
     ).join('');
 
     // Other issues
     let otherSection = '';
     if (selectedIssueIds.length > 0) {
       otherSection = renderOtherIssuesSection(race, numCandidates);
-    }
-
-    // Rate stances toggle (only show when there are selected issues)
-    let rateStancesBtn = '';
-    if (selectedIssueIds.length > 0) {
-      const rateIcon = ratingMode
-        ? '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'
-        : `${THUMB_UP}`;
-      const rateLabel = ratingMode ? 'Done rating' : 'Rate stances';
-      const rateClass = ratingMode ? 'rate-stances-btn active' : 'rate-stances-btn';
-      rateStancesBtn = `<button type="button" class="${rateClass}" data-rating-toggle="${esc(race.id)}">${rateIcon} ${rateLabel}</button>`;
     }
 
     const card = `<article class="race-card fade-in" aria-label="${esc(race.name)}" id="race-${esc(race.id)}">
@@ -674,9 +653,6 @@ export function renderRaceCards(): void {
         ${candidateHeaders}
       </div>
       <div class="race-card-footer">
-        <div class="race-card-actions">
-          ${rateStancesBtn}
-        </div>
         ${otherSection}
       </div>
     </article>`;

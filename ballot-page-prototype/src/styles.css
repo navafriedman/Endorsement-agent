@@ -573,36 +573,82 @@ body {
 
 /* Inline issue blocks within candidate header */
 .inline-issue {
-  margin-top: 10px;
-  padding: 8px 10px;
+  margin-top: 8px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  transition: background 0.15s;
+  transition: all 0.15s;
+  overflow: hidden;
 }
-.inline-issue + .inline-issue { margin-top: 6px; }
+.inline-issue + .inline-issue { margin-top: 5px; }
 .inline-issue.rated-agree { background: var(--agree-bg); border-color: var(--agree-border); }
 .inline-issue.rated-disagree { background: var(--disagree-bg); border-color: var(--disagree-border); }
+.inline-issue.expanded { border-color: var(--border-hover); }
 
-.inline-issue-header {
+/* Clickable issue header row */
+button.inline-issue-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+  font: inherit;
+  color: inherit;
 }
+button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .inline-issue-icon {
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1;
   flex-shrink: 0;
 }
+.inline-issue-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+}
+.inline-issue-chevron svg {
+  width: 14px;
+  height: 14px;
+}
+.inline-issue.expanded .inline-issue-chevron { transform: rotate(90deg); }
+
 .inline-issue .stance-pills-block { margin-bottom: 0; }
-.inline-issue .align-bar { margin-top: 6px; }
-.inline-issue .detail-toggle { margin-top: 4px; }
-.inline-issue .position-detail { margin-top: 6px; padding-top: 6px; }
+.inline-issue .align-bar { margin: 6px 10px 0; }
+.inline-issue .position-detail { margin: 6px 10px 10px; padding-top: 6px; border-top: 1px solid var(--border); }
+
+/* Endorsement expand button (click to show/hide) */
+.endorsement-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-muted);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: all 0.15s;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.endorsement-expand-btn:hover,
+.endorsement-expand-btn:focus-visible {
+  background: var(--purple-light);
+  color: var(--purple-text);
+  border-color: var(--purple-text);
+}
 
 .candidate-name-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 .candidate-name-line {
   display: flex;
@@ -686,54 +732,6 @@ body {
   background: var(--purple-light);
   color: var(--purple-text);
   font-weight: 600;
-}
-.endorsement-overflow-wrap {
-  position: relative;
-  display: inline-flex;
-}
-.endorsement-overflow-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 7px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 700;
-  background: var(--bg);
-  color: var(--text-muted);
-  cursor: pointer;
-  border: 1px solid var(--border);
-  transition: all 0.15s;
-  line-height: 1.6;
-}
-.endorsement-overflow-btn:hover,
-.endorsement-overflow-btn:focus-visible {
-  background: var(--purple-light);
-  color: var(--purple-text);
-  border-color: var(--purple-text);
-}
-.endorsement-overflow-popover {
-  display: none;
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 300;
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 8px;
-  box-shadow: var(--shadow-md);
-  min-width: 140px;
-  max-width: 220px;
-}
-.endorsement-overflow-popover .endorsement-chip-inline {
-  margin: 2px 0;
-}
-.endorsement-overflow-wrap:hover .endorsement-overflow-popover,
-.endorsement-overflow-wrap:focus-within .endorsement-overflow-popover {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
 }
 
 /* Endorsement match block (when groups are selected) */
@@ -1012,52 +1010,6 @@ body {
 /* Race card footer & actions bar */
 .race-card-footer { padding: 0; }
 
-.race-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
-  border-top: 1px solid var(--border);
-  background: var(--surface-inset);
-}
-.race-card-actions:empty {
-  display: none;
-}
-
-.rate-stances-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 30px;
-  padding: 4px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--surface-raised);
-  color: var(--text-secondary);
-  transition: all 0.15s;
-}
-.rate-stances-btn svg {
-  width: 12px;
-  height: 12px;
-  fill: var(--text-muted);
-}
-.rate-stances-btn:hover,
-.rate-stances-btn:focus-visible {
-  border-color: var(--coral);
-  color: var(--coral);
-  background: var(--coral-light);
-}
-.rate-stances-btn:hover svg,
-.rate-stances-btn:focus-visible svg { fill: var(--coral); }
-.rate-stances-btn.active {
-  border-color: var(--agree-border);
-  background: var(--agree-bg);
-  color: var(--agree-text);
-}
-.rate-stances-btn.active svg { fill: var(--agree-icon); stroke: var(--agree-icon); }
 
 .other-issues-banner {
   display: flex;
@@ -1455,11 +1407,10 @@ body {
   .filter-overlay,
   .race-share-btn,
   .align-bar,
-  .detail-toggle,
+  .inline-issue-chevron,
   .other-issues-toggle,
   .other-issue-tags,
-  .endorsement-overflow-btn,
-  .endorsement-overflow-popover,
+  .endorsement-expand-btn,
   .race-card-footer,
   .donation-card,
   .donation-modal-overlay,

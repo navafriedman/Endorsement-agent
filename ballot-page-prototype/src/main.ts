@@ -34,8 +34,11 @@ function saveFocus(): { key: string | null; scrollY: number } {
   if (active.dataset.otherToggle) {
     return { key: `[data-other-toggle="${CSS.escape(active.dataset.otherToggle)}"]`, scrollY };
   }
-  if (active.dataset.ratingToggle) {
-    return { key: `[data-rating-toggle="${CSS.escape(active.dataset.ratingToggle)}"]`, scrollY };
+  if (active.dataset.issueExpand) {
+    return { key: `[data-issue-expand="${CSS.escape(active.dataset.issueExpand)}"]`, scrollY };
+  }
+  if (active.dataset.endorseExpand) {
+    return { key: `[data-endorse-expand="${CSS.escape(active.dataset.endorseExpand)}"]`, scrollY };
   }
   if (active.id) {
     return { key: `#${CSS.escape(active.id)}`, scrollY };
@@ -133,29 +136,28 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Rate stances toggle
-  const ratingToggle = target.closest('[data-rating-toggle]') as HTMLElement | null;
-  if (ratingToggle) {
-    const raceId = ratingToggle.getAttribute('data-rating-toggle')!;
-    state.toggleRatingMode(raceId);
+  // Issue row expand/collapse toggle
+  const issueExpand = target.closest('[data-issue-expand]') as HTMLElement | null;
+  if (issueExpand) {
+    state.recordEngagement();
+    state.toggleExpanded(issueExpand.getAttribute('data-issue-expand')!);
     return;
   }
 
-  // Agree/disagree buttons — handle BEFORE expand so clicks don't bubble
+  // Endorsement expand/collapse toggle
+  const endorseExpand = target.closest('[data-endorse-expand]') as HTMLElement | null;
+  if (endorseExpand) {
+    state.toggleExpanded(endorseExpand.getAttribute('data-endorse-expand')!);
+    return;
+  }
+
+  // Agree/disagree buttons — handle BEFORE other closests so clicks don't bubble
   const alignBtn = target.closest('[data-align]') as HTMLElement | null;
   if (alignBtn) {
     e.stopPropagation();
     const key = alignBtn.getAttribute('data-align-key')!;
     const rating = alignBtn.getAttribute('data-align')! as 'agree' | 'disagree';
     state.toggleAlignment(key, rating);
-    return;
-  }
-
-  // Position detail toggle
-  const detailToggle = target.closest('[data-detail-toggle]') as HTMLElement | null;
-  if (detailToggle) {
-    const key = detailToggle.getAttribute('data-detail-toggle')!;
-    state.toggleExpanded(key);
     return;
   }
 

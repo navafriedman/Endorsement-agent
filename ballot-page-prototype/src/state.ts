@@ -11,7 +11,6 @@ class AppState {
   private _usingDefaultIssues = true;
   private _donationDismissed = false;
   private _engagementCount = 0;
-  private _ratingModeRaces = new Set<string>(); // race IDs where rate-stances is open
   private listeners: Listener[] = [];
 
   get selectedIssues(): ReadonlySet<string> { return this._selectedIssues; }
@@ -77,7 +76,6 @@ class AppState {
     this._selectedIdentities.clear();
     this._alignments.clear();
     this._expandedRows.clear();
-    this._ratingModeRaces.clear();
     this._usingDefaultIssues = false;
     this.notify();
   }
@@ -96,20 +94,6 @@ class AppState {
       this._expandedRows.delete(key);
     } else {
       this._expandedRows.add(key);
-    }
-    this.notify();
-  }
-
-  // Rating mode per race
-  isRatingMode(raceId: string): boolean {
-    return this._ratingModeRaces.has(raceId);
-  }
-
-  toggleRatingMode(raceId: string): void {
-    if (this._ratingModeRaces.has(raceId)) {
-      this._ratingModeRaces.delete(raceId);
-    } else {
-      this._ratingModeRaces.add(raceId);
     }
     this.notify();
   }
