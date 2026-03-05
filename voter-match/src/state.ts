@@ -12,6 +12,8 @@ class AppState {
   private _filterOpen: 'issues' | 'groups' | null = null;
   private _address = '';
   private _raceTypeFilter: 'all' | 'federal' | 'state' | 'local' = 'all';
+  private _groupSearch = '';
+  private _groupCategory = 'all';
   private listeners: Listener[] = [];
 
   get issueStances(): ReadonlyMap<string, StanceChoice> { return this._issueStances; }
@@ -21,6 +23,8 @@ class AppState {
   get filterOpen(): 'issues' | 'groups' | null { return this._filterOpen; }
   get address(): string { return this._address; }
   get raceTypeFilter(): 'all' | 'federal' | 'state' | 'local' { return this._raceTypeFilter; }
+  get groupSearch(): string { return this._groupSearch; }
+  get groupCategory(): string { return this._groupCategory; }
 
   subscribe(listener: Listener): () => void {
     this.listeners.push(listener);
@@ -81,6 +85,16 @@ class AppState {
 
   setRaceTypeFilter(type: 'all' | 'federal' | 'state' | 'local'): void {
     this._raceTypeFilter = type;
+    this.notify();
+  }
+
+  setGroupSearch(q: string): void {
+    this._groupSearch = q;
+    this.notify();
+  }
+
+  setGroupCategory(cat: string): void {
+    this._groupCategory = cat;
     this.notify();
   }
 

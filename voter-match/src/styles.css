@@ -543,8 +543,51 @@ a:hover { text-decoration: underline; }
 }
 
 /* ============================================================
-   GROUP PILLS — flat flowing grid of organization chips
+   GROUP PANEL — search, category tabs, flowing pills
    ============================================================ */
+.group-search {
+  width: 100%;
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--bg);
+  margin-bottom: 10px;
+  transition: border-color 0.15s;
+}
+.group-search:focus { border-color: var(--purple); outline: none; }
+.group-search::placeholder { color: var(--text-muted); }
+.group-cat-bar {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.group-cat-tab {
+  padding: 4px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.group-cat-tab:hover { border-color: var(--border-hover); color: var(--text-secondary); }
+.group-cat-tab.active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+.group-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 12px 0;
+}
 .group-pills {
   display: flex;
   flex-wrap: wrap;
@@ -1253,10 +1296,10 @@ a:hover { text-decoration: underline; }
   .candidate-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 320px)); }
 }
 @media (max-width: 500px) {
-  .hero { padding: 24px 0 16px; }
-  .hero-election-label { margin-bottom: 6px; font-size: 12px; }
-  .hero-title { font-size: 22px; margin-bottom: 8px; }
-  .hero-subtitle { font-size: 13px; line-height: 1.4; margin-bottom: 8px; }
+  .hero { padding: 16px 0 10px; }
+  .hero-election-label { margin-bottom: 4px; font-size: 12px; }
+  .hero-title { font-size: 22px; margin-bottom: 4px; }
+  .hero-subtitle { display: none; }
   .race-section { margin-bottom: 12px; }
   .race-section-header { margin-bottom: 12px; }
   .candidate-grid.cols-2,

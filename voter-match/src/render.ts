@@ -193,18 +193,53 @@ function renderIssuesPanel(): string {
 function renderGroupsPanel(): string {
   if (state.filterOpen !== 'groups') return '';
 
-  const allPills = IDENTITY_GROUPS.map(g => {
-    const sel = state.selectedGroups.has(g.id);
+  // Count endorsements per group
+  const endorseCounts = new Map<string, number>();
+  for (const g of IDENTITY_GROUPS) {
     let count = 0;
     RACES.forEach(r => r.candidates.forEach(c => {
       if (c.endorsements.includes(g.id)) count++;
     }));
+    endorseCounts.set(g.id, count);
+  }
+
+  // Collect unique categories
+  const categories = [...new Set(IDENTITY_GROUPS.map(g => g.type))];
+  const activeCat = state.groupCategory;
+  const searchQ = state.groupSearch.toLowerCase();
+
+  // Filter groups
+  let filtered = IDENTITY_GROUPS;
+  if (activeCat !== 'all') {
+    filtered = filtered.filter(g => g.type === activeCat);
+  }
+  if (searchQ) {
+    filtered = filtered.filter(g => g.label.toLowerCase().includes(searchQ) || g.type.toLowerCase().includes(searchQ));
+  }
+
+  // Sort: selected first, then by endorsement count
+  const sorted = [...filtered].sort((a, b) => {
+    const aSel = state.selectedGroups.has(a.id) ? 0 : 1;
+    const bSel = state.selectedGroups.has(b.id) ? 0 : 1;
+    if (aSel !== bSel) return aSel - bSel;
+    return (endorseCounts.get(b.id) ?? 0) - (endorseCounts.get(a.id) ?? 0);
+  });
+
+  const pills = sorted.map(g => {
+    const sel = state.selectedGroups.has(g.id);
+    const count = endorseCounts.get(g.id) ?? 0;
     return `<button class="pill ${sel ? 'selected' : ''}" data-group="${g.id}" aria-pressed="${sel}">
       <span class="pill-icon">${g.icon}</span>
       ${esc(g.label)}
       <span class="pill-count">${count}</span>
     </button>`;
   }).join('');
+
+  // Category tabs
+  const catTabs = [`<button class="group-cat-tab ${activeCat === 'all' ? 'active' : ''}" data-group-cat="all">All</button>`]
+    .concat(categories.map(cat =>
+      `<button class="group-cat-tab ${activeCat === cat ? 'active' : ''}" data-group-cat="${esc(cat)}">${esc(cat)}</button>`
+    )).join('');
 
   const selCount = state.selectedGroups.size;
 
@@ -213,8 +248,11 @@ function renderGroupsPanel(): string {
       <h3>Who do you trust?</h3>
       <p>Tap organizations whose endorsements matter to you.</p>
     </div>
+    <input type="text" class="group-search" id="group-search-input" placeholder="Search endorsers…" value="${esc(state.groupSearch)}" autocomplete="off" />
+    <div class="group-cat-bar">${catTabs}</div>
     ${selCount > 0 ? `<div class="issue-progress">${selCount} selected</div>` : ''}
-    <div class="group-pills">${allPills}</div>
+    <div class="group-pills">${pills}</div>
+    ${filtered.length === 0 ? '<p class="group-empty">No endorsers match your search.</p>' : ''}
     <div class="filter-panel-footer">
       <button type="button" class="btn-text" data-close-filter>Done</button>
     </div>

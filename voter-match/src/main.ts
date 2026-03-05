@@ -20,6 +20,10 @@ app.innerHTML = renderShell();
 
 function renderAll(): void {
   const scrollY = window.scrollY;
+  const focused = document.activeElement as HTMLElement | null;
+  const focusId = focused?.id;
+  const cursorPos = focused instanceof HTMLInputElement ? focused.selectionStart : null;
+
   const el = document.getElementById('page-content')!;
   el.innerHTML = renderPage();
   renderBallotBar();
@@ -30,6 +34,17 @@ function renderAll(): void {
   overlay.classList.toggle('visible', state.filterOpen !== null);
 
   window.scrollTo(0, scrollY);
+
+  // Restore focus on search inputs after re-render
+  if (focusId) {
+    const restore = document.getElementById(focusId) as HTMLInputElement | null;
+    if (restore) {
+      restore.focus();
+      if (cursorPos !== null && 'setSelectionRange' in restore) {
+        restore.setSelectionRange(cursorPos, cursorPos);
+      }
+    }
+  }
 }
 
 renderAll();
@@ -123,6 +138,13 @@ app.addEventListener('click', (e) => {
     return;
   }
 
+  // Group category filter
+  const groupCat = target.closest('[data-group-cat]') as HTMLElement | null;
+  if (groupCat) {
+    state.setGroupCategory(groupCat.getAttribute('data-group-cat')!);
+    return;
+  }
+
   // Address lookup
   if (target.closest('#address-lookup')) {
     const input = document.getElementById('address-input') as HTMLInputElement | null;
@@ -166,6 +188,14 @@ app.addEventListener('click', (e) => {
   if (target.closest('#ballot-summary-print')) {
     window.print();
     return;
+  }
+});
+
+// Group search input
+app.addEventListener('input', (e) => {
+  const target = e.target as HTMLElement;
+  if (target.id === 'group-search-input') {
+    state.setGroupSearch((target as HTMLInputElement).value);
   }
 });
 
