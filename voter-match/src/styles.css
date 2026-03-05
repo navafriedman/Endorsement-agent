@@ -477,7 +477,13 @@ a:hover { text-decoration: underline; }
   gap: 8px;
 }
 @media (max-width: 500px) {
-  .issue-grid { grid-template-columns: 1fr; }
+  .issue-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .issue-card { padding: 8px; }
+  .issue-card-header { margin-bottom: 6px; }
+  .issue-card-icon { font-size: 14px; }
+  .issue-card-name { font-size: 12px; }
+  .issue-card-options { flex-direction: column; gap: 4px; }
+  .stance-opt { padding: 5px 6px; font-size: 11px; line-height: 1.2; }
 }
 .issue-card {
   border: 1px solid var(--border);
