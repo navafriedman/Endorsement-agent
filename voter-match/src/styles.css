@@ -313,22 +313,22 @@ a:hover { text-decoration: underline; }
    ENGAGEMENT SECTION — warm, inviting CTA for first-time users
    ============================================================ */
 .engage-section {
-  padding: 28px 24px;
+  padding: 24px;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, #F5F5F5 0%, var(--bg-muted) 50%, var(--bg) 100%);
+  background: linear-gradient(135deg, var(--purple) 0%, #9C27B0 100%);
   border-radius: 12px;
-  border: 1px solid var(--border);
+  border: none;
 }
 .engage-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
-  color: var(--text);
-  margin-bottom: 4px;
+  color: #fff;
+  margin-bottom: 2px;
 }
 .engage-subtitle {
   font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 16px;
 }
 .engage-cards {
   display: grid;
@@ -338,67 +338,68 @@ a:hover { text-decoration: underline; }
 .engage-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 20px;
-  border: 1.5px solid var(--border);
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
   border-radius: 10px;
-  background: var(--bg);
+  background: rgba(255, 255, 255, 0.15);
   cursor: pointer;
   transition: all 0.15s;
   text-align: left;
   font: inherit;
-  color: var(--text);
-  box-shadow: var(--shadow-sm);
+  color: #fff;
+  box-shadow: none;
 }
 .engage-card:hover {
-  border-color: var(--blue);
-  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: none;
   transform: translateY(-1px);
 }
 .engage-card.active {
-  border-color: var(--blue);
-  background: var(--blue-light);
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 .engage-card.done {
-  border-color: var(--green);
-  background: var(--green-light);
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.25);
 }
 .engage-card.done:hover {
-  border-color: var(--green);
-  box-shadow: var(--shadow-md);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 .engage-card-icon {
-  font-size: 28px;
+  font-size: 22px;
 }
 .engage-card-label {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   display: block;
+  color: #fff;
 }
 .engage-card-desc {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
   display: block;
   line-height: 1.4;
 }
 .engage-card-status {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
   display: block;
   line-height: 1.4;
 }
 .engage-card-status.done {
-  color: var(--green);
+  color: #A5D6A7;
   font-weight: 600;
 }
 .engage-card-arrow {
-  color: var(--blue);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 13px;
   font-weight: 600;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 .engage-card.done .engage-card-arrow {
-  color: var(--green-text);
+  color: #A5D6A7;
 }
 @media (max-width: 500px) {
   .engage-cards { grid-template-columns: 1fr; }
@@ -700,15 +701,16 @@ a:hover { text-decoration: underline; }
    CANDIDATE CARD — clean contained card like change.vote
    ============================================================ */
 .candidate-card {
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border-hover);
   border-radius: var(--radius);
   background: var(--bg);
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .candidate-card:hover {
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow);
+  border-color: #BDBDBD;
+  box-shadow: var(--shadow-md);
 }
 .candidate-card.top-match {
   border-color: var(--match-high);
