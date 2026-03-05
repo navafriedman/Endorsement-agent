@@ -134,17 +134,18 @@ a:hover { text-decoration: underline; }
   align-items: center;
   gap: 10px;
   margin-bottom: 16px;
-  padding: 14px 18px;
-  background: var(--bg-muted);
-  border: 1.5px solid var(--border);
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1.5px solid var(--border-hover);
   border-radius: var(--radius-pill);
   font-size: 15px;
   color: var(--text-muted);
+  box-shadow: var(--shadow-sm);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .location-context:focus-within {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px var(--blue-light);
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px var(--purple-light);
 }
 .location-context svg { color: var(--text-secondary); flex-shrink: 0; width: 18px; height: 18px; }
 .location-context.confirmed {

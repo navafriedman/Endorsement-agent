@@ -110,7 +110,7 @@ function renderFilterSection(): string {
   }
   const issueCta = issueCount > 0
     ? `<span class="engage-card-arrow">Edit →</span>`
-    : `<span class="engage-card-arrow">Get started →</span>`;
+    : `<span class="engage-card-arrow">Choose →</span>`;
 
   // Groups card — evolves based on state
   const groupCardClass = state.filterOpen === 'groups' ? 'active' : groupCount > 0 ? 'done' : '';
@@ -122,9 +122,10 @@ function renderFilterSection(): string {
   }
   const groupCta = groupCount > 0
     ? `<span class="engage-card-arrow">Edit →</span>`
-    : `<span class="engage-card-arrow">Get started →</span>`;
+    : `<span class="engage-card-arrow">Choose →</span>`;
 
   return `<div class="engage-section">
+    ${renderLocationContext()}
     <h2 class="engage-title">Personalize your ballot</h2>
     <p class="engage-subtitle">Tell us what matters to you and we'll rank candidates by how well they match.</p>
     <div class="engage-cards">
@@ -467,7 +468,6 @@ export function renderPage(): string {
       <div class="hero-election-label">Texas Primary — March 3, 2026</div>
       <h1 class="hero-title">Review your ballot before you vote.</h1>
       <p class="hero-subtitle">Explore candidates matched to your priorities. Personalize below to see who aligns with what matters to you.</p>
-      ${renderLocationContext()}
     </div>
 
     ${renderFilterSection()}
