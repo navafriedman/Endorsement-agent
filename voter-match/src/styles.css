@@ -156,204 +156,231 @@ a:hover { text-decoration: underline; }
 }
 
 /* ============================================================
-   STEP INDICATOR — subtle progress
+   FILTER TOOLBAR — compact bar above ballot
    ============================================================ */
-.step-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 32px;
-}
-.step-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border-hover);
-  transition: all 0.2s;
-}
-.step-dot.active { background: var(--red); width: 24px; border-radius: 4px; }
-.step-dot.done { background: var(--green); }
-.step-label {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin-left: 4px;
-}
-
-/* ============================================================
-   FILTER TABS — matching change.vote tab bar
-   ============================================================ */
-.filter-tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 32px;
-}
-.filter-tab {
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.filter-tab:hover { color: var(--text); }
-.filter-tab.active {
-  color: var(--text);
-  border-bottom-color: var(--red);
-  font-weight: 600;
-}
-
-/* ============================================================
-   PROGRESS BAR
-   ============================================================ */
-.progress-container {
-  margin-bottom: 32px;
-}
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.filter-toolbar {
   margin-bottom: 8px;
-}
-.progress-text {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-.progress-track {
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%;
-  background: var(--red);
-  border-radius: 2px;
-  transition: width 0.3s ease;
-}
-
-/* ============================================================
-   STANCE CARDS — issue selection (Step 1)
-   ============================================================ */
-.stance-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.stance-card {
-  padding: 20px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
 }
-.stance-card:last-child { border-bottom: none; }
-.stance-card.done { opacity: 0.55; }
-.stance-card.done:hover { opacity: 1; }
-
-.stance-card-top {
+.filter-toolbar-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.stance-card-icon {
-  font-size: 20px;
-  line-height: 1;
-}
-.stance-card-label {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-}
-.stance-card-num {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.stance-options {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.stance-btn {
-  position: relative;
-  display: block;
-  text-align: left;
-  padding: 14px 16px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg);
-  cursor: pointer;
-  transition: all 0.15s;
-  font: inherit;
-  color: var(--text);
-}
-.stance-btn:hover {
-  border-color: var(--border-hover);
-  background: var(--bg-muted);
-}
-.stance-text {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
-.stance-btn.selected-agree {
-  border-color: var(--green);
-  background: var(--green-light);
-}
-.stance-btn.selected-agree .stance-text { color: var(--green-text); }
-.stance-btn.selected-disagree {
-  border-color: var(--red);
-  background: var(--red-light);
-}
-.stance-btn.selected-disagree .stance-text { color: var(--red-text); }
-
-.stance-skip {
-  display: block;
-  margin: 10px auto 0;
-  padding: 6px 12px;
-  border: none;
-  background: none;
-  color: var(--text-muted);
-  font-size: 13px;
-  cursor: pointer;
-}
-.stance-skip:hover { color: var(--text-secondary); text-decoration: underline; }
-
-/* ============================================================
-   GROUP PILLS — organization selection (Step 2)
-   ============================================================ */
-.group-section {
-  margin-bottom: 28px;
-}
-.group-section-label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
-  margin-bottom: 10px;
-}
-.group-pills {
-  display: flex;
-  flex-wrap: wrap;
   gap: 8px;
+  flex-wrap: wrap;
 }
-
-.pill {
+.filter-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   height: 36px;
-  padding: 0 14px;
+  padding: 0 16px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-pill);
   font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--bg);
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.filter-btn:hover { border-color: var(--border-hover); background: var(--bg-muted); }
+.filter-btn.active { border-color: var(--red); color: var(--red); }
+.filter-btn.has-selections { border-color: var(--red); background: var(--red-light); color: var(--red-text); }
+.filter-count {
+  background: var(--red);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 6px;
+  border-radius: 8px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 18px;
+}
+.filter-caret {
+  transition: transform 0.2s;
+}
+.filter-btn.active .filter-caret { transform: rotate(180deg); }
+
+.clear-link {
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  margin-left: auto;
+  padding: 4px 8px;
+}
+.clear-link:hover { color: var(--red); text-decoration: underline; }
+
+.active-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.active-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s;
+}
+.active-tag:hover { opacity: 0.7; }
+.active-tag.issue-tag { background: var(--green-light); color: var(--green-text); }
+.active-tag.group-tag { background: var(--purple-light); color: var(--purple-text); }
+.tag-x { font-size: 10px; margin-left: 2px; }
+
+.filter-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* ============================================================
+   FILTER OVERLAY
+   ============================================================ */
+#filter-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(0,0,0,0.15);
+}
+#filter-overlay.visible { display: block; }
+
+/* ============================================================
+   FILTER PANELS — expandable sections
+   ============================================================ */
+.filter-panel {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 160;
+}
+.filter-panel-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.filter-panel-header p {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.filter-panel-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* Issue rows inside issues panel */
+.issue-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.issue-row {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.issue-row:last-child { border-bottom: none; }
+.issue-row.done { opacity: 0.6; }
+.issue-row.done:hover { opacity: 1; }
+
+.issue-row-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.issue-row-icon { font-size: 16px; }
+.issue-row-name { font-size: 14px; font-weight: 600; }
+
+.issue-row-options {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.stance-chip {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  font: inherit;
+}
+.stance-chip:hover { border-color: var(--border-hover); background: var(--bg-muted); }
+.stance-chip.selected-a {
+  border-color: var(--green);
+  background: var(--green-light);
+  color: var(--green-text);
+  font-weight: 500;
+}
+.stance-chip.selected-b {
+  border-color: var(--red);
+  background: var(--red-light);
+  color: var(--red-text);
+  font-weight: 500;
+}
+.stance-clear {
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.stance-clear:hover { color: var(--red); }
+
+/* ============================================================
+   GROUP PILLS — inside groups panel
+   ============================================================ */
+.group-section {
+  margin-bottom: 16px;
+}
+.group-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.group-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   background: var(--bg);
@@ -363,33 +390,21 @@ a:hover { text-decoration: underline; }
 }
 .pill:hover { border-color: var(--border-hover); background: var(--bg-muted); }
 .pill.selected {
-  border-color: var(--red);
-  background: var(--red-light);
-  color: var(--red-text);
+  border-color: var(--purple);
+  background: var(--purple-light);
+  color: var(--purple-text);
 }
-.pill-icon { font-size: 14px; line-height: 1; }
+.pill-icon { font-size: 13px; line-height: 1; }
 .pill-count {
-  font-size: 11px;
+  font-size: 10px;
   background: var(--bg-muted);
-  padding: 1px 6px;
-  border-radius: 8px;
+  padding: 1px 5px;
+  border-radius: 6px;
   color: var(--text-muted);
 }
 .pill.selected .pill-count {
-  background: rgba(229,57,53,0.12);
-  color: var(--red-text);
-}
-
-/* ============================================================
-   STEP NAVIGATION
-   ============================================================ */
-.step-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 28px 0;
-  margin-top: 8px;
-  border-top: 1px solid var(--border);
+  background: rgba(123,31,162,0.12);
+  color: var(--purple-text);
 }
 
 .btn-primary {
@@ -438,30 +453,18 @@ a:hover { text-decoration: underline; }
 .btn-text:hover { color: var(--text); text-decoration: underline; }
 
 /* ============================================================
-   RESULTS — Section headers like change.vote
+   TEXT BUTTON
    ============================================================ */
-.results-header {
-  padding: 40px 0 8px;
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0;
 }
-.results-title {
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -0.3px;
-  margin-bottom: 8px;
-}
-.results-subtitle {
-  font-size: 16px;
-  color: var(--text-secondary);
-  max-width: 560px;
-  margin-bottom: 16px;
-}
-.results-subtitle strong { color: var(--text); }
-.results-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
+.btn-text:hover { text-decoration: underline; }
 
 /* ============================================================
    RACE SECTIONS — matches change.vote open layout
@@ -528,6 +531,12 @@ a:hover { text-decoration: underline; }
 }
 .candidate-card.top-match {
   background: var(--match-high-bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: -16px;
+}
+.candidate-card.is-selected {
+  background: var(--red-light);
   border-radius: var(--radius);
   padding: 16px;
   margin: -16px;
@@ -927,7 +936,8 @@ a:hover { text-decoration: underline; }
   gap: 8px;
   font-size: 14px;
 }
-.ballot-summary-pick .candidate-avatar { width: 28px; height: 28px; font-size: 10px; margin: 0; }
+.ballot-summary-pick .candidate-avatar,
+.candidate-avatar.sm { width: 28px; height: 28px; font-size: 10px; margin: 0; }
 .ballot-summary-change {
   background: none; border: none;
   color: var(--red); font-size: 12px; font-weight: 600;
@@ -994,8 +1004,8 @@ a:hover { text-decoration: underline; }
    PRINT
    ============================================================ */
 @media print {
-  .header, .footer, .step-nav, .ballot-bar, .ballot-summary-overlay,
-  .results-toolbar, .candidate-actions { display: none !important; }
+  .header, .footer, .filter-toolbar, .filter-panel, #filter-overlay,
+  .ballot-bar, .ballot-summary-overlay, .candidate-actions { display: none !important; }
   .container { max-width: 100%; }
   .candidate-card.top-match { background: #f5f5f5; }
 }

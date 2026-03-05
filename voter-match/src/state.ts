@@ -3,22 +3,20 @@ import { RACES, IDENTITY_GROUPS, ISSUE_STANCES } from './data';
 
 type Listener = () => void;
 
-export type Step = 'issues' | 'groups' | 'results';
-
 class AppState {
-  private _step: Step = 'issues';
   private _issueStances = new Map<string, StanceChoice>();
   private _selectedGroups = new Set<string>();
-  private _selectedCandidates = new Map<string, string>(); // raceId -> candidateName
+  private _selectedCandidates = new Map<string, string>();
   private _expandedCards = new Set<string>();
   private _ballotOpen = false;
+  private _filterOpen: 'issues' | 'groups' | null = null;
   private listeners: Listener[] = [];
 
-  get step(): Step { return this._step; }
   get issueStances(): ReadonlyMap<string, StanceChoice> { return this._issueStances; }
   get selectedGroups(): ReadonlySet<string> { return this._selectedGroups; }
   get selectedCandidates(): ReadonlyMap<string, string> { return this._selectedCandidates; }
   get ballotOpen(): boolean { return this._ballotOpen; }
+  get filterOpen(): 'issues' | 'groups' | null { return this._filterOpen; }
 
   subscribe(listener: Listener): () => void {
     this.listeners.push(listener);
@@ -26,12 +24,6 @@ class AppState {
   }
 
   private notify(): void { this.listeners.forEach(l => l()); }
-
-  setStep(step: Step): void {
-    this._step = step;
-    this.notify();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
 
   setIssueStance(issueId: string, choice: StanceChoice): void {
     this._issueStances.set(issueId, choice);
@@ -73,6 +65,11 @@ class AppState {
     this.notify();
   }
 
+  setFilterOpen(which: 'issues' | 'groups' | null): void {
+    this._filterOpen = this._filterOpen === which ? null : which;
+    this.notify();
+  }
+
   get selectedCandidateCount(): number { return this._selectedCandidates.size; }
 
   get ratedIssueCount(): number {
@@ -83,19 +80,27 @@ class AppState {
     return count;
   }
 
-  // Compute match scores for all candidates
-  computeMatches(): Map<string, MatchScore[]> {
-    const result = new Map<string, MatchScore[]>();
+  get hasPreferences(): boolean {
+    return this.ratedIssueCount > 0 || this._selectedGroups.size > 0;
+  }
 
-    for (const race of RACES) {
-      const scores: MatchScore[] = race.candidates.map(c =>
-        this.scoreCandidate(c, race)
-      );
+  clearIssues(): void {
+    this._issueStances.clear();
+    this.notify();
+  }
+
+  clearGroups(): void {
+    this._selectedGroups.clear();
+    this.notify();
+  }
+
+  // Compute match scores for all candidates in a race
+  computeRaceMatches(race: Race): MatchScore[] {
+    const scores = race.candidates.map(c => this.scoreCandidate(c, race));
+    if (this.hasPreferences) {
       scores.sort((a, b) => b.score - a.score);
-      result.set(race.id, scores);
     }
-
-    return result;
+    return scores;
   }
 
   private scoreCandidate(candidate: Candidate, race: Race): MatchScore {
@@ -129,28 +134,26 @@ class AppState {
       }
     }
 
-    // Weighted score: 60% issues, 40% endorsements
-    const issueScore = issueTotal > 0 ? (issueMatches / issueTotal) * 100 : 50;
-    const endorseScore = endorsementTotal > 0 ? (endorsementMatches / endorsementTotal) * 100 : 50;
-
     const hasIssues = issueTotal > 0;
     const hasEndorsements = endorsementTotal > 0;
 
     let score: number;
     if (hasIssues && hasEndorsements) {
+      const issueScore = (issueMatches / issueTotal) * 100;
+      const endorseScore = (endorsementMatches / endorsementTotal) * 100;
       score = issueScore * 0.6 + endorseScore * 0.4;
     } else if (hasIssues) {
-      score = issueScore;
+      score = (issueMatches / issueTotal) * 100;
     } else if (hasEndorsements) {
-      score = endorseScore;
+      score = (endorsementMatches / endorsementTotal) * 100;
     } else {
-      score = 50;
+      score = -1; // No preferences set
     }
 
     return {
       candidate,
       race,
-      score: Math.round(score),
+      score: score >= 0 ? Math.round(score) : -1,
       issueMatches,
       issueTotal,
       endorsementMatches,
@@ -166,10 +169,6 @@ class AppState {
     const pos = candidate.issues[issueId];
     if (!pos) return 'disagree';
 
-    const stances = ISSUE_STANCES[issueId];
-    if (!stances) return 'disagree';
-
-    // Determine if candidate aligns progressive or conservative
     const stanceText = pos.stances.join(' ').toLowerCase();
     const posText = pos.position.toLowerCase();
     const combined = stanceText + ' ' + posText;
@@ -204,12 +203,9 @@ class AppState {
 
     const candidateLean = progScore > consScore ? 'progressive' : 'conservative';
 
-    // User chose 'agree' on the progressive statement (choice A) or 'disagree' (choice B = conservative)
     if (userChoice === 'agree') {
-      // User is progressive on this issue
       return candidateLean === 'progressive' ? 'agree' : 'disagree';
     } else {
-      // User is conservative on this issue
       return candidateLean === 'conservative' ? 'agree' : 'disagree';
     }
   }

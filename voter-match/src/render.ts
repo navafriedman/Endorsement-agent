@@ -9,7 +9,6 @@ function esc(s: string): string {
 }
 
 const RACE_TYPE_ORDER: Record<string, number> = { federal: 0, state: 1, local: 2 };
-const ICON_CHEVRON_DOWN = '<svg class="chevron-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
 const ICON_ARROW = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
 const ICON_CHECK = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
 
@@ -31,13 +30,13 @@ export function renderShell(): string {
     </header>
 
     <main class="container" id="main">
-      <div id="step-content"></div>
+      <div id="page-content"></div>
     </main>
 
     <footer class="footer" role="contentinfo">
       <div class="footer-inner">
         <div>
-          Info sourced from public filings, verified media, and official campaign materials and submitted by AI.<br>
+          Info sourced from public filings, verified media, and official campaign materials.<br>
           <a href="/">Learn more</a>
         </div>
         <div class="footer-links">
@@ -50,79 +49,103 @@ export function renderShell(): string {
 
     <div id="ballot-bar"></div>
     <div id="ballot-summary-container"></div>
+    <div id="filter-overlay"></div>
   `;
 }
 
 // ============================================================
-// STEP 1: ISSUES
+// FILTER TOOLBAR — always visible at top of ballot
 // ============================================================
 
-export function renderIssueStep(): string {
-  const ratedCount = state.ratedIssueCount;
-  const total = ISSUES.length;
-  const pct = Math.round((ratedCount / total) * 100);
+function renderFilterToolbar(): string {
+  const issueCount = state.ratedIssueCount;
+  const groupCount = state.selectedGroups.size;
+  const hasPrefs = state.hasPreferences;
 
-  const cards = ISSUES.map((issue, idx) => {
+  // Active filter tags
+  let activeTags = '';
+  for (const [issueId, choice] of state.issueStances) {
+    if (choice === 'skip') continue;
+    const issue = ISSUES.find(i => i.id === issueId);
+    if (!issue) continue;
+    activeTags += `<button class="active-tag issue-tag" data-remove-issue="${issueId}" aria-label="Remove ${esc(issue.label)}">
+      ${issue.icon} ${esc(issue.label)} <span class="tag-x">&times;</span>
+    </button>`;
+  }
+  for (const gid of state.selectedGroups) {
+    const g = IDENTITY_GROUPS.find(x => x.id === gid);
+    if (!g) continue;
+    activeTags += `<button class="active-tag group-tag" data-remove-group="${gid}" aria-label="Remove ${esc(g.label)}">
+      ${g.icon} ${esc(g.label)} <span class="tag-x">&times;</span>
+    </button>`;
+  }
+
+  return `<div class="filter-toolbar">
+    <div class="filter-toolbar-row">
+      <button class="filter-btn ${state.filterOpen === 'issues' ? 'active' : ''} ${issueCount > 0 ? 'has-selections' : ''}" data-open-filter="issues">
+        Issues ${issueCount > 0 ? `<span class="filter-count">${issueCount}</span>` : ''}
+        <svg class="filter-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <button class="filter-btn ${state.filterOpen === 'groups' ? 'active' : ''} ${groupCount > 0 ? 'has-selections' : ''}" data-open-filter="groups">
+        Trusted groups ${groupCount > 0 ? `<span class="filter-count">${groupCount}</span>` : ''}
+        <svg class="filter-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      ${hasPrefs ? '<button class="clear-link" id="clear-all">Clear all</button>' : ''}
+    </div>
+    ${activeTags ? `<div class="active-tags-row">${activeTags}</div>` : ''}
+    ${!hasPrefs ? '<p class="filter-hint">Tell us what matters to you and we\'ll rank candidates by how well they match.</p>' : ''}
+  </div>`;
+}
+
+// ============================================================
+// ISSUES PANEL — slides open below toolbar
+// ============================================================
+
+function renderIssuesPanel(): string {
+  if (state.filterOpen !== 'issues') return '';
+
+  const cards = ISSUES.map(issue => {
     const stances = ISSUE_STANCES[issue.id];
     if (!stances) return '';
     const current = state.issueStances.get(issue.id);
-    const isDone = current !== undefined;
+    const isDone = current !== undefined && current !== 'skip';
 
-    return `<div class="stance-card ${isDone ? 'done' : ''}">
-      <div class="stance-card-top">
-        <span class="stance-card-icon" aria-hidden="true">${issue.icon}</span>
-        <span class="stance-card-label">${esc(issue.label)}</span>
-        <span class="stance-card-num">${idx + 1} of ${total}</span>
+    return `<div class="issue-row ${isDone ? 'done' : ''}">
+      <div class="issue-row-label">
+        <span class="issue-row-icon">${issue.icon}</span>
+        <span class="issue-row-name">${esc(issue.label)}</span>
       </div>
-      <div class="stance-options">
-        <button type="button" class="stance-btn ${current === 'agree' ? 'selected-agree' : ''}" data-stance-issue="${issue.id}" data-stance-choice="agree">
-          <span class="stance-text">${esc(stances.progressive)}</span>
+      <div class="issue-row-options">
+        <button type="button" class="stance-chip ${current === 'agree' ? 'selected-a' : ''}" data-stance-issue="${issue.id}" data-stance-choice="agree">
+          ${esc(stances.progressive)}
         </button>
-        <button type="button" class="stance-btn ${current === 'disagree' ? 'selected-disagree' : ''}" data-stance-issue="${issue.id}" data-stance-choice="disagree">
-          <span class="stance-text">${esc(stances.conservative)}</span>
+        <button type="button" class="stance-chip ${current === 'disagree' ? 'selected-b' : ''}" data-stance-issue="${issue.id}" data-stance-choice="disagree">
+          ${esc(stances.conservative)}
         </button>
+        ${current ? `<button type="button" class="stance-clear" data-stance-issue="${issue.id}" data-stance-choice="skip">Clear</button>` : ''}
       </div>
-      <button type="button" class="stance-skip" data-stance-issue="${issue.id}" data-stance-choice="skip">
-        ${current === 'skip' ? '✓ Skipped' : 'Skip'}
-      </button>
     </div>`;
   }).join('');
 
-  return `
-    <div class="hero">
-      <div class="step-indicator">
-        <span class="step-dot active"></span>
-        <span class="step-dot"></span>
-        <span class="step-label">Step 1 of 2</span>
-      </div>
-      <h1 class="hero-title">What matters to you?</h1>
-      <p class="hero-subtitle">Pick the statement closest to your view on each issue. We'll match you to candidates who share your priorities.</p>
+  return `<div class="filter-panel" id="issues-panel">
+    <div class="filter-panel-header">
+      <h3>Where do you stand?</h3>
+      <p>Pick the statement closest to your view. Candidates will re-rank as you go.</p>
     </div>
-
-    <div class="progress-container">
-      <div class="progress-header">
-        <span class="progress-text">${ratedCount} of ${total} issues</span>
-        <span class="progress-text">${pct}%</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="issue-rows">${cards}</div>
+    <div class="filter-panel-footer">
+      <button type="button" class="btn-text" data-close-filter>Done</button>
     </div>
-
-    <div class="stance-list">${cards}</div>
-
-    <div class="step-nav">
-      <div></div>
-      <button type="button" class="btn-primary" id="go-to-groups" ${ratedCount === 0 ? 'disabled' : ''}>
-        Next: Who do you trust? ${ICON_ARROW}
-      </button>
-    </div>
-  `;
+  </div>`;
 }
 
 // ============================================================
-// STEP 2: GROUPS
+// GROUPS PANEL
 // ============================================================
 
-export function renderGroupStep(): string {
+function renderGroupsPanel(): string {
+  if (state.filterOpen !== 'groups') return '';
+
   const byType = new Map<string, typeof IDENTITY_GROUPS>();
   for (const g of IDENTITY_GROUPS) {
     const arr = byType.get(g.type) ?? [];
@@ -139,7 +162,7 @@ export function renderGroupStep(): string {
         if (c.endorsements.includes(g.id)) count++;
       }));
       return `<button class="pill ${sel ? 'selected' : ''}" data-group="${g.id}" aria-pressed="${sel}">
-        <span class="pill-icon" aria-hidden="true">${g.icon}</span>
+        <span class="pill-icon">${g.icon}</span>
         ${esc(g.label)}
         <span class="pill-count">${count}</span>
       </button>`;
@@ -151,58 +174,31 @@ export function renderGroupStep(): string {
     </div>`;
   }
 
-  return `
-    <div class="hero">
-      <div class="step-indicator">
-        <span class="step-dot done"></span>
-        <span class="step-dot active"></span>
-        <span class="step-label">Step 2 of 2</span>
-      </div>
-      <h1 class="hero-title">Who do you trust?</h1>
-      <p class="hero-subtitle">Select organizations whose endorsements you value. We'll highlight which candidates they back.</p>
+  return `<div class="filter-panel" id="groups-panel">
+    <div class="filter-panel-header">
+      <h3>Who do you trust?</h3>
+      <p>Select organizations whose endorsements you value.</p>
     </div>
-
     ${sections}
-
-    <div class="step-nav">
-      <button type="button" class="btn-secondary" id="back-to-issues">
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Back
-      </button>
-      <button type="button" class="btn-primary" id="show-results">
-        Show my matches ${ICON_ARROW}
-      </button>
+    <div class="filter-panel-footer">
+      <button type="button" class="btn-text" data-close-filter>Done</button>
     </div>
-  `;
+  </div>`;
 }
 
 // ============================================================
-// STEP 3: RESULTS
+// MATCH BADGE
 // ============================================================
 
 function renderMatchBadge(score: number): string {
+  if (score < 0) return '';
   const level = score >= 70 ? 'high' : score >= 40 ? 'mid' : 'low';
   return `<span class="match-badge ${level}"><span class="match-dot"></span>${score}% match</span>`;
 }
 
-function buildDescription(ms: MatchScore): string {
-  const parts: string[] = [];
-  if (ms.issueTotal > 0) {
-    parts.push(`${ms.issueMatches}/${ms.issueTotal} issues align`);
-  }
-  if (ms.endorsementTotal > 0 && ms.endorsementMatches > 0) {
-    const names = ms.matchedEndorsements.map(eid => {
-      const g = IDENTITY_GROUPS.find(x => x.id === eid);
-      return g?.label ?? eid;
-    });
-    if (names.length <= 2) {
-      parts.push(`Endorsed by ${names.join(' and ')}`);
-    } else {
-      parts.push(`Endorsed by ${names[0]} & ${names.length - 1} more you trust`);
-    }
-  }
-  return parts.join('. ') + (parts.length ? '.' : '');
-}
+// ============================================================
+// ENDORSEMENT ROW
+// ============================================================
 
 function renderEndorsementRow(ms: MatchScore): string {
   if (ms.candidate.endorsements.length === 0) return '';
@@ -220,7 +216,6 @@ function renderEndorsementRow(ms: MatchScore): string {
     return `<span class="endorsement-avatar ${matched ? 'matched' : ''}" title="${esc(g.label)}">${g.icon}</span>`;
   }).join('');
 
-  // Build text
   const matchedNames = sorted.filter(eid => state.selectedGroups.has(eid)).map(eid => {
     const g = IDENTITY_GROUPS.find(x => x.id === eid);
     return g?.label ?? '';
@@ -247,6 +242,10 @@ function renderEndorsementRow(ms: MatchScore): string {
     <span class="endorsement-text">${text}</span>
   </div>`;
 }
+
+// ============================================================
+// DETAIL PANEL (expanded)
+// ============================================================
 
 function renderDetailPanel(ms: MatchScore): string {
   const key = `detail:${ms.race.id}:${ms.candidate.name}`;
@@ -275,7 +274,7 @@ function renderDetailPanel(ms: MatchScore): string {
     </div>`;
   }
 
-  // Other issues
+  // Other issues not rated
   const ratedIds = new Set(ms.matchedIssues.map(m => m.issueId));
   const otherIds = Object.keys(ms.candidate.issues).filter(id => !ratedIds.has(id));
   let otherHtml = '';
@@ -302,7 +301,6 @@ function renderDetailPanel(ms: MatchScore): string {
     </div>`;
   }
 
-  // Endorsements
   let endorseHtml = '';
   if (ms.candidate.endorsements.length > 0) {
     const chips = ms.candidate.endorsements.map(eid => {
@@ -320,17 +318,26 @@ function renderDetailPanel(ms: MatchScore): string {
   return `<div class="match-details">${issueRows}${otherHtml}${endorseHtml}</div>`;
 }
 
+// ============================================================
+// CANDIDATE CARD
+// ============================================================
+
 function renderCandidateCard(ms: MatchScore, rank: number): string {
   const c = ms.candidate;
   const key = `detail:${ms.race.id}:${c.name}`;
   const isOpen = state.isExpanded(key);
   const isSel = state.selectedCandidates.get(ms.race.id) === c.name;
   const partyClass = c.party === 'Democratic' ? 'dem' : 'rep';
+  const isTopMatch = rank === 0 && ms.score >= 60;
 
-  const desc = buildDescription(ms);
-  const endorseRow = renderEndorsementRow(ms);
+  // Build a short description from candidate's top positions
+  const positionKeys = Object.keys(c.issues).slice(0, 3);
+  const desc = positionKeys.map(k => {
+    const pos = c.issues[k];
+    return pos ? pos.stances[0] : '';
+  }).filter(Boolean).join('. ') + '.';
 
-  return `<div class="candidate-card ${rank === 0 && ms.score >= 60 ? 'top-match' : ''}">
+  return `<div class="candidate-card ${isTopMatch ? 'top-match' : ''} ${isSel ? 'is-selected' : ''}">
     ${renderMatchBadge(ms.score)}
     <div class="candidate-avatar">${esc(c.initials)}</div>
     <div class="candidate-name-link">${esc(c.name)} ${ICON_ARROW}</div>
@@ -338,7 +345,7 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
       <span class="party-dot ${partyClass}"></span>${esc(c.party)}${c.incumbent ? ' · Incumbent' : ''}
     </div>
     <p class="candidate-description">${esc(desc)}</p>
-    ${endorseRow}
+    ${renderEndorsementRow(ms)}
     <div class="candidate-actions">
       <button type="button" class="select-btn ${isSel ? 'selected' : ''}" data-select-candidate="${esc(c.name)}" data-select-race="${esc(ms.race.id)}" aria-pressed="${isSel}">
         ${isSel ? ICON_CHECK + ' Selected' : 'Select'}
@@ -352,20 +359,19 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
   </div>`;
 }
 
-export function renderResultsStep(): string {
-  const matches = state.computeMatches();
+// ============================================================
+// MAIN PAGE
+// ============================================================
+
+export function renderPage(): string {
   const sortedRaces = [...RACES].sort((a, b) =>
     (RACE_TYPE_ORDER[a.type] ?? 9) - (RACE_TYPE_ORDER[b.type] ?? 9)
   );
 
-  const allMatches = [...matches.values()].flat();
-  const strongCount = allMatches.filter(m => m.score >= 70).length;
-
   const raceSections = sortedRaces.map(race => {
-    const raceMatches = matches.get(race.id) ?? [];
-    if (raceMatches.length === 0) return '';
-
-    const numCols = Math.min(raceMatches.length, 3);
+    const matches = state.computeRaceMatches(race);
+    if (matches.length === 0) return '';
+    const numCols = Math.min(matches.length, 3);
 
     return `<section class="race-section" id="race-${esc(race.id)}">
       <div class="race-section-header">
@@ -373,34 +379,25 @@ export function renderResultsStep(): string {
           <span class="race-section-title">${esc(race.name)}</span>
           <span class="race-type-badge ${race.type}">${race.type}</span>
         </div>
-        <button type="button" class="race-compare-link" data-compare-race="${esc(race.id)}">
-          Compare
-          <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
       </div>
       <div class="candidate-grid cols-${numCols}">
-        ${raceMatches.map((ms, i) => renderCandidateCard(ms, i)).join('')}
+        ${matches.map((ms, i) => renderCandidateCard(ms, i)).join('')}
       </div>
     </section>`;
   }).join('');
 
   return `
-    <div class="results-header">
-      <div class="hero-election-label">Your personalized ballot</div>
-      <h1 class="results-title">Review your ballot before you vote.</h1>
-      <p class="results-subtitle">
-        Candidates ranked by how well they match your priorities.
-        ${strongCount > 0 ? `<strong>${strongCount} strong match${strongCount > 1 ? 'es' : ''}</strong> found.` : ''}
-      </p>
-      <div class="results-toolbar">
-        <button type="button" class="btn-text" id="edit-preferences">
-          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          Edit my priorities
-        </button>
-      </div>
+    <div class="hero">
+      <div class="hero-election-label">Texas Primary — March 3, 2026</div>
+      <h1 class="hero-title">Review your ballot before you vote.</h1>
+      <p class="hero-subtitle">Your vote will influence the expansion of public transit options, guide road improvements, and determine funding for educational oversight. Explore candidates matched to your priorities.</p>
     </div>
 
-    ${raceSections}
+    ${renderFilterToolbar()}
+    ${renderIssuesPanel()}
+    ${renderGroupsPanel()}
+
+    <div id="race-sections">${raceSections}</div>
   `;
 }
 
@@ -411,7 +408,6 @@ export function renderResultsStep(): string {
 export function renderBallotBar(): void {
   const el = document.getElementById('ballot-bar');
   if (!el) return;
-  if (state.step !== 'results') { el.innerHTML = ''; return; }
 
   const count = state.selectedCandidateCount;
   const total = RACES.filter(r => r.candidates.length > 0).length;
@@ -456,7 +452,7 @@ export function renderBallotSummary(): void {
     return `<div class="ballot-summary-row">
       <span class="ballot-summary-race-name">${esc(race.name)}</span>
       <div class="ballot-summary-pick">
-        <div class="candidate-avatar">${esc(candidate.initials)}</div>
+        <div class="candidate-avatar sm">${esc(candidate.initials)}</div>
         <strong>${esc(candidate.name)}</strong>
         <span class="party-dot ${partyClass}"></span>
         <button type="button" class="ballot-summary-change" data-summary-jump="${esc(race.id)}">Change</button>
@@ -464,13 +460,11 @@ export function renderBallotSummary(): void {
     </div>`;
   }).join('');
 
-  const decided = state.selectedCandidateCount;
-
   container.innerHTML = `<div class="ballot-summary-overlay" id="ballot-summary-overlay">
     <div class="ballot-summary" role="dialog" aria-label="My Ballot">
       <div class="ballot-summary-header">
         <h2>My Ballot</h2>
-        <span class="ballot-summary-count">${decided}/${sortedRaces.length} decided</span>
+        <span class="ballot-summary-count">${state.selectedCandidateCount}/${sortedRaces.length} decided</span>
         <button type="button" class="ballot-summary-close" id="ballot-summary-close" aria-label="Close">&times;</button>
       </div>
       <div class="ballot-summary-body">${rows}</div>

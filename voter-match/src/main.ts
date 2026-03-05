@@ -2,9 +2,7 @@ import './styles.css';
 import { state } from './state';
 import {
   renderShell,
-  renderIssueStep,
-  renderGroupStep,
-  renderResultsStep,
+  renderPage,
   renderBallotBar,
   renderBallotSummary,
 } from './render';
@@ -17,30 +15,25 @@ const app = document.getElementById('app')!;
 app.innerHTML = renderShell();
 
 // ============================================================
-// RENDER CYCLE
+// RENDER
 // ============================================================
 
-function renderStep(): void {
-  const el = document.getElementById('step-content')!;
-
-  switch (state.step) {
-    case 'issues':
-      el.innerHTML = renderIssueStep();
-      break;
-    case 'groups':
-      el.innerHTML = renderGroupStep();
-      break;
-    case 'results':
-      el.innerHTML = renderResultsStep();
-      break;
-  }
-
+function renderAll(): void {
+  const scrollY = window.scrollY;
+  const el = document.getElementById('page-content')!;
+  el.innerHTML = renderPage();
   renderBallotBar();
   renderBallotSummary();
+
+  // Update overlay
+  const overlay = document.getElementById('filter-overlay')!;
+  overlay.classList.toggle('visible', state.filterOpen !== null);
+
+  window.scrollTo(0, scrollY);
 }
 
-renderStep();
-state.subscribe(renderStep);
+renderAll();
+state.subscribe(renderAll);
 
 // ============================================================
 // EVENT DELEGATION
@@ -49,7 +42,27 @@ state.subscribe(renderStep);
 app.addEventListener('click', (e) => {
   const target = e.target as HTMLElement;
 
-  // Stance selection (Step 1)
+  // Filter buttons
+  const filterBtn = target.closest('[data-open-filter]') as HTMLElement | null;
+  if (filterBtn) {
+    const which = filterBtn.getAttribute('data-open-filter') as 'issues' | 'groups';
+    state.setFilterOpen(which);
+    return;
+  }
+
+  // Close filter
+  if (target.closest('[data-close-filter]')) {
+    state.setFilterOpen(null);
+    return;
+  }
+
+  // Filter overlay click
+  if (target.id === 'filter-overlay') {
+    state.setFilterOpen(null);
+    return;
+  }
+
+  // Stance selection
   const stanceBtn = target.closest('[data-stance-issue]') as HTMLElement | null;
   if (stanceBtn) {
     const issueId = stanceBtn.getAttribute('data-stance-issue')!;
@@ -58,28 +71,31 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Group selection (Step 2)
+  // Group selection
   const groupBtn = target.closest('[data-group]') as HTMLElement | null;
   if (groupBtn) {
     state.toggleGroup(groupBtn.getAttribute('data-group')!);
     return;
   }
 
-  // Navigation
-  if (target.closest('#go-to-groups')) {
-    state.setStep('groups');
+  // Remove issue tag
+  const removeIssue = target.closest('[data-remove-issue]') as HTMLElement | null;
+  if (removeIssue) {
+    state.setIssueStance(removeIssue.getAttribute('data-remove-issue')!, 'skip');
     return;
   }
-  if (target.closest('#back-to-issues')) {
-    state.setStep('issues');
+
+  // Remove group tag
+  const removeGroup = target.closest('[data-remove-group]') as HTMLElement | null;
+  if (removeGroup) {
+    state.toggleGroup(removeGroup.getAttribute('data-remove-group')!);
     return;
   }
-  if (target.closest('#show-results')) {
-    state.setStep('results');
-    return;
-  }
-  if (target.closest('#edit-preferences')) {
-    state.setStep('issues');
+
+  // Clear all
+  if (target.closest('#clear-all')) {
+    state.clearIssues();
+    state.clearGroups();
     return;
   }
 
@@ -133,11 +149,13 @@ app.addEventListener('click', (e) => {
   }
 });
 
-// Keyboard handlers
+// Keyboard
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (state.ballotOpen) {
       state.setBallotOpen(false);
+    } else if (state.filterOpen) {
+      state.setFilterOpen(null);
     }
   }
 });
