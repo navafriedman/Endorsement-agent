@@ -125,19 +125,17 @@ function renderFilterSection(): string {
     : `<span class="engage-card-arrow">Choose →</span>`;
 
   return `<div class="engage-section">
-    ${renderLocationContext()}
     <h2 class="engage-title">Personalize your ballot</h2>
     <p class="engage-subtitle">Tell us what matters to you and we'll rank candidates by how well they match.</p>
+    ${renderLocationContext()}
     <div class="engage-cards">
       <button class="engage-card ${issueCardClass}" data-open-filter="issues">
-        <span class="engage-card-icon">⚖</span>
-        <span class="engage-card-label">Issues you care about</span>
+        <span class="engage-card-title"><span class="engage-card-icon">⚖</span> <span class="engage-card-label">Issues you care about</span></span>
         ${issueStatus}
         ${issueCta}
       </button>
       <button class="engage-card ${groupCardClass}" data-open-filter="groups">
-        <span class="engage-card-icon">🤝</span>
-        <span class="engage-card-label">Organizations you trust</span>
+        <span class="engage-card-title"><span class="engage-card-icon">🤝</span> <span class="engage-card-label">Organizations you trust</span></span>
         ${groupStatus}
         ${groupCta}
       </button>
@@ -445,7 +443,12 @@ export function renderPage(): string {
     (RACE_TYPE_ORDER[a.type] ?? 9) - (RACE_TYPE_ORDER[b.type] ?? 9)
   );
 
-  const raceSections = sortedRaces.map(race => {
+  const activeFilter = state.raceTypeFilter;
+  const filteredRaces = activeFilter === 'all'
+    ? sortedRaces
+    : sortedRaces.filter(r => r.type === activeFilter);
+
+  const raceSections = filteredRaces.map(race => {
     const matches = state.computeRaceMatches(race);
     if (matches.length === 0) return '';
     const numCols = Math.min(matches.length, 3);
@@ -463,6 +466,13 @@ export function renderPage(): string {
     </section>`;
   }).join('');
 
+  const raceTypeFilters = (['all', 'federal', 'state', 'local'] as const).map(type => {
+    const count = type === 'all' ? sortedRaces.length : sortedRaces.filter(r => r.type === type).length;
+    if (count === 0 && type !== 'all') return '';
+    const label = type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1);
+    return `<button class="race-filter-tab ${activeFilter === type ? 'active' : ''}" data-race-filter="${type}">${label}</button>`;
+  }).join('');
+
   return `
     <div class="hero">
       <div class="hero-election-label">Texas Primary — March 3, 2026</div>
@@ -474,6 +484,7 @@ export function renderPage(): string {
     ${renderIssuesPanel()}
     ${renderGroupsPanel()}
 
+    <div class="race-filter-bar">${raceTypeFilters}</div>
     <div id="race-sections">${raceSections}</div>
   `;
 }

@@ -11,6 +11,7 @@ class AppState {
   private _ballotOpen = false;
   private _filterOpen: 'issues' | 'groups' | null = null;
   private _address = '';
+  private _raceTypeFilter: 'all' | 'federal' | 'state' | 'local' = 'all';
   private listeners: Listener[] = [];
 
   get issueStances(): ReadonlyMap<string, StanceChoice> { return this._issueStances; }
@@ -19,6 +20,7 @@ class AppState {
   get ballotOpen(): boolean { return this._ballotOpen; }
   get filterOpen(): 'issues' | 'groups' | null { return this._filterOpen; }
   get address(): string { return this._address; }
+  get raceTypeFilter(): 'all' | 'federal' | 'state' | 'local' { return this._raceTypeFilter; }
 
   subscribe(listener: Listener): () => void {
     this.listeners.push(listener);
@@ -74,6 +76,11 @@ class AppState {
 
   setAddress(addr: string): void {
     this._address = addr;
+    this.notify();
+  }
+
+  setRaceTypeFilter(type: 'all' | 'federal' | 'state' | 'local'): void {
+    this._raceTypeFilter = type;
     this.notify();
   }
 

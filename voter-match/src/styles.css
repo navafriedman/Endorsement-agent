@@ -368,13 +368,18 @@ a:hover { text-decoration: underline; }
   border-color: var(--green);
   box-shadow: var(--shadow-md);
 }
+.engage-card-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 .engage-card-icon {
-  font-size: 22px;
+  font-size: 18px;
+  flex-shrink: 0;
 }
 .engage-card-label {
   font-size: 14px;
   font-weight: 700;
-  display: block;
   color: var(--text);
 }
 .engage-card-desc {
@@ -647,6 +652,36 @@ a:hover { text-decoration: underline; }
   padding: 28px 0;
   border-top: 1px solid var(--border);
 }
+/* Race type filter bar */
+.race-filter-bar {
+  display: flex;
+  gap: 6px;
+  padding: 12px 0;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.race-filter-tab {
+  padding: 6px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.race-filter-tab:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-muted);
+}
+.race-filter-tab.active {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
 .race-section:first-of-type { border-top: none; }
 
 .race-section-header {

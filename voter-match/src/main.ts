@@ -116,6 +116,13 @@ app.addEventListener('click', (e) => {
     return;
   }
 
+  // Race type filter
+  const raceFilter = target.closest('[data-race-filter]') as HTMLElement | null;
+  if (raceFilter) {
+    state.setRaceTypeFilter(raceFilter.getAttribute('data-race-filter')! as 'all' | 'federal' | 'state' | 'local');
+    return;
+  }
+
   // Address lookup
   if (target.closest('#address-lookup')) {
     const input = document.getElementById('address-input') as HTMLInputElement | null;
