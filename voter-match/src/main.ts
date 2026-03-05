@@ -109,10 +109,23 @@ app.addEventListener('click', (e) => {
     return;
   }
 
-  // Detail toggle
+  // Detail toggle (candidate details + other positions)
   const detailToggle = target.closest('[data-detail-toggle]') as HTMLElement | null;
   if (detailToggle) {
     state.toggleExpanded(detailToggle.getAttribute('data-detail-toggle')!);
+    return;
+  }
+
+  // Address lookup
+  if (target.closest('#address-lookup')) {
+    const input = document.getElementById('address-input') as HTMLInputElement | null;
+    if (input && input.value.trim()) {
+      state.setAddress(input.value.trim());
+    }
+    return;
+  }
+  if (target.closest('#address-change')) {
+    state.setAddress('');
     return;
   }
 
@@ -156,6 +169,13 @@ document.addEventListener('keydown', (e) => {
       state.setBallotOpen(false);
     } else if (state.filterOpen) {
       state.setFilterOpen(null);
+    }
+  }
+  // Enter in address input
+  if (e.key === 'Enter' && (e.target as HTMLElement).id === 'address-input') {
+    const input = e.target as HTMLInputElement;
+    if (input.value.trim()) {
+      state.setAddress(input.value.trim());
     }
   }
 });

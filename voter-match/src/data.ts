@@ -47,56 +47,121 @@ export const ISSUE_COLORS: Record<string, { bg: string; text: string; border: st
   budget:               { bg: '#e0f2fe', text: '#075985', border: '#0ea5e9' },
 };
 
-// Representative stances for each issue - these are the "position statements"
-// a voter can agree or disagree with to determine alignment
-export const ISSUE_STANCES: Record<string, { progressive: string; conservative: string }> = {
+// Representative stances for each issue
+// shortProgressive/shortConservative are compact labels for the quick picker
+export const ISSUE_STANCES: Record<string, {
+  progressive: string;
+  conservative: string;
+  shortProgressive: string;
+  shortConservative: string;
+}> = {
   immigration: {
     progressive: 'Create a pathway to citizenship for undocumented immigrants',
     conservative: 'Strengthen border enforcement and restrict illegal immigration',
+    shortProgressive: 'Pathway to citizenship',
+    shortConservative: 'Border enforcement',
   },
   education: {
     progressive: 'Increase public school funding and make college more affordable',
     conservative: 'Expand school choice with vouchers and parental curriculum rights',
+    shortProgressive: 'Fund public schools',
+    shortConservative: 'School choice & vouchers',
   },
   healthcare: {
     progressive: 'Expand Medicaid and government health coverage',
     conservative: 'Reduce government involvement in healthcare, promote market solutions',
+    shortProgressive: 'Expand coverage',
+    shortConservative: 'Market-based care',
   },
   housing: {
     progressive: 'Invest in affordable housing and strengthen tenant protections',
     conservative: 'Reduce regulations to let the market increase housing supply',
+    shortProgressive: 'Affordable housing',
+    shortConservative: 'Reduce regulations',
   },
   criminal_justice: {
     progressive: 'Reform the justice system with diversion programs and bail reform',
     conservative: 'Increase law enforcement funding and oppose bail reform',
+    shortProgressive: 'Reform & diversion',
+    shortConservative: 'Fund law enforcement',
   },
   economy: {
     progressive: 'Raise the minimum wage and expand worker protections',
     conservative: 'Cut taxes and reduce regulations to grow the economy',
+    shortProgressive: 'Raise minimum wage',
+    shortConservative: 'Cut taxes & regs',
   },
   environment: {
     progressive: 'Transition to clean energy and invest in climate resilience',
     conservative: 'Balance environmental goals with energy independence and jobs',
+    shortProgressive: 'Clean energy transition',
+    shortConservative: 'Energy independence',
   },
   voting_rights: {
     progressive: 'Expand voting access with more locations and automatic registration',
     conservative: 'Strengthen voter ID requirements to ensure election integrity',
+    shortProgressive: 'Expand voting access',
+    shortConservative: 'Voter ID requirements',
   },
   gun_policy: {
     progressive: 'Require universal background checks and support red flag laws',
     conservative: 'Protect Second Amendment rights and oppose new gun regulations',
+    shortProgressive: 'Background checks',
+    shortConservative: 'Protect gun rights',
   },
   reproductive_rights: {
     progressive: 'Protect abortion access and oppose state restrictions',
     conservative: 'Restrict or ban abortion to protect unborn life',
+    shortProgressive: 'Protect access',
+    shortConservative: 'Restrict abortion',
   },
   lgbtq: {
     progressive: 'Pass anti-discrimination protections for LGBTQ+ individuals',
     conservative: 'Protect religious liberty and parental rights on these issues',
+    shortProgressive: 'Anti-discrimination',
+    shortConservative: 'Religious liberty',
   },
   budget: {
     progressive: 'Invest in public services and infrastructure, even if it means higher taxes',
     conservative: 'Cut government spending and reduce taxes',
+    shortProgressive: 'Invest in services',
+    shortConservative: 'Cut spending',
+  },
+};
+
+// Endorsement quotes — keyed by candidate name, then endorser ID
+export const ENDORSEMENT_QUOTES: Record<string, Record<string, string>> = {
+  'Jasmine Crockett': {
+    naacp: 'Jasmine Crockett has been a tireless advocate for civil rights and equal justice in Texas.',
+    emily_list: 'A bold progressive voice who will fight for women and families in Washington.',
+    teachers_union: 'Jasmine has consistently championed public education and our students.',
+  },
+  'James Talarico': {
+    teachers_union: 'As a former teacher, James understands what our schools need firsthand.',
+    sierra_club: 'James Talarico is a champion for clean energy and climate action in Texas.',
+  },
+  "Tim O'Hare": {
+    nra: 'Tim O\'Hare has a proven record of defending our Second Amendment rights.',
+    texas_right_to_life: 'Tim stands firm in protecting the sanctity of life at every level.',
+  },
+  'Lydia Bean': {
+    lwv: 'Lydia Bean will bring transparency and fairness to Tarrant County government.',
+    sierra_club: 'A strong voice for environmental responsibility at the county level.',
+  },
+  'Alisa Simmons': {
+    naacp: 'Commissioner Simmons has been a champion for equity in Tarrant County.',
+    afl_cio: 'Alisa Simmons fights for working families every single day.',
+  },
+  'Tony Tinderholt': {
+    nra: 'Tony Tinderholt is an unwavering champion of constitutional gun rights.',
+  },
+  'Nicole Collier': {
+    naacp: 'Representative Collier is a trailblazer in criminal justice reform.',
+    emily_list: 'Nicole Collier has the experience and vision Texas needs.',
+  },
+  'Ramon Romero Jr.': {
+    lulac: 'Ramon Romero has been a dedicated champion for our community for years.',
+    teachers_union: 'Ramon fights for public school funding and fair pay for educators.',
   },
 };
 

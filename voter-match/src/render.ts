@@ -1,5 +1,5 @@
 import type { MatchScore } from './types';
-import { ISSUES, IDENTITY_GROUPS, ISSUE_STANCES, ISSUE_COLORS, RACES } from './data';
+import { ISSUES, IDENTITY_GROUPS, ISSUE_STANCES, ISSUE_COLORS, RACES, ENDORSEMENT_QUOTES } from './data';
 import { state } from './state';
 
 function esc(s: string): string {
@@ -9,7 +9,6 @@ function esc(s: string): string {
 }
 
 const RACE_TYPE_ORDER: Record<string, number> = { federal: 0, state: 1, local: 2 };
-const ICON_ARROW = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>';
 const ICON_CHECK = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
 
 // ============================================================
@@ -54,15 +53,62 @@ export function renderShell(): string {
 }
 
 // ============================================================
-// FILTER TOOLBAR — always visible at top of ballot
+// ADDRESS BAR — non-blocking, inviting
 // ============================================================
 
-function renderFilterToolbar(): string {
+function renderAddressBar(): string {
+  const addr = state.address;
+  if (addr) {
+    return `<div class="address-bar">
+      <div class="address-bar-inner">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="address-bar-text">Showing ballot for <strong>${esc(addr)}</strong></span>
+        <button class="address-bar-change" id="address-change">Change</button>
+      </div>
+    </div>`;
+  }
+
+  return `<div class="address-bar">
+    <div class="address-bar-inner">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <input type="text" class="address-input" id="address-input" placeholder="Enter your address to find your exact ballot" autocomplete="street-address" />
+      <button class="address-lookup-btn" id="address-lookup">Look up</button>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// FILTER ENGAGEMENT — inviting prompt vs compact toolbar
+// ============================================================
+
+function renderFilterSection(): string {
   const issueCount = state.ratedIssueCount;
   const groupCount = state.selectedGroups.size;
   const hasPrefs = state.hasPreferences;
 
-  // Active filter tags
+  if (!hasPrefs) {
+    // Inviting engagement cards
+    return `<div class="engage-section">
+      <h2 class="engage-title">Personalize your ballot</h2>
+      <p class="engage-subtitle">We'll rank candidates by how well they match your priorities.</p>
+      <div class="engage-cards">
+        <button class="engage-card ${state.filterOpen === 'issues' ? 'active' : ''}" data-open-filter="issues">
+          <span class="engage-card-icon">⚖</span>
+          <span class="engage-card-label">Issues you care about</span>
+          <span class="engage-card-desc">Pick where you stand on key topics</span>
+          <svg class="engage-card-arrow" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button class="engage-card ${state.filterOpen === 'groups' ? 'active' : ''}" data-open-filter="groups">
+          <span class="engage-card-icon">🤝</span>
+          <span class="engage-card-label">Organizations you trust</span>
+          <span class="engage-card-desc">See who endorses each candidate</span>
+          <svg class="engage-card-arrow" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }
+
+  // Compact active filter toolbar
   let activeTags = '';
   for (const [issueId, choice] of state.issueStances) {
     if (choice === 'skip') continue;
@@ -90,15 +136,14 @@ function renderFilterToolbar(): string {
         Trusted groups ${groupCount > 0 ? `<span class="filter-count">${groupCount}</span>` : ''}
         <svg class="filter-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      ${hasPrefs ? '<button class="clear-link" id="clear-all">Clear all</button>' : ''}
+      <button class="clear-link" id="clear-all">Clear all</button>
     </div>
     ${activeTags ? `<div class="active-tags-row">${activeTags}</div>` : ''}
-    ${!hasPrefs ? '<p class="filter-hint">Tell us what matters to you and we\'ll rank candidates by how well they match.</p>' : ''}
   </div>`;
 }
 
 // ============================================================
-// ISSUES PANEL — slides open below toolbar
+// ISSUES PANEL — scannable grid of compact issue cards
 // ============================================================
 
 function renderIssuesPanel(): string {
@@ -110,29 +155,32 @@ function renderIssuesPanel(): string {
     const current = state.issueStances.get(issue.id);
     const isDone = current !== undefined && current !== 'skip';
 
-    return `<div class="issue-row ${isDone ? 'done' : ''}">
-      <div class="issue-row-label">
-        <span class="issue-row-icon">${issue.icon}</span>
-        <span class="issue-row-name">${esc(issue.label)}</span>
+    return `<div class="issue-card ${isDone ? 'done' : ''}">
+      <div class="issue-card-header">
+        <span class="issue-card-icon">${issue.icon}</span>
+        <span class="issue-card-name">${esc(issue.label)}</span>
+        ${current && current !== 'skip' ? `<button type="button" class="issue-card-clear" data-stance-issue="${issue.id}" data-stance-choice="skip" aria-label="Clear">&times;</button>` : ''}
       </div>
-      <div class="issue-row-options">
-        <button type="button" class="stance-chip ${current === 'agree' ? 'selected-a' : ''}" data-stance-issue="${issue.id}" data-stance-choice="agree">
-          ${esc(stances.progressive)}
+      <div class="issue-card-options">
+        <button type="button" class="stance-opt ${current === 'agree' ? 'sel-a' : ''}" data-stance-issue="${issue.id}" data-stance-choice="agree">
+          ${esc(stances.shortProgressive)}
         </button>
-        <button type="button" class="stance-chip ${current === 'disagree' ? 'selected-b' : ''}" data-stance-issue="${issue.id}" data-stance-choice="disagree">
-          ${esc(stances.conservative)}
+        <button type="button" class="stance-opt ${current === 'disagree' ? 'sel-b' : ''}" data-stance-issue="${issue.id}" data-stance-choice="disagree">
+          ${esc(stances.shortConservative)}
         </button>
-        ${current ? `<button type="button" class="stance-clear" data-stance-issue="${issue.id}" data-stance-choice="skip">Clear</button>` : ''}
       </div>
     </div>`;
   }).join('');
 
+  const doneCount = state.ratedIssueCount;
+
   return `<div class="filter-panel" id="issues-panel">
     <div class="filter-panel-header">
       <h3>Where do you stand?</h3>
-      <p>Pick the statement closest to your view. Candidates will re-rank as you go.</p>
+      <p>Tap the position closest to yours. Skip any you don't care about.</p>
     </div>
-    <div class="issue-rows">${cards}</div>
+    ${doneCount > 0 ? `<div class="issue-progress">${doneCount} of ${ISSUES.length} answered</div>` : ''}
+    <div class="issue-grid">${cards}</div>
     <div class="filter-panel-footer">
       <button type="button" class="btn-text" data-close-filter>Done</button>
     </div>
@@ -197,7 +245,7 @@ function renderMatchBadge(score: number): string {
 }
 
 // ============================================================
-// ENDORSEMENT ROW
+// ENDORSEMENT ROW — with quote from selected endorser
 // ============================================================
 
 function renderEndorsementRow(ms: MatchScore): string {
@@ -237,14 +285,33 @@ function renderEndorsementRow(ms: MatchScore): string {
     }
   }
 
-  return `<div class="endorsement-row">
-    <div class="endorsement-avatars">${avatars}</div>
-    <span class="endorsement-text">${text}</span>
+  // Find a quote from a selected endorser
+  let quoteHtml = '';
+  const quotes = ENDORSEMENT_QUOTES[ms.candidate.name];
+  if (quotes) {
+    // Prefer quote from a selected group
+    const matchedQuoteId = sorted.find(eid => state.selectedGroups.has(eid) && quotes[eid]);
+    const quoteId = matchedQuoteId ?? sorted.find(eid => quotes[eid]);
+    if (quoteId && quotes[quoteId]) {
+      const org = IDENTITY_GROUPS.find(x => x.id === quoteId);
+      quoteHtml = `<blockquote class="endorsement-quote">
+        <p>"${esc(quotes[quoteId])}"</p>
+        ${org ? `<cite>— ${esc(org.label)}</cite>` : ''}
+      </blockquote>`;
+    }
+  }
+
+  return `<div class="endorsement-section">
+    <div class="endorsement-row">
+      <div class="endorsement-avatars">${avatars}</div>
+      <span class="endorsement-text">${text}</span>
+    </div>
+    ${quoteHtml}
   </div>`;
 }
 
 // ============================================================
-// DETAIL PANEL (expanded)
+// DETAIL PANEL (expanded) — other positions collapsed by default
 // ============================================================
 
 function renderDetailPanel(ms: MatchScore): string {
@@ -274,30 +341,38 @@ function renderDetailPanel(ms: MatchScore): string {
     </div>`;
   }
 
-  // Other issues not rated
+  // Other issues — collapsed by default, behind a toggle
   const ratedIds = new Set(ms.matchedIssues.map(m => m.issueId));
   const otherIds = Object.keys(ms.candidate.issues).filter(id => !ratedIds.has(id));
+  const othersKey = `others:${ms.race.id}:${ms.candidate.name}`;
+  const othersOpen = state.isExpanded(othersKey);
+
   let otherHtml = '';
   if (otherIds.length > 0) {
+    const otherContent = othersOpen ? otherIds.map(issueId => {
+      const issue = ISSUES.find(i => i.id === issueId)!;
+      const pos = ms.candidate.issues[issueId];
+      const colors = ISSUE_COLORS[issueId];
+      if (!pos) return '';
+      const pills = pos.stances.map(s =>
+        `<span class="stance-pill" style="background:${colors.bg};color:${colors.text}">${esc(s)}</span>`
+      ).join('');
+      return `<div class="detail-issue-row neutral">
+        <div class="detail-issue-header">
+          <span class="detail-issue-icon">${issue.icon}</span>
+          <span class="detail-issue-label">${esc(issue.label)}</span>
+        </div>
+        <div class="detail-stances">${pills}</div>
+        <p class="detail-position">${esc(pos.position)}</p>
+      </div>`;
+    }).join('') : '';
+
     otherHtml = `<div class="detail-other-issues">
-      <div class="detail-section-label">Other positions</div>
-      ${otherIds.map(issueId => {
-        const issue = ISSUES.find(i => i.id === issueId)!;
-        const pos = ms.candidate.issues[issueId];
-        const colors = ISSUE_COLORS[issueId];
-        if (!pos) return '';
-        const pills = pos.stances.map(s =>
-          `<span class="stance-pill" style="background:${colors.bg};color:${colors.text}">${esc(s)}</span>`
-        ).join('');
-        return `<div class="detail-issue-row neutral">
-          <div class="detail-issue-header">
-            <span class="detail-issue-icon">${issue.icon}</span>
-            <span class="detail-issue-label">${esc(issue.label)}</span>
-          </div>
-          <div class="detail-stances">${pills}</div>
-          <p class="detail-position">${esc(pos.position)}</p>
-        </div>`;
-      }).join('')}
+      <button type="button" class="detail-toggle-link" data-detail-toggle="${esc(othersKey)}">
+        ${othersOpen ? 'Hide' : 'Show'} ${otherIds.length} other position${otherIds.length > 1 ? 's' : ''}
+        <svg class="detail-toggle-chevron ${othersOpen ? 'open' : ''}" aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      ${otherContent}
     </div>`;
   }
 
@@ -383,13 +458,15 @@ export function renderPage(): string {
   }).join('');
 
   return `
+    ${renderAddressBar()}
+
     <div class="hero">
       <div class="hero-election-label">Texas Primary — March 3, 2026</div>
       <h1 class="hero-title">Review your ballot before you vote.</h1>
-      <p class="hero-subtitle">Your vote will influence the expansion of public transit options, guide road improvements, and determine funding for educational oversight. Explore candidates matched to your priorities.</p>
+      <p class="hero-subtitle">Explore candidates matched to your priorities. Personalize below to see who aligns with what matters to you.</p>
     </div>
 
-    ${renderFilterToolbar()}
+    ${renderFilterSection()}
     ${renderIssuesPanel()}
     ${renderGroupsPanel()}
 

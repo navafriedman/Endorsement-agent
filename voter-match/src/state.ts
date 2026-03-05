@@ -10,6 +10,7 @@ class AppState {
   private _expandedCards = new Set<string>();
   private _ballotOpen = false;
   private _filterOpen: 'issues' | 'groups' | null = null;
+  private _address = '';
   private listeners: Listener[] = [];
 
   get issueStances(): ReadonlyMap<string, StanceChoice> { return this._issueStances; }
@@ -17,6 +18,7 @@ class AppState {
   get selectedCandidates(): ReadonlyMap<string, string> { return this._selectedCandidates; }
   get ballotOpen(): boolean { return this._ballotOpen; }
   get filterOpen(): 'issues' | 'groups' | null { return this._filterOpen; }
+  get address(): string { return this._address; }
 
   subscribe(listener: Listener): () => void {
     this.listeners.push(listener);
@@ -67,6 +69,11 @@ class AppState {
 
   setFilterOpen(which: 'issues' | 'groups' | null): void {
     this._filterOpen = this._filterOpen === which ? null : which;
+    this.notify();
+  }
+
+  setAddress(addr: string): void {
+    this._address = addr;
     this.notify();
   }
 
