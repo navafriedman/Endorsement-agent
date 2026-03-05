@@ -193,40 +193,28 @@ function renderIssuesPanel(): string {
 function renderGroupsPanel(): string {
   if (state.filterOpen !== 'groups') return '';
 
-  const byType = new Map<string, typeof IDENTITY_GROUPS>();
-  for (const g of IDENTITY_GROUPS) {
-    const arr = byType.get(g.type) ?? [];
-    arr.push(g);
-    byType.set(g.type, arr);
-  }
+  const allPills = IDENTITY_GROUPS.map(g => {
+    const sel = state.selectedGroups.has(g.id);
+    let count = 0;
+    RACES.forEach(r => r.candidates.forEach(c => {
+      if (c.endorsements.includes(g.id)) count++;
+    }));
+    return `<button class="pill ${sel ? 'selected' : ''}" data-group="${g.id}" aria-pressed="${sel}">
+      <span class="pill-icon">${g.icon}</span>
+      ${esc(g.label)}
+      <span class="pill-count">${count}</span>
+    </button>`;
+  }).join('');
 
-  let sections = '';
-  for (const [type, groups] of byType) {
-    const pills = groups.map(g => {
-      const sel = state.selectedGroups.has(g.id);
-      let count = 0;
-      RACES.forEach(r => r.candidates.forEach(c => {
-        if (c.endorsements.includes(g.id)) count++;
-      }));
-      return `<button class="pill ${sel ? 'selected' : ''}" data-group="${g.id}" aria-pressed="${sel}">
-        <span class="pill-icon">${g.icon}</span>
-        ${esc(g.label)}
-        <span class="pill-count">${count}</span>
-      </button>`;
-    }).join('');
-
-    sections += `<div class="group-section">
-      <div class="group-section-label">${esc(type)}</div>
-      <div class="group-pills">${pills}</div>
-    </div>`;
-  }
+  const selCount = state.selectedGroups.size;
 
   return `<div class="filter-panel" id="groups-panel">
     <div class="filter-panel-header">
       <h3>Who do you trust?</h3>
-      <p>Select organizations whose endorsements you value.</p>
+      <p>Tap organizations whose endorsements matter to you.</p>
     </div>
-    ${sections}
+    ${selCount > 0 ? `<div class="issue-progress">${selCount} selected</div>` : ''}
+    <div class="group-pills">${allPills}</div>
     <div class="filter-panel-footer">
       <button type="button" class="btn-text" data-close-filter>Done</button>
     </div>

@@ -530,58 +530,55 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 @media (max-width: 500px) {
-  .issue-row { gap: 8px; padding: 8px 0; }
-  .issue-row-label { font-size: 12px; min-width: 0; }
-  .issue-row-icon { font-size: 14px; }
-  .stance-opt { padding: 5px 10px; font-size: 11px; }
+  .issue-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 10px 0;
+  }
+  .issue-row-label { font-size: 13px; }
+  .issue-row-icon { font-size: 15px; }
+  .issue-row-options { width: 100%; }
+  .stance-opt { flex: 1; padding: 8px 10px; font-size: 13px; }
 }
 
 /* ============================================================
-   GROUP PILLS — inside groups panel
+   GROUP PILLS — flat flowing grid of organization chips
    ============================================================ */
-.group-section {
-  margin-bottom: 16px;
-}
-.group-section-label {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
 .group-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  height: 32px;
-  padding: 0 12px;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-pill);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   background: var(--bg);
   color: var(--text-secondary);
   user-select: none;
   transition: all 0.15s;
+  font-family: inherit;
 }
 .pill:hover { border-color: var(--border-hover); background: var(--bg-muted); }
 .pill.selected {
   border-color: var(--purple);
   background: var(--purple-light);
   color: var(--purple-text);
+  font-weight: 600;
 }
-.pill-icon { font-size: 13px; line-height: 1; }
+.pill-icon { font-size: 14px; line-height: 1; }
 .pill-count {
   font-size: 10px;
   background: var(--bg-muted);
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 6px;
   color: var(--text-muted);
 }
