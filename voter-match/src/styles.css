@@ -1313,6 +1313,392 @@ a:hover { text-decoration: underline; }
 }
 
 /* ============================================================
+   CANDIDATE VIEW
+   ============================================================ */
+.candidate-view {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* Back link */
+.cv-back { padding: 16px 0 8px; }
+.cv-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 0;
+  transition: color 0.15s;
+}
+.cv-back-link:hover { color: var(--text); }
+
+/* Summary box */
+.cv-summary {
+  background: #faf9ff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 0;
+}
+.cv-summary-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.candidate-avatar.lg {
+  width: 64px;
+  height: 64px;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.cv-summary-info { flex: 1; min-width: 0; }
+.cv-name {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--text);
+  line-height: 1.2;
+}
+.cv-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.cv-top-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.cv-stance-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.cv-stance-pill:hover { opacity: 0.8; }
+.cv-summary-counts {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.cv-select {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Candidate name link */
+.candidate-name-link {
+  color: inherit;
+  text-decoration: none;
+}
+.candidate-name-link:hover { text-decoration: underline; }
+
+/* Section nav */
+.cv-nav {
+  display: flex;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1.5px solid var(--border);
+  margin-bottom: 20px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+.cv-nav-tab {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1.5px solid var(--border);
+  transition: all 0.15s;
+}
+.cv-nav-tab:hover {
+  border-color: var(--border-hover);
+  color: var(--text-secondary);
+}
+
+/* Sections */
+.cv-section { margin-bottom: 28px; }
+.cv-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--border);
+}
+
+/* Issue cards */
+.cv-issues {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cv-issue-card {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.cv-issue-card:hover { border-color: var(--border-hover); }
+.cv-issue-card.agree { border-left: 3px solid var(--match-high); }
+.cv-issue-card.disagree { border-left: 3px solid var(--match-low); }
+
+.cv-issue-collapsed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  color: var(--text);
+}
+.cv-issue-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  min-width: 120px;
+}
+.cv-issue-icon { font-size: 16px; }
+.cv-issue-label { font-size: 14px; }
+.cv-issue-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
+.cv-issue-pills .stance-pill { font-size: 11px; padding: 2px 8px; }
+
+.cv-match-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+.cv-match-tag.agree {
+  background: #d1fae5;
+  color: #065f46;
+}
+.cv-match-tag.disagree {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.cv-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+  color: var(--text-muted);
+}
+.cv-chevron.open { transform: rotate(180deg); }
+
+/* Expanded issue content */
+.cv-issue-expanded {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border);
+}
+.cv-position-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 12px 0;
+}
+.cv-verbatim {
+  background: #f8f8fa;
+  border-left: 3px solid var(--purple);
+  padding: 12px 16px;
+  margin: 12px 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+}
+.cv-verbatim p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.cv-source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.cv-source-chip.first-party { background: #dbeafe; color: #1e40af; }
+.cv-source-chip.third-party { background: #f3f4f6; color: #4b5563; }
+.cv-source-chip:hover { opacity: 0.8; }
+
+/* Endorsement clusters */
+.cv-endorsement-clusters { margin-bottom: 16px; }
+.cv-endorse-cluster { margin-bottom: 12px; }
+.cv-cluster-header {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.cv-cluster-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cv-endorse-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text-secondary);
+}
+.cv-endorse-chip.matched {
+  border-color: var(--green);
+  background: #d1fae5;
+  color: #065f46;
+  font-weight: 500;
+}
+
+/* Quote cards */
+.cv-quotes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.cv-quote-card {
+  background: #f8f8fa;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.cv-quote-card.matched {
+  border-color: var(--green);
+  background: #f0fdf4;
+}
+.cv-quote-card p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.cv-quote-card cite {
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cv-trust-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: #d1fae5;
+  color: #065f46;
+  font-weight: 600;
+}
+
+/* Bio */
+.cv-bio {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0 0 8px;
+}
+.cv-website-link {
+  font-size: 13px;
+  color: var(--purple);
+  font-weight: 500;
+  text-decoration: none;
+}
+.cv-website-link:hover { text-decoration: underline; }
+
+/* Methodology footer */
+.cv-methodology {
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1.5px solid var(--border);
+  padding-top: 16px;
+  margin-top: 28px;
+  line-height: 1.5;
+}
+
+/* Sticky CTA (mobile only) */
+.cv-sticky-cta {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .cv-name { font-size: 22px; }
+  .candidate-avatar.lg { width: 52px; height: 52px; font-size: 18px; }
+  .cv-summary { padding: 16px; }
+}
+
+@media (max-width: 500px) {
+  .candidate-view { padding: 0 16px 100px; }
+  .cv-name { font-size: 20px; }
+  .cv-summary { padding: 14px; }
+  .cv-summary-header { gap: 12px; }
+  .candidate-avatar.lg { width: 44px; height: 44px; font-size: 16px; }
+  .cv-section-title { font-size: 16px; }
+  .cv-nav { gap: 2px; }
+  .cv-nav-tab { font-size: 12px; padding: 5px 10px; }
+  .cv-issue-collapsed { padding: 10px 12px; gap: 6px; }
+  .cv-issue-left { min-width: 100px; }
+
+  .cv-sticky-cta {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg);
+    border-top: 1.5px solid var(--border);
+    padding: 12px 16px;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+  }
+  .cv-sticky-cta .select-btn { width: 100%; justify-content: center; }
+}
+
+/* ============================================================
    PRINT
    ============================================================ */
 @media print {

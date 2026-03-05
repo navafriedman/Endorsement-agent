@@ -11,9 +11,14 @@ export interface IdentityGroup {
   type: string;
 }
 
+export type SourceType = 'candidate_website' | 'legislative_record' | 'public_statements' | 'news_coverage';
+
 export interface IssuePosition {
   position: string;
   source: string;
+  sourceType: SourceType;
+  sourceUrl?: string;
+  directQuote?: string;
   stances: string[];
 }
 
@@ -22,6 +27,9 @@ export interface Candidate {
   party: 'Democratic' | 'Republican';
   incumbent: boolean;
   initials: string;
+  bio?: string;
+  photoUrl?: string;
+  website?: string;
   issues: Record<string, IssuePosition>;
   endorsements: string[];
 }

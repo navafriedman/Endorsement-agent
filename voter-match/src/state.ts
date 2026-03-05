@@ -14,6 +14,9 @@ class AppState {
   private _raceTypeFilter: 'all' | 'federal' | 'state' | 'local' = 'all';
   private _groupSearch = '';
   private _groupCategory = 'all';
+  private _activeView: { type: 'ballot' } | { type: 'candidate'; raceId: string; candidateName: string } = { type: 'ballot' };
+  private _ballotScrollY = 0;
+  private _expandedPositions = new Set<string>();
   private listeners: Listener[] = [];
 
   get issueStances(): ReadonlyMap<string, StanceChoice> { return this._issueStances; }
@@ -25,6 +28,8 @@ class AppState {
   get raceTypeFilter(): 'all' | 'federal' | 'state' | 'local' { return this._raceTypeFilter; }
   get groupSearch(): string { return this._groupSearch; }
   get groupCategory(): string { return this._groupCategory; }
+  get activeView() { return this._activeView; }
+  get expandedPositions(): ReadonlySet<string> { return this._expandedPositions; }
 
   subscribe(listener: Listener): () => void {
     this.listeners.push(listener);
@@ -95,6 +100,31 @@ class AppState {
 
   setGroupCategory(cat: string): void {
     this._groupCategory = cat;
+    this.notify();
+  }
+
+  openCandidate(raceId: string, candidateName: string): void {
+    this._ballotScrollY = window.scrollY;
+    this._expandedPositions.clear();
+    this._activeView = { type: 'candidate', raceId, candidateName };
+    history.pushState(null, '', `#candidate/${raceId}/${encodeURIComponent(candidateName)}`);
+    this.notify();
+  }
+
+  backToBallot(): void {
+    const scrollY = this._ballotScrollY;
+    this._activeView = { type: 'ballot' };
+    history.pushState(null, '', '#');
+    this.notify();
+    requestAnimationFrame(() => window.scrollTo(0, scrollY));
+  }
+
+  togglePosition(issueId: string): void {
+    if (this._expandedPositions.has(issueId)) {
+      this._expandedPositions.delete(issueId);
+    } else {
+      this._expandedPositions.add(issueId);
+    }
     this.notify();
   }
 

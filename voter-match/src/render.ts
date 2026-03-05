@@ -442,8 +442,6 @@ function renderDetailPanel(ms: MatchScore): string {
 
 function renderCandidateCard(ms: MatchScore, rank: number): string {
   const c = ms.candidate;
-  const key = `detail:${ms.race.id}:${c.name}`;
-  const isOpen = state.isExpanded(key);
   const isSel = state.selectedCandidates.get(ms.race.id) === c.name;
   const partyClass = c.party === 'Democratic' ? 'dem' : 'rep';
   const isTopMatch = rank === 0 && ms.score >= 60;
@@ -454,7 +452,9 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
         <div class="candidate-avatar">${esc(c.initials)}</div>
         ${renderMatchBadge(ms.score)}
       </div>
-      <h3 class="candidate-name">${esc(c.name)}</h3>
+      <h3 class="candidate-name">
+        <a href="#candidate/${esc(ms.race.id)}/${encodeURIComponent(c.name)}" class="candidate-name-link" data-open-candidate data-race="${esc(ms.race.id)}" data-candidate="${esc(c.name)}">${esc(c.name)}</a>
+      </h3>
       <div class="candidate-meta">
         <span class="party-dot ${partyClass}"></span>
         <span>${esc(c.party)}${c.incumbent ? ' · Incumbent' : ''}</span>
@@ -465,12 +465,11 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
         <button type="button" class="select-btn ${isSel ? 'selected' : ''}" data-select-candidate="${esc(c.name)}" data-select-race="${esc(ms.race.id)}" aria-pressed="${isSel}">
           ${isSel ? ICON_CHECK + ' Selected' : 'Select'}
         </button>
-        <button type="button" class="details-link" data-detail-toggle="${esc(key)}" aria-expanded="${isOpen}">
-          ${isOpen ? 'Less info' : 'More info'}
-        </button>
+        <a href="#candidate/${esc(ms.race.id)}/${encodeURIComponent(c.name)}" class="details-link" data-open-candidate data-race="${esc(ms.race.id)}" data-candidate="${esc(c.name)}">
+          View profile →
+        </a>
       </div>
     </div>
-    ${renderDetailPanel(ms)}
   </div>`;
 }
 
@@ -479,6 +478,247 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
 // ============================================================
 
 export function renderPage(): string {
+  if (state.activeView.type === 'candidate') {
+    return renderCandidateView();
+  }
+  return renderBallotPage();
+}
+
+// ============================================================
+// CANDIDATE DETAIL VIEW
+// ============================================================
+
+const SOURCE_TYPE_ICONS: Record<string, { icon: string; label: string }> = {
+  candidate_website: { icon: '🌐', label: 'Candidate Website' },
+  legislative_record: { icon: '📋', label: 'Legislative Record' },
+  public_statements: { icon: '🎤', label: 'Public Statements' },
+  news_coverage: { icon: '📰', label: 'News Coverage' },
+};
+
+function renderCandidateView(): string {
+  const view = state.activeView;
+  if (view.type !== 'candidate') return '';
+
+  const race = RACES.find(r => r.id === view.raceId);
+  if (!race) return '';
+  const candidate = race.candidates.find(c => c.name === view.candidateName);
+  if (!candidate) return '';
+
+  const ms = state.computeRaceMatches(race).find(m => m.candidate.name === candidate.name)!;
+  const isSel = state.selectedCandidates.get(race.id) === candidate.name;
+  const partyClass = candidate.party === 'Democratic' ? 'dem' : 'rep';
+
+  // Summary box — top 3 stance pills
+  const topIssueIds = Object.keys(candidate.issues).slice(0, 3);
+  const topPills = topIssueIds.map(id => {
+    const issue = ISSUES.find(i => i.id === id);
+    const pos = candidate.issues[id];
+    if (!issue || !pos || pos.stances.length === 0) return '';
+    const colors = ISSUE_COLORS[id];
+    return `<a class="cv-stance-pill" href="#cv-issue-${id}" style="background:${colors.bg};color:${colors.text}">${issue.icon} ${esc(pos.stances[0])}</a>`;
+  }).filter(Boolean).join('');
+
+  const issueCount = Object.keys(candidate.issues).length;
+  const endorseCount = candidate.endorsements.length;
+
+  // Issue position cards
+  const ratedIds = new Set(ms.matchedIssues.map(m => m.issueId));
+  const allIssueIds = Object.keys(candidate.issues);
+  // Sort: matched first, then unrated
+  const sortedIssueIds = [
+    ...ms.matchedIssues.filter(mi => mi.stance === 'agree').map(mi => mi.issueId),
+    ...ms.matchedIssues.filter(mi => mi.stance === 'disagree').map(mi => mi.issueId),
+    ...allIssueIds.filter(id => !ratedIds.has(id)),
+  ];
+
+  const issueCards = sortedIssueIds.map(issueId => {
+    const issue = ISSUES.find(i => i.id === issueId);
+    const pos = candidate.issues[issueId];
+    if (!issue || !pos) return '';
+    const colors = ISSUE_COLORS[issueId];
+    const mi = ms.matchedIssues.find(m => m.issueId === issueId);
+    const isExpanded = state.expandedPositions.has(issueId);
+
+    let matchTag = '';
+    if (mi) {
+      matchTag = mi.stance === 'agree'
+        ? '<span class="cv-match-tag agree">✓ Match</span>'
+        : '<span class="cv-match-tag disagree">✗ Differs</span>';
+    }
+
+    const pills = pos.stances.map(s =>
+      `<span class="stance-pill" style="background:${colors.bg};color:${colors.text}">${esc(s)}</span>`
+    ).join('');
+
+    const srcInfo = SOURCE_TYPE_ICONS[pos.sourceType] ?? SOURCE_TYPE_ICONS['candidate_website'];
+    const srcClass = pos.sourceType === 'candidate_website' || pos.sourceType === 'public_statements' ? 'first-party' : 'third-party';
+
+    let expandedContent = '';
+    if (isExpanded) {
+      let quoteBlock = '';
+      if (pos.directQuote) {
+        quoteBlock = `<blockquote class="cv-verbatim">
+          <p>"${esc(pos.directQuote)}"</p>
+        </blockquote>`;
+      }
+
+      expandedContent = `<div class="cv-issue-expanded">
+        <p class="cv-position-text">${esc(pos.position)}</p>
+        ${quoteBlock}
+        <a class="cv-source-chip ${srcClass}" ${pos.sourceUrl ? `href="${esc(pos.sourceUrl)}" target="_blank" rel="noopener"` : ''}>
+          ${srcInfo.icon} ${esc(srcInfo.label)} — ${esc(pos.source)}
+        </a>
+      </div>`;
+    }
+
+    return `<div class="cv-issue-card ${isExpanded ? 'expanded' : ''} ${mi ? mi.stance : ''}" id="cv-issue-${issueId}">
+      <button type="button" class="cv-issue-collapsed" data-toggle-position="${issueId}">
+        <span class="cv-issue-left">
+          <span class="cv-issue-icon">${issue.icon}</span>
+          <span class="cv-issue-label">${esc(issue.label)}</span>
+        </span>
+        ${matchTag}
+        <span class="cv-issue-pills">${pills}</span>
+        <svg class="cv-chevron ${isExpanded ? 'open' : ''}" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      ${expandedContent}
+    </div>`;
+  }).join('');
+
+  // Endorsement clusters by category
+  let endorseSection = '';
+  if (endorseCount > 0) {
+    const byCategory = new Map<string, typeof IDENTITY_GROUPS>();
+    for (const eid of candidate.endorsements) {
+      const g = IDENTITY_GROUPS.find(x => x.id === eid);
+      if (!g) continue;
+      if (!byCategory.has(g.type)) byCategory.set(g.type, []);
+      byCategory.get(g.type)!.push(g);
+    }
+
+    // Sort: categories with user-matched groups first
+    const sortedCategories = [...byCategory.entries()].sort((a, b) => {
+      const aMatch = a[1].some(g => state.selectedGroups.has(g.id)) ? 0 : 1;
+      const bMatch = b[1].some(g => state.selectedGroups.has(g.id)) ? 0 : 1;
+      return aMatch - bMatch;
+    });
+
+    const clusters = sortedCategories.map(([cat, groups]) => {
+      const chips = groups.map(g => {
+        const matched = state.selectedGroups.has(g.id);
+        return `<span class="cv-endorse-chip ${matched ? 'matched' : ''}">${g.icon} ${esc(g.label)}${matched ? ' ✓' : ''}</span>`;
+      }).join('');
+      return `<div class="cv-endorse-cluster">
+        <div class="cv-cluster-header">${esc(cat)} (${groups.length})</div>
+        <div class="cv-cluster-chips">${chips}</div>
+      </div>`;
+    }).join('');
+
+    // Quote cards
+    const quotes = ENDORSEMENT_QUOTES[candidate.name] ?? {};
+    const quoteCards = candidate.endorsements
+      .filter(eid => quotes[eid])
+      .sort((a, b) => {
+        const aM = state.selectedGroups.has(a) ? 0 : 1;
+        const bM = state.selectedGroups.has(b) ? 0 : 1;
+        return aM - bM;
+      })
+      .map(eid => {
+        const g = IDENTITY_GROUPS.find(x => x.id === eid)!;
+        const matched = state.selectedGroups.has(eid);
+        return `<div class="cv-quote-card ${matched ? 'matched' : ''}">
+          <p>"${esc(quotes[eid])}"</p>
+          <cite>${g.icon} ${esc(g.label)}${matched ? ' <span class="cv-trust-tag">✓ You trust</span>' : ''}</cite>
+        </div>`;
+      }).join('');
+
+    endorseSection = `
+      <section class="cv-section" id="cv-endorsements">
+        <h2 class="cv-section-title">Who's recommending ${esc(candidate.name.split(' ')[candidate.name.split(' ').length - 1])}</h2>
+        <div class="cv-endorsement-clusters">${clusters}</div>
+        ${quoteCards ? `<div class="cv-quotes">${quoteCards}</div>` : ''}
+      </section>`;
+  }
+
+  // Bio / About section
+  let bioSection = '';
+  if (candidate.bio) {
+    bioSection = `
+      <section class="cv-section" id="cv-about">
+        <h2 class="cv-section-title">About</h2>
+        <p class="cv-bio">${esc(candidate.bio)}</p>
+        ${candidate.website ? `<a class="cv-website-link" href="${esc(candidate.website)}" target="_blank" rel="noopener">Visit campaign website →</a>` : ''}
+      </section>`;
+  }
+
+  // Section nav counts
+  const sections = [
+    { id: 'cv-positions', label: 'Positions', count: issueCount },
+    ...(endorseCount > 0 ? [{ id: 'cv-endorsements', label: 'Endorsements', count: endorseCount }] : []),
+    ...(candidate.bio ? [{ id: 'cv-about', label: 'About', count: 0 }] : []),
+  ];
+  const navTabs = sections.map(s =>
+    `<a class="cv-nav-tab" href="#${s.id}" data-scroll-section="${s.id}">${s.label}${s.count > 0 ? ` (${s.count})` : ''}</a>`
+  ).join('');
+
+  return `
+    <div class="candidate-view">
+      <nav class="cv-back">
+        <button type="button" class="cv-back-link" data-back-to-ballot>
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to ballot
+        </button>
+      </nav>
+
+      <div class="cv-summary">
+        <div class="cv-summary-header">
+          <div class="candidate-avatar lg">${esc(candidate.initials)}</div>
+          <div class="cv-summary-info">
+            <h1 class="cv-name">${esc(candidate.name)}</h1>
+            <div class="cv-meta">
+              <span class="party-dot ${partyClass}"></span>
+              <span>${esc(candidate.party)}${candidate.incumbent ? ' · Incumbent' : ''} · ${esc(race.name)}</span>
+            </div>
+            ${renderMatchBadge(ms.score)}
+          </div>
+        </div>
+        ${topPills ? `<div class="cv-top-pills">${topPills}</div>` : ''}
+        <div class="cv-summary-counts">${endorseCount} endorsement${endorseCount !== 1 ? 's' : ''} · ${issueCount} issue position${issueCount !== 1 ? 's' : ''}</div>
+        <button type="button" class="select-btn cv-select ${isSel ? 'selected' : ''}" data-select-candidate="${esc(candidate.name)}" data-select-race="${esc(race.id)}" aria-pressed="${isSel}">
+          ${isSel ? ICON_CHECK + ' Selected' : 'Select this candidate'}
+        </button>
+      </div>
+
+      <nav class="cv-nav" id="cv-nav">
+        ${navTabs}
+      </nav>
+
+      <section class="cv-section" id="cv-positions">
+        <h2 class="cv-section-title">Where they stand</h2>
+        <div class="cv-issues">${issueCards}</div>
+      </section>
+
+      ${endorseSection}
+      ${bioSection}
+
+      <footer class="cv-methodology">
+        Every position listed here is sourced from public records and candidate statements.
+      </footer>
+    </div>
+
+    <div class="cv-sticky-cta">
+      <button type="button" class="select-btn cv-select ${isSel ? 'selected' : ''}" data-select-candidate="${esc(candidate.name)}" data-select-race="${esc(race.id)}" aria-pressed="${isSel}">
+        ${isSel ? ICON_CHECK + ' Selected' : 'Select ' + esc(candidate.name.split(' ')[candidate.name.split(' ').length - 1])}
+      </button>
+    </div>
+  `;
+}
+
+// ============================================================
+// BALLOT PAGE
+// ============================================================
+
+function renderBallotPage(): string {
   const sortedRaces = [...RACES].sort((a, b) =>
     (RACE_TYPE_ORDER[a.type] ?? 9) - (RACE_TYPE_ORDER[b.type] ?? 9)
   );

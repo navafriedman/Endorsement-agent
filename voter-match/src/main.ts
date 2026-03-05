@@ -50,6 +50,21 @@ function renderAll(): void {
 renderAll();
 state.subscribe(renderAll);
 
+// Hash-based navigation (browser back button support)
+window.addEventListener('popstate', () => {
+  const hash = location.hash;
+  if (hash.startsWith('#candidate/')) {
+    const parts = hash.slice(1).split('/');
+    const raceId = parts[1];
+    const name = decodeURIComponent(parts[2]);
+    if (raceId && name) {
+      state.openCandidate(raceId, name);
+    }
+  } else if (state.activeView.type === 'candidate') {
+    state.backToBallot();
+  }
+});
+
 // ============================================================
 // EVENT DELEGATION
 // ============================================================
@@ -121,6 +136,41 @@ app.addEventListener('click', (e) => {
       selectBtn.getAttribute('data-select-race')!,
       selectBtn.getAttribute('data-select-candidate')!,
     );
+    return;
+  }
+
+  // Open candidate view
+  const openCandidate = target.closest('[data-open-candidate]') as HTMLElement | null;
+  if (openCandidate) {
+    e.preventDefault();
+    state.openCandidate(
+      openCandidate.getAttribute('data-race')!,
+      openCandidate.getAttribute('data-candidate')!,
+    );
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  // Back to ballot
+  if (target.closest('[data-back-to-ballot]')) {
+    state.backToBallot();
+    return;
+  }
+
+  // Toggle position card (candidate view)
+  const togglePos = target.closest('[data-toggle-position]') as HTMLElement | null;
+  if (togglePos) {
+    state.togglePosition(togglePos.getAttribute('data-toggle-position')!);
+    return;
+  }
+
+  // Scroll to section (candidate view nav)
+  const scrollSection = target.closest('[data-scroll-section]') as HTMLElement | null;
+  if (scrollSection) {
+    e.preventDefault();
+    const sectionId = scrollSection.getAttribute('data-scroll-section')!;
+    const sectionEl = document.getElementById(sectionId);
+    if (sectionEl) sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
 
@@ -204,6 +254,8 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     if (state.ballotOpen) {
       state.setBallotOpen(false);
+    } else if (state.activeView.type === 'candidate') {
+      state.backToBallot();
     } else if (state.filterOpen) {
       state.setFilterOpen(null);
     }
