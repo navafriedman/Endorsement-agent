@@ -127,53 +127,65 @@ a:hover { text-decoration: underline; }
 }
 
 /* ============================================================
-   LOCATION CONTEXT — inline with election header
+   LOCATION CONTEXT — prominent address entry
    ============================================================ */
 .location-context {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  font-size: 13px;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  background: var(--bg-muted);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 15px;
   color: var(--text-muted);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
-.location-context svg { color: var(--red); flex-shrink: 0; }
+.location-context:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-light);
+}
+.location-context svg { color: var(--text-secondary); flex-shrink: 0; width: 18px; height: 18px; }
 .location-context.confirmed {
   color: var(--text-secondary);
   font-weight: 500;
+  padding: 8px 16px;
+  font-size: 14px;
+  background: var(--green-light);
+  border-color: transparent;
 }
 .location-context.confirmed svg { color: var(--green); }
 .location-input {
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 6px 14px;
-  font-size: 13px;
+  border: none;
+  padding: 0;
+  font-size: 15px;
   font-family: inherit;
   color: var(--text);
-  background: var(--bg);
-  width: 300px;
-  max-width: 60%;
-  transition: border-color 0.15s;
+  background: transparent;
+  flex: 1;
+  min-width: 0;
 }
-.location-input:focus { border-color: var(--red); outline: none; }
+.location-input:focus { outline: none; }
 .location-input::placeholder { color: var(--text-muted); }
 .location-go {
-  padding: 6px 14px;
+  padding: 8px 20px;
   border: none;
   border-radius: var(--radius-pill);
-  background: var(--red);
+  background: var(--text);
   color: white;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
+  flex-shrink: 0;
 }
-.location-go:hover { background: var(--red-hover); }
+.location-go:hover { background: #424242; }
 .location-change {
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -303,9 +315,9 @@ a:hover { text-decoration: underline; }
 .engage-section {
   padding: 28px 24px;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, var(--red-light) 0%, #FFF5F5 50%, var(--bg) 100%);
+  background: linear-gradient(135deg, #F5F5F5 0%, var(--bg-muted) 50%, var(--bg) 100%);
   border-radius: 12px;
-  border: 1px solid #F5D0CE;
+  border: 1px solid var(--border);
 }
 .engage-title {
   font-size: 20px;
@@ -339,13 +351,13 @@ a:hover { text-decoration: underline; }
   box-shadow: var(--shadow-sm);
 }
 .engage-card:hover {
-  border-color: var(--red);
+  border-color: var(--blue);
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 .engage-card.active {
-  border-color: var(--red);
-  background: var(--red-light);
+  border-color: var(--blue);
+  background: var(--blue-light);
 }
 .engage-card.done {
   border-color: var(--green);
@@ -380,7 +392,7 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 .engage-card-arrow {
-  color: var(--red);
+  color: var(--blue);
   font-size: 13px;
   font-weight: 600;
   margin-top: 4px;
