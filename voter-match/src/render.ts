@@ -330,30 +330,26 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
   const partyClass = c.party === 'Democratic' ? 'dem' : 'rep';
   const isTopMatch = rank === 0 && ms.score >= 60;
 
-  // Build a short description from candidate's top positions
-  const positionKeys = Object.keys(c.issues).slice(0, 3);
-  const desc = positionKeys.map(k => {
-    const pos = c.issues[k];
-    return pos ? pos.stances[0] : '';
-  }).filter(Boolean).join('. ') + '.';
-
   return `<div class="candidate-card ${isTopMatch ? 'top-match' : ''} ${isSel ? 'is-selected' : ''}">
-    ${renderMatchBadge(ms.score)}
-    <div class="candidate-avatar">${esc(c.initials)}</div>
-    <div class="candidate-name-link">${esc(c.name)} ${ICON_ARROW}</div>
-    <div class="candidate-meta-line">
-      <span class="party-dot ${partyClass}"></span>${esc(c.party)}${c.incumbent ? ' · Incumbent' : ''}
-    </div>
-    <p class="candidate-description">${esc(desc)}</p>
-    ${renderEndorsementRow(ms)}
-    <div class="candidate-actions">
-      <button type="button" class="select-btn ${isSel ? 'selected' : ''}" data-select-candidate="${esc(c.name)}" data-select-race="${esc(ms.race.id)}" aria-pressed="${isSel}">
-        ${isSel ? ICON_CHECK + ' Selected' : 'Select'}
-      </button>
-      <button type="button" class="details-btn" data-detail-toggle="${esc(key)}" aria-expanded="${isOpen}">
-        ${isOpen ? 'Less' : 'Details'}
-        <svg class="chevron-icon ${isOpen ? 'open' : ''}" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
+    <div class="card-inner">
+      <div class="card-header">
+        <div class="candidate-avatar">${esc(c.initials)}</div>
+        ${renderMatchBadge(ms.score)}
+      </div>
+      <h3 class="candidate-name">${esc(c.name)}</h3>
+      <div class="candidate-meta">
+        <span class="party-dot ${partyClass}"></span>
+        <span>${esc(c.party)}${c.incumbent ? ' · Incumbent' : ''}</span>
+      </div>
+      ${renderEndorsementRow(ms)}
+      <div class="candidate-actions">
+        <button type="button" class="select-btn ${isSel ? 'selected' : ''}" data-select-candidate="${esc(c.name)}" data-select-race="${esc(ms.race.id)}" aria-pressed="${isSel}">
+          ${isSel ? ICON_CHECK + ' Selected' : 'Select'}
+        </button>
+        <button type="button" class="details-link" data-detail-toggle="${esc(key)}" aria-expanded="${isOpen}">
+          ${isOpen ? 'Less info' : 'More info'}
+        </button>
+      </div>
     </div>
     ${renderDetailPanel(ms)}
   </div>`;

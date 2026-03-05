@@ -444,20 +444,6 @@ a:hover { text-decoration: underline; }
 .btn-text {
   background: none;
   border: none;
-  color: var(--text-muted);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 8px 0;
-}
-.btn-text:hover { color: var(--text); text-decoration: underline; }
-
-/* ============================================================
-   TEXT BUTTON
-   ============================================================ */
-.btn-text {
-  background: none;
-  border: none;
   color: var(--red);
   font-size: 14px;
   font-weight: 600;
@@ -465,6 +451,10 @@ a:hover { text-decoration: underline; }
   padding: 8px 0;
 }
 .btn-text:hover { text-decoration: underline; }
+
+/* ============================================================
+   TEXT BUTTON (override for filter panel Done button)
+   ============================================================ */
 
 /* ============================================================
    RACE SECTIONS — matches change.vote open layout
@@ -516,7 +506,7 @@ a:hover { text-decoration: underline; }
    ============================================================ */
 .candidate-grid {
   display: grid;
-  gap: 24px;
+  gap: 16px;
 }
 .candidate-grid.cols-1 { grid-template-columns: 1fr; }
 .candidate-grid.cols-2 { grid-template-columns: 1fr 1fr; }
@@ -524,25 +514,40 @@ a:hover { text-decoration: underline; }
 .candidate-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
 /* ============================================================
-   CANDIDATE CARD — open style like change.vote
+   CANDIDATE CARD — clean contained card like change.vote
    ============================================================ */
 .candidate-card {
-  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.candidate-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow);
 }
 .candidate-card.top-match {
-  background: var(--match-high-bg);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin: -16px;
+  border-color: var(--match-high);
+  border-width: 2px;
 }
 .candidate-card.is-selected {
-  background: var(--red-light);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin: -16px;
+  border-color: var(--red);
+  border-width: 2px;
 }
 
-/* Match score badge — floats on card */
+.card-inner {
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+/* Match score badge */
 .match-badge {
   display: inline-flex;
   align-items: center;
@@ -551,7 +556,7 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
   padding: 3px 10px;
   border-radius: var(--radius-pill);
-  margin-bottom: 12px;
+  white-space: nowrap;
 }
 .match-badge.high { background: var(--match-high-bg); color: var(--match-high); }
 .match-badge.mid { background: var(--match-mid-bg); color: var(--match-mid); }
@@ -565,82 +570,73 @@ a:hover { text-decoration: underline; }
 
 /* Avatar */
 .candidate-avatar {
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   background: var(--bg-muted);
   border: 2px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-muted);
-  margin: 0 auto 12px;
+  flex-shrink: 0;
 }
 
-/* Name + meta */
-.candidate-name-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  font-size: 15px;
+/* Name */
+.candidate-name {
+  font-size: 16px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  line-height: 1.3;
 }
-.candidate-name-link svg {
-  width: 14px;
-  height: 14px;
-  color: var(--text-muted);
-}
-.candidate-meta-line {
-  text-align: center;
+
+/* Meta */
+.candidate-meta {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   font-size: 13px;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
+
 .party-dot {
   display: inline-block;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   margin-right: 4px;
-  vertical-align: middle;
+  flex-shrink: 0;
 }
 .party-dot.dem { background: var(--dem); }
 .party-dot.rep { background: var(--rep); }
 .party-dot.lib { background: var(--lib); }
 
-/* Description */
-.candidate-description {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin-bottom: 14px;
-}
-
 /* Endorsements — small org avatars + text */
 .endorsement-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  min-height: 24px;
 }
 .endorsement-avatars {
   display: flex;
+  flex-shrink: 0;
 }
 .endorsement-avatar {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   border: 2px solid var(--bg);
   background: var(--bg-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   margin-left: -6px;
 }
 .endorsement-avatar:first-child { margin-left: 0; }
@@ -651,6 +647,7 @@ a:hover { text-decoration: underline; }
 .endorsement-text {
   font-size: 12px;
   color: var(--text-muted);
+  line-height: 1.4;
 }
 .endorsement-text strong {
   color: var(--text-secondary);
@@ -664,15 +661,16 @@ a:hover { text-decoration: underline; }
 /* Candidate actions */
 .candidate-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 14px;
-  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
 }
 .select-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 7px 16px;
+  padding: 8px 18px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
   background: var(--bg);
@@ -691,34 +689,24 @@ a:hover { text-decoration: underline; }
   border-color: var(--red);
   color: white;
 }
-.details-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 7px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--bg);
-  color: var(--text-muted);
+.details-link {
+  background: none;
+  border: none;
+  color: var(--red);
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s;
+  padding: 8px 0;
 }
-.details-btn:hover { color: var(--text-secondary); border-color: var(--border-hover); }
-.chevron-icon {
-  width: 14px;
-  height: 14px;
-  transition: transform 0.2s;
-}
-.chevron-icon.open { transform: rotate(180deg); }
+.details-link:hover { text-decoration: underline; }
 
 /* ============================================================
    MATCH DETAILS — expanded section
    ============================================================ */
 .match-details {
-  margin-top: 14px;
-  padding-top: 14px;
+  padding: 16px 20px 20px;
   border-top: 1px solid var(--border);
+  background: var(--bg-muted);
   text-align: left;
 }
 .detail-issue-row {
@@ -937,7 +925,7 @@ a:hover { text-decoration: underline; }
   font-size: 14px;
 }
 .ballot-summary-pick .candidate-avatar,
-.candidate-avatar.sm { width: 28px; height: 28px; font-size: 10px; margin: 0; }
+.candidate-avatar.sm { width: 28px; height: 28px; font-size: 10px; }
 .ballot-summary-change {
   background: none; border: none;
   color: var(--red); font-size: 12px; font-weight: 600;
