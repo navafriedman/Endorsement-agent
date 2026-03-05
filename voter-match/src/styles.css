@@ -315,19 +315,19 @@ a:hover { text-decoration: underline; }
 .engage-section {
   padding: 24px;
   margin-bottom: 8px;
-  background: linear-gradient(135deg, var(--purple) 0%, #9C27B0 100%);
+  background: var(--purple-light);
   border-radius: 12px;
-  border: none;
+  border: 1px solid #E1BEE7;
 }
 .engage-title {
   font-size: 18px;
   font-weight: 800;
-  color: #fff;
+  color: var(--purple-text);
   margin-bottom: 2px;
 }
 .engage-subtitle {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   margin-bottom: 16px;
 }
 .engage-cards {
@@ -340,32 +340,32 @@ a:hover { text-decoration: underline; }
   flex-direction: column;
   gap: 4px;
   padding: 14px 16px;
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border: 1.5px solid var(--border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--bg);
   cursor: pointer;
   transition: all 0.15s;
   text-align: left;
   font: inherit;
-  color: #fff;
-  box-shadow: none;
+  color: var(--text);
+  box-shadow: var(--shadow);
 }
 .engage-card:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: none;
-  transform: translateY(-1px);
+  border-color: var(--purple);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 .engage-card.active {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: var(--purple);
+  background: #F3E5F5;
 }
 .engage-card.done {
-  border-color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.25);
+  border-color: var(--green);
+  background: var(--green-light);
 }
 .engage-card.done:hover {
-  border-color: rgba(255, 255, 255, 0.6);
+  border-color: var(--green);
+  box-shadow: var(--shadow-md);
 }
 .engage-card-icon {
   font-size: 22px;
@@ -374,32 +374,32 @@ a:hover { text-decoration: underline; }
   font-size: 14px;
   font-weight: 700;
   display: block;
-  color: #fff;
+  color: var(--text);
 }
 .engage-card-desc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   display: block;
   line-height: 1.4;
 }
 .engage-card-status {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-muted);
   display: block;
   line-height: 1.4;
 }
 .engage-card-status.done {
-  color: #A5D6A7;
+  color: var(--green);
   font-weight: 600;
 }
 .engage-card-arrow {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--purple);
   font-size: 13px;
   font-weight: 600;
   margin-top: 2px;
 }
 .engage-card.done .engage-card-arrow {
-  color: #A5D6A7;
+  color: var(--green-text);
 }
 @media (max-width: 500px) {
   .engage-cards { grid-template-columns: 1fr; }

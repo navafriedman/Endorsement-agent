@@ -464,10 +464,10 @@ export function renderPage(): string {
 
   return `
     <div class="hero">
-      ${renderLocationContext()}
       <div class="hero-election-label">Texas Primary — March 3, 2026</div>
       <h1 class="hero-title">Review your ballot before you vote.</h1>
       <p class="hero-subtitle">Explore candidates matched to your priorities. Personalize below to see who aligns with what matters to you.</p>
+      ${renderLocationContext()}
     </div>
 
     ${renderFilterSection()}
