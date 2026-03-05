@@ -408,8 +408,17 @@ a:hover { text-decoration: underline; }
   color: var(--green-text);
 }
 @media (max-width: 500px) {
-  .engage-cards { grid-template-columns: 1fr; }
-  .engage-section { padding: 20px 16px; }
+  .engage-section { padding: 12px; margin-bottom: 4px; }
+  .engage-title { font-size: 15px; margin-bottom: 0; }
+  .engage-subtitle { display: none; }
+  .engage-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .engage-card { padding: 10px; gap: 2px; }
+  .engage-card-icon { font-size: 16px; }
+  .engage-card-label { font-size: 12px; }
+  .engage-card-desc { display: none; }
+  .engage-card-arrow { font-size: 12px; margin-top: 0; }
+  .location-context { padding: 8px 12px; margin-bottom: 8px; font-size: 13px; }
+  .location-go { padding: 5px 14px; font-size: 12px; }
 }
 
 /* ============================================================
@@ -1241,19 +1250,12 @@ a:hover { text-decoration: underline; }
   .candidate-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 320px)); }
 }
 @media (max-width: 500px) {
-  .hero { padding: 24px 0 16px; }
-  .hero-election-label { margin-bottom: 6px; font-size: 13px; }
-  .hero-title { font-size: 24px; margin-bottom: 8px; }
-  .hero-subtitle { font-size: 14px; margin-bottom: 0; }
-  .engage-section { padding: 16px; margin-bottom: 4px; }
-  .engage-title { font-size: 16px; }
-  .engage-subtitle { font-size: 13px; margin-bottom: 12px; }
-  .engage-card { padding: 10px 12px; gap: 2px; }
-  .engage-card-icon { font-size: 18px; }
-  .engage-card-label { font-size: 13px; }
-  .location-context { padding: 10px 14px; margin-bottom: 12px; font-size: 14px; }
-  .location-go { padding: 6px 16px; font-size: 13px; }
-  .race-section { margin-bottom: 16px; }
+  .hero { padding: 20px 0 12px; }
+  .hero-election-label { margin-bottom: 4px; font-size: 12px; }
+  .hero-title { font-size: 22px; margin-bottom: 6px; }
+  .hero-subtitle { font-size: 13px; line-height: 1.4; margin-bottom: 0; }
+  .race-section { margin-bottom: 12px; }
+  .race-section-header { margin-bottom: 12px; }
   .candidate-grid.cols-2,
   .candidate-grid.cols-3,
   .candidate-grid.cols-4 { grid-template-columns: minmax(0, 320px); }
