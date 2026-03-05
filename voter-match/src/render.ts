@@ -249,6 +249,24 @@ function renderMatchBadge(score: number): string {
 }
 
 // ============================================================
+// KEY POSITIONS — 1-2 top issue stances shown on card by default
+// ============================================================
+
+function renderKeyPositions(c: import('./types').Candidate): string {
+  const issueIds = Object.keys(c.issues).slice(0, 2);
+  if (issueIds.length === 0) return '';
+
+  const pills = issueIds.map(id => {
+    const pos = c.issues[id];
+    const issue = ISSUES.find(i => i.id === id);
+    if (!pos || !issue || pos.stances.length === 0) return '';
+    return `<span class="key-position-pill">${issue.icon} ${esc(pos.stances[0])}</span>`;
+  }).filter(Boolean).join('');
+
+  return `<div class="key-positions">${pills}</div>`;
+}
+
+// ============================================================
 // ENDORSEMENT ROW — with quote from selected endorser
 // ============================================================
 
@@ -420,6 +438,7 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
         <span class="party-dot ${partyClass}"></span>
         <span>${esc(c.party)}${c.incumbent ? ' · Incumbent' : ''}</span>
       </div>
+      ${renderKeyPositions(c)}
       ${renderEndorsementRow(ms)}
       <div class="candidate-actions">
         <button type="button" class="select-btn ${isSel ? 'selected' : ''}" data-select-candidate="${esc(c.name)}" data-select-race="${esc(ms.race.id)}" aria-pressed="${isSel}">
