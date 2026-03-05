@@ -153,19 +153,14 @@ function renderFilterSection(): string {
 function renderIssuesPanel(): string {
   if (state.filterOpen !== 'issues') return '';
 
-  const cards = ISSUES.map(issue => {
+  const rows = ISSUES.map(issue => {
     const stances = ISSUE_STANCES[issue.id];
     if (!stances) return '';
     const current = state.issueStances.get(issue.id);
-    const isDone = current !== undefined && current !== 'skip';
 
-    return `<div class="issue-card ${isDone ? 'done' : ''}">
-      <div class="issue-card-header">
-        <span class="issue-card-icon">${issue.icon}</span>
-        <span class="issue-card-name">${esc(issue.label)}</span>
-        ${current && current !== 'skip' ? `<button type="button" class="issue-card-clear" data-stance-issue="${issue.id}" data-stance-choice="skip" aria-label="Clear">&times;</button>` : ''}
-      </div>
-      <div class="issue-card-options">
+    return `<div class="issue-row">
+      <span class="issue-row-label"><span class="issue-row-icon">${issue.icon}</span>${esc(issue.label)}</span>
+      <div class="issue-row-options">
         <button type="button" class="stance-opt ${current === 'agree' ? 'sel-a' : ''}" data-stance-issue="${issue.id}" data-stance-choice="agree">
           ${esc(stances.shortProgressive)}
         </button>
@@ -181,10 +176,10 @@ function renderIssuesPanel(): string {
   return `<div class="filter-panel" id="issues-panel">
     <div class="filter-panel-header">
       <h3>Where do you stand?</h3>
-      <p>Tap the position closest to yours. Skip any you don't care about.</p>
+      <p>Tap the position closest to yours on each topic.</p>
     </div>
     ${doneCount > 0 ? `<div class="issue-progress">${doneCount} of ${ISSUES.length} answered</div>` : ''}
-    <div class="issue-grid">${cards}</div>
+    <div class="issue-list">${rows}</div>
     <div class="filter-panel-footer">
       <button type="button" class="btn-text" data-close-filter>Done</button>
     </div>
