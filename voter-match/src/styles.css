@@ -127,86 +127,57 @@ a:hover { text-decoration: underline; }
 }
 
 /* ============================================================
-   ADDRESS PROMPT — distinct section below hero
+   LOCATION CONTEXT — inline with election header
    ============================================================ */
-.address-prompt {
-  margin-top: 20px;
-  padding: 16px 20px;
-  background: var(--bg-muted);
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  max-width: 520px;
-}
-.address-prompt-label {
+.location-context {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 12px;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 10px;
+  color: var(--text-muted);
 }
-.address-prompt-label svg { color: var(--red); }
-.address-input-row {
-  display: flex;
-  gap: 8px;
+.location-context svg { color: var(--red); flex-shrink: 0; }
+.location-context.confirmed {
+  color: var(--text-secondary);
+  font-weight: 500;
 }
-.address-input {
-  flex: 1;
+.location-context.confirmed svg { color: var(--green); }
+.location-input {
   border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px 14px;
-  font-size: 14px;
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+  font-size: 13px;
   font-family: inherit;
   color: var(--text);
   background: var(--bg);
+  width: 300px;
+  max-width: 60%;
   transition: border-color 0.15s;
 }
-.address-input:focus { border-color: var(--red); outline: none; }
-.address-input::placeholder { color: var(--text-muted); }
-.address-lookup-btn {
-  padding: 10px 20px;
+.location-input:focus { border-color: var(--red); outline: none; }
+.location-input::placeholder { color: var(--text-muted); }
+.location-go {
+  padding: 6px 14px;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
   background: var(--red);
   color: white;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
   transition: background 0.15s;
 }
-.address-lookup-btn:hover { background: var(--red-hover); }
-
-/* Address confirmed state */
-.address-confirmed {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: var(--green-light);
-  border: 1px solid #A5D6A7;
-  border-radius: var(--radius);
-  max-width: 520px;
-}
-.address-confirmed svg { color: var(--green); flex-shrink: 0; }
-.address-confirmed-text {
-  font-size: 14px;
-  color: var(--green-text);
-  flex: 1;
-}
-.address-confirmed-text strong { color: var(--text); }
-.address-bar-change {
+.location-go:hover { background: var(--red-hover); }
+.location-change {
   background: none;
   border: none;
-  color: var(--green-text);
-  font-size: 13px;
-  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 12px;
   cursor: pointer;
   text-decoration: underline;
 }
-.address-bar-change:hover { color: var(--text); }
+.location-change:hover { color: var(--text); }
 
 /* ============================================================
    HERO — city skyline style
@@ -376,6 +347,14 @@ a:hover { text-decoration: underline; }
   border-color: var(--red);
   background: var(--red-light);
 }
+.engage-card.done {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+.engage-card.done:hover {
+  border-color: var(--green);
+  box-shadow: var(--shadow-md);
+}
 .engage-card-icon {
   font-size: 28px;
 }
@@ -390,9 +369,24 @@ a:hover { text-decoration: underline; }
   display: block;
   line-height: 1.4;
 }
+.engage-card-status {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: block;
+  line-height: 1.4;
+}
+.engage-card-status.done {
+  color: var(--green);
+  font-weight: 600;
+}
 .engage-card-arrow {
   color: var(--red);
+  font-size: 13px;
+  font-weight: 600;
   margin-top: 4px;
+}
+.engage-card.done .engage-card-arrow {
+  color: var(--green-text);
 }
 @media (max-width: 500px) {
   .engage-cards { grid-template-columns: 1fr; }

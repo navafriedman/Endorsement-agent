@@ -53,33 +53,28 @@ export function renderShell(): string {
 }
 
 // ============================================================
-// ADDRESS BAR — non-blocking, inviting
+// LOCATION CONTEXT — part of the election header
 // ============================================================
 
-function renderAddressBar(): string {
+function renderLocationContext(): string {
   const addr = state.address;
   if (addr) {
-    return `<div class="address-confirmed">
-      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <span class="address-confirmed-text">Showing ballot for <strong>${esc(addr)}</strong></span>
-      <button class="address-bar-change" id="address-change">Change</button>
+    return `<div class="location-context confirmed">
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>${esc(addr)}</span>
+      <button class="location-change" id="address-change">Change</button>
     </div>`;
   }
 
-  return `<div class="address-prompt">
-    <div class="address-prompt-label">
-      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Find your exact ballot
-    </div>
-    <div class="address-input-row">
-      <input type="text" class="address-input" id="address-input" placeholder="Enter your home address" autocomplete="street-address" />
-      <button class="address-lookup-btn" id="address-lookup">Look up</button>
-    </div>
+  return `<div class="location-context">
+    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <input type="text" class="location-input" id="address-input" placeholder="Enter your address for your exact ballot" autocomplete="street-address" />
+    <button class="location-go" id="address-lookup">Go</button>
   </div>`;
 }
 
 // ============================================================
-// FILTER ENGAGEMENT — inviting prompt vs compact toolbar
+// FILTER SECTION — always-visible engagement cards that evolve
 // ============================================================
 
 function renderFilterSection(): string {
@@ -87,29 +82,7 @@ function renderFilterSection(): string {
   const groupCount = state.selectedGroups.size;
   const hasPrefs = state.hasPreferences;
 
-  if (!hasPrefs) {
-    // Inviting engagement cards
-    return `<div class="engage-section">
-      <h2 class="engage-title">Personalize your ballot</h2>
-      <p class="engage-subtitle">Tell us what matters to you and we'll rank candidates by how well they match.</p>
-      <div class="engage-cards">
-        <button class="engage-card ${state.filterOpen === 'issues' ? 'active' : ''}" data-open-filter="issues">
-          <span class="engage-card-icon">⚖</span>
-          <span class="engage-card-label">Issues you care about</span>
-          <span class="engage-card-desc">Pick where you stand on key topics — takes 30 seconds</span>
-          <span class="engage-card-arrow">Get started →</span>
-        </button>
-        <button class="engage-card ${state.filterOpen === 'groups' ? 'active' : ''}" data-open-filter="groups">
-          <span class="engage-card-icon">🤝</span>
-          <span class="engage-card-label">Organizations you trust</span>
-          <span class="engage-card-desc">Select groups whose endorsements you value</span>
-          <span class="engage-card-arrow">Get started →</span>
-        </button>
-      </div>
-    </div>`;
-  }
-
-  // Compact active filter toolbar
+  // Build active tags for below the cards
   let activeTags = '';
   for (const [issueId, choice] of state.issueStances) {
     if (choice === 'skip') continue;
@@ -127,19 +100,50 @@ function renderFilterSection(): string {
     </button>`;
   }
 
-  return `<div class="filter-toolbar">
-    <div class="filter-toolbar-row">
-      <button class="filter-btn ${state.filterOpen === 'issues' ? 'active' : ''} ${issueCount > 0 ? 'has-selections' : ''}" data-open-filter="issues">
-        Issues ${issueCount > 0 ? `<span class="filter-count">${issueCount}</span>` : ''}
-        <svg class="filter-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+  // Issues card — evolves based on state
+  const issueCardClass = state.filterOpen === 'issues' ? 'active' : issueCount > 0 ? 'done' : '';
+  let issueStatus: string;
+  if (issueCount > 0) {
+    issueStatus = `<span class="engage-card-status done">${issueCount} issue${issueCount > 1 ? 's' : ''} selected ✓</span>`;
+  } else {
+    issueStatus = `<span class="engage-card-desc">Pick where you stand on key topics</span>`;
+  }
+  const issueCta = issueCount > 0
+    ? `<span class="engage-card-arrow">Edit →</span>`
+    : `<span class="engage-card-arrow">Get started →</span>`;
+
+  // Groups card — evolves based on state
+  const groupCardClass = state.filterOpen === 'groups' ? 'active' : groupCount > 0 ? 'done' : '';
+  let groupStatus: string;
+  if (groupCount > 0) {
+    groupStatus = `<span class="engage-card-status done">${groupCount} group${groupCount > 1 ? 's' : ''} selected ✓</span>`;
+  } else {
+    groupStatus = `<span class="engage-card-desc">Select groups whose endorsements you value</span>`;
+  }
+  const groupCta = groupCount > 0
+    ? `<span class="engage-card-arrow">Edit →</span>`
+    : `<span class="engage-card-arrow">Get started →</span>`;
+
+  return `<div class="engage-section">
+    <h2 class="engage-title">Personalize your ballot</h2>
+    <p class="engage-subtitle">Tell us what matters to you and we'll rank candidates by how well they match.</p>
+    <div class="engage-cards">
+      <button class="engage-card ${issueCardClass}" data-open-filter="issues">
+        <span class="engage-card-icon">⚖</span>
+        <span class="engage-card-label">Issues you care about</span>
+        ${issueStatus}
+        ${issueCta}
       </button>
-      <button class="filter-btn ${state.filterOpen === 'groups' ? 'active' : ''} ${groupCount > 0 ? 'has-selections' : ''}" data-open-filter="groups">
-        Trusted groups ${groupCount > 0 ? `<span class="filter-count">${groupCount}</span>` : ''}
-        <svg class="filter-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+      <button class="engage-card ${groupCardClass}" data-open-filter="groups">
+        <span class="engage-card-icon">🤝</span>
+        <span class="engage-card-label">Organizations you trust</span>
+        ${groupStatus}
+        ${groupCta}
       </button>
-      <button class="clear-link" id="clear-all">Clear all</button>
     </div>
-    ${activeTags ? `<div class="active-tags-row">${activeTags}</div>` : ''}
+    ${activeTags ? `<div class="active-tags-row">${activeTags}
+      ${hasPrefs ? '<button class="clear-link" id="clear-all">Clear all</button>' : ''}
+    </div>` : ''}
   </div>`;
 }
 
@@ -460,10 +464,10 @@ export function renderPage(): string {
 
   return `
     <div class="hero">
+      ${renderLocationContext()}
       <div class="hero-election-label">Texas Primary — March 3, 2026</div>
       <h1 class="hero-title">Review your ballot before you vote.</h1>
       <p class="hero-subtitle">Explore candidates matched to your priorities. Personalize below to see who aligns with what matters to you.</p>
-      ${renderAddressBar()}
     </div>
 
     ${renderFilterSection()}
