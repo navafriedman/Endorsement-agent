@@ -477,13 +477,19 @@ a:hover { text-decoration: underline; }
   gap: 8px;
 }
 @media (max-width: 500px) {
-  .issue-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
-  .issue-card { padding: 8px; }
-  .issue-card-header { margin-bottom: 6px; }
+  .issue-grid { grid-template-columns: 1fr; gap: 4px; }
+  .issue-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  .issue-card-header { margin-bottom: 0; flex: 1; min-width: 0; }
   .issue-card-icon { font-size: 14px; }
-  .issue-card-name { font-size: 12px; }
-  .issue-card-options { flex-direction: column; gap: 4px; }
-  .stance-opt { padding: 5px 6px; font-size: 11px; line-height: 1.2; }
+  .issue-card-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .issue-card-clear { width: 16px; height: 16px; font-size: 11px; }
+  .issue-card-options { gap: 4px; flex-shrink: 0; }
+  .stance-opt { padding: 5px 8px; font-size: 11px; line-height: 1.1; white-space: nowrap; }
 }
 .issue-card {
   border: 1px solid var(--border);
