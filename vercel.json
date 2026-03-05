@@ -1,4 +1,12 @@
 {
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "dist"
+  "buildCommand": "cd questionnaire-editor-ts && npm install && npm run build",
+  "outputDirectory": "questionnaire-editor-ts/public",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/questionnaire-editor-ts/api" }
+  ],
+  "functions": {
+    "questionnaire-editor-ts/api/index.ts": {
+      "runtime": "@vercel/node@3"
+    }
+  }
 }
