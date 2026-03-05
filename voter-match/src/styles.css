@@ -1123,13 +1123,13 @@ a:hover { text-decoration: underline; }
   padding: 10px 20px;
   border: none;
   border-radius: var(--radius);
-  background: var(--red);
+  background: var(--text);
   color: white;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
 }
-.ballot-bar-btn:hover { background: var(--red-hover); }
+.ballot-bar-btn:hover { background: #424242; }
 
 /* ============================================================
    BALLOT SUMMARY OVERLAY
@@ -1272,6 +1272,10 @@ a:hover { text-decoration: underline; }
   .candidate-grid.cols-3,
   .candidate-grid.cols-4 { grid-template-columns: minmax(0, 320px); }
   .ballot-summary { max-height: 90vh; }
+  .ballot-bar { padding: 10px 16px; }
+  .ballot-bar-info { font-size: 13px; gap: 6px; }
+  .ballot-bar-info svg { width: 16px; height: 16px; }
+  .ballot-bar-btn { padding: 8px 16px; font-size: 13px; }
 }
 
 /* ============================================================
