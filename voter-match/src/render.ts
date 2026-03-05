@@ -59,19 +59,20 @@ export function renderShell(): string {
 function renderAddressBar(): string {
   const addr = state.address;
   if (addr) {
-    return `<div class="address-bar">
-      <div class="address-bar-inner">
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span class="address-bar-text">Showing ballot for <strong>${esc(addr)}</strong></span>
-        <button class="address-bar-change" id="address-change">Change</button>
-      </div>
+    return `<div class="address-confirmed">
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="address-confirmed-text">Showing ballot for <strong>${esc(addr)}</strong></span>
+      <button class="address-bar-change" id="address-change">Change</button>
     </div>`;
   }
 
-  return `<div class="address-bar">
-    <div class="address-bar-inner">
+  return `<div class="address-prompt">
+    <div class="address-prompt-label">
       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <input type="text" class="address-input" id="address-input" placeholder="Enter your address to find your exact ballot" autocomplete="street-address" />
+      Find your exact ballot
+    </div>
+    <div class="address-input-row">
+      <input type="text" class="address-input" id="address-input" placeholder="Enter your home address" autocomplete="street-address" />
       <button class="address-lookup-btn" id="address-lookup">Look up</button>
     </div>
   </div>`;
@@ -90,19 +91,19 @@ function renderFilterSection(): string {
     // Inviting engagement cards
     return `<div class="engage-section">
       <h2 class="engage-title">Personalize your ballot</h2>
-      <p class="engage-subtitle">We'll rank candidates by how well they match your priorities.</p>
+      <p class="engage-subtitle">Tell us what matters to you and we'll rank candidates by how well they match.</p>
       <div class="engage-cards">
         <button class="engage-card ${state.filterOpen === 'issues' ? 'active' : ''}" data-open-filter="issues">
           <span class="engage-card-icon">⚖</span>
           <span class="engage-card-label">Issues you care about</span>
-          <span class="engage-card-desc">Pick where you stand on key topics</span>
-          <svg class="engage-card-arrow" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          <span class="engage-card-desc">Pick where you stand on key topics — takes 30 seconds</span>
+          <span class="engage-card-arrow">Get started →</span>
         </button>
         <button class="engage-card ${state.filterOpen === 'groups' ? 'active' : ''}" data-open-filter="groups">
           <span class="engage-card-icon">🤝</span>
           <span class="engage-card-label">Organizations you trust</span>
-          <span class="engage-card-desc">See who endorses each candidate</span>
-          <svg class="engage-card-arrow" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          <span class="engage-card-desc">Select groups whose endorsements you value</span>
+          <span class="engage-card-arrow">Get started →</span>
         </button>
       </div>
     </div>`;
@@ -458,12 +459,11 @@ export function renderPage(): string {
   }).join('');
 
   return `
-    ${renderAddressBar()}
-
     <div class="hero">
       <div class="hero-election-label">Texas Primary — March 3, 2026</div>
       <h1 class="hero-title">Review your ballot before you vote.</h1>
       <p class="hero-subtitle">Explore candidates matched to your priorities. Personalize below to see who aligns with what matters to you.</p>
+      ${renderAddressBar()}
     </div>
 
     ${renderFilterSection()}
