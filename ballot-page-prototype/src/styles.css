@@ -166,88 +166,100 @@ body {
 }
 
 /* ============================================================
-   BALLOT HEADLINE
+   HERO ADDRESS BLOCK
    ============================================================ */
-.ballot-headline {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.4px;
+.hero-address {
+  text-align: center;
+  padding: 40px 20px 36px;
+  margin: 0 -20px;
+}
+.hero-headline {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
   color: var(--text);
-  margin: 24px 0 0;
+  margin: 0 0 8px;
+  line-height: 1.2;
 }
-
-/* ============================================================
-   UNIFIED TOOLBAR (address + election + filters)
-   ============================================================ */
-.toolbar {
+.hero-sub {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0 auto 24px;
+  max-width: 480px;
+  line-height: 1.5;
+}
+.hero-address-form {
+  max-width: 560px;
+  margin: 0 auto;
+}
+.hero-input-wrap {
+  display: flex;
+  align-items: center;
   background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin: 20px 0 4px;
-  box-shadow: var(--shadow);
-  position: relative;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 6px 6px 6px 16px;
+  box-shadow: var(--shadow-md), 0 0 0 4px rgba(0,0,0,0.02);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.toolbar-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  flex-wrap: wrap;
+.hero-input-wrap:focus-within {
+  border-color: var(--blue);
+  box-shadow: var(--shadow-md), 0 0 0 4px rgba(59,130,246,0.12);
 }
-.toolbar-top {
-  border-bottom: 1px solid var(--border);
-  background: var(--bg);
-  border-radius: var(--radius) var(--radius) 0 0;
-}
-
-/* Address section */
-.toolbar-address {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-}
-.toolbar-addr-icon {
-  width: 15px;
-  height: 15px;
+.hero-addr-icon {
+  width: 20px;
+  height: 20px;
   color: var(--text-muted);
   flex-shrink: 0;
+  margin-right: 10px;
 }
-.toolbar-addr-input {
+.hero-addr-input {
   flex: 1;
-  min-width: 140px;
-  min-height: 36px;
-  padding: 6px 10px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  background: var(--surface-raised);
-  color: var(--text);
-  transition: border-color 0.15s;
-}
-.toolbar-addr-input::placeholder { color: var(--text-muted); }
-.toolbar-addr-input:focus-visible { outline-offset: 0; }
-.toolbar-addr-btn {
-  min-height: 36px;
-  padding: 6px 14px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 4px;
   border: none;
-  border-radius: var(--radius-sm);
-  background: var(--coral);
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s;
+  font-size: 16px;
+  background: transparent;
+  color: var(--text);
+  outline: none;
 }
-.toolbar-addr-btn:hover,
-.toolbar-addr-btn:focus-visible { background: var(--coral-hover); }
-
-.toolbar-address-confirmed {
+.hero-addr-input::placeholder { color: var(--text-muted); }
+.hero-addr-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-height: 44px;
+  padding: 8px 22px;
+  border: none;
+  border-radius: 10px;
+  background: var(--text);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+.hero-addr-btn:hover,
+.hero-addr-btn:focus-visible { background: #0f172a; }
+.hero-addr-btn:active { transform: scale(0.98); }
+.hero-addr-btn svg { flex-shrink: 0; }
+
+/* Confirmed address bar (compact, after submission) */
+.toolbar-confirmed-bar {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 16px 0 4px;
+  box-shadow: var(--shadow);
+  padding: 8px 14px;
+}
+.toolbar-confirmed-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
   font-weight: 500;
   color: var(--success);
@@ -265,7 +277,7 @@ body {
 }
 .toolbar-addr-change:hover { color: var(--text-secondary); }
 
-/* Election badge (compact, right-aligned) */
+/* Election badge */
 .toolbar-election {
   display: inline-flex;
   align-items: center;
@@ -275,6 +287,25 @@ body {
   color: var(--text-muted);
   white-space: nowrap;
   margin-left: auto;
+}
+
+/* ============================================================
+   UNIFIED TOOLBAR (filters)
+   ============================================================ */
+.toolbar {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 12px 0 4px;
+  box-shadow: var(--shadow);
+  position: relative;
+}
+.toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  flex-wrap: wrap;
 }
 
 /* Dropdown triggers */
@@ -1205,8 +1236,8 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
    ============================================================ */
 .donation-card {
   position: relative;
-  background: linear-gradient(135deg, #fef2f0 0%, #fef9f0 50%, #ede9fe 100%);
-  border: 1px solid rgba(240,100,73,0.18);
+  background: linear-gradient(135deg, #f0fdfa 0%, #f0fdf4 50%, #ede9fe 100%);
+  border: 1px solid rgba(45,212,191,0.18);
   border-radius: var(--radius);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
@@ -1239,7 +1270,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--coral);
+  background: var(--teal);
   color: white;
   display: flex;
   align-items: center;
@@ -1283,11 +1314,11 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   white-space: nowrap;
 }
 .donation-btn.primary {
-  background: var(--coral);
+  background: var(--teal);
   color: white;
   border: none;
 }
-.donation-btn.primary:hover { background: var(--coral-hover); }
+.donation-btn.primary:hover { background: #14b8a6; }
 .donation-btn.secondary {
   background: var(--surface-raised);
   color: var(--text-muted);
@@ -1389,18 +1420,18 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   color: var(--text);
 }
 .donation-amount-btn:hover {
-  border-color: var(--coral);
-  background: var(--coral-light);
-  color: var(--coral);
+  border-color: var(--teal);
+  background: var(--teal-light);
+  color: #0d9488;
 }
 .donation-amount-btn.featured {
-  border-color: var(--coral);
-  background: var(--coral);
+  border-color: var(--teal);
+  background: var(--teal);
   color: white;
 }
 .donation-amount-btn.featured:hover {
-  background: var(--coral-hover);
-  border-color: var(--coral-hover);
+  background: #14b8a6;
+  border-color: #14b8a6;
 }
 .donation-modal-skip {
   background: none;
@@ -1446,9 +1477,15 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 700px) {
-  /* Toolbar stacks */
-  .toolbar-top { flex-direction: column; align-items: stretch; gap: 6px; }
-  .toolbar-address { flex-wrap: wrap; }
+  /* Hero address */
+  .hero-address { padding: 28px 8px 24px; }
+  .hero-headline { font-size: 24px; }
+  .hero-sub { font-size: 14px; }
+  .hero-input-wrap { flex-direction: column; padding: 8px; border-radius: 12px; }
+  .hero-addr-icon { display: none; }
+  .hero-addr-input { min-height: 40px; font-size: 15px; width: 100%; }
+  .hero-addr-btn { width: 100%; justify-content: center; min-height: 42px; border-radius: 8px; }
+  .toolbar-confirmed-inner { flex-wrap: wrap; }
   .toolbar-election { margin-left: 0; }
 
   /* Stack candidates vertically */
@@ -1755,6 +1792,8 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   .header { position: static; border: none; box-shadow: none; }
   .print-guide-btn,
   .header-support-link,
+  .hero-address,
+  .toolbar-confirmed-bar,
   .toolbar,
   .filter-bar-hint,
   .filter-overlay,

@@ -277,9 +277,9 @@ app.addEventListener('click', (e) => {
 
   // Address change
   if (target.closest('#address-change')) {
-    const row = document.getElementById('toolbar-address')!;
+    const hero = document.getElementById('hero-address')!;
     const confirmed = document.getElementById('address-confirmed')!;
-    row.style.display = '';
+    hero.style.display = '';
     confirmed.style.display = 'none';
     const input = document.getElementById('address-input') as HTMLInputElement;
     input.focus();
@@ -296,11 +296,11 @@ if (addressForm) {
     const val = input.value.trim();
     if (val) {
       state.recordEngagement();
-      const row = document.getElementById('toolbar-address')!;
+      const hero = document.getElementById('hero-address')!;
       const confirmed = document.getElementById('address-confirmed')!;
       const confirmedText = document.getElementById('address-confirmed-text')!;
-      row.style.display = 'none';
-      confirmed.style.display = 'inline-flex';
+      hero.style.display = 'none';
+      confirmed.style.display = 'flex';
       confirmedText.textContent = val;
     }
   });

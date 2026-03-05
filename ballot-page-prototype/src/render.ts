@@ -155,20 +155,27 @@ export function renderShell(): string {
     </header>
 
     <main class="container" id="main">
-      <h1 class="ballot-headline">Build your ballot in seconds.</h1>
-      <div class="toolbar" id="toolbar" role="toolbar" aria-label="Ballot filters">
-        <div class="toolbar-row toolbar-top">
-          <form class="toolbar-address" id="toolbar-address" role="search" aria-label="Address lookup">
-            <svg class="toolbar-addr-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <div class="hero-address" id="hero-address">
+        <h1 class="hero-headline">What's on your ballot?</h1>
+        <p class="hero-sub">Enter your home address and we'll build a personalized, nonpartisan ballot guide — in seconds.</p>
+        <form class="hero-address-form" id="toolbar-address" role="search" aria-label="Address lookup">
+          <div class="hero-input-wrap">
+            <svg class="hero-addr-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
             <label for="address-input" class="sr-only">Your address</label>
-            <input type="text" class="toolbar-addr-input" id="address-input" placeholder="Enter your address...">
-            <button type="submit" class="toolbar-addr-btn" id="address-btn">Find ballot</button>
-          </form>
-          <div class="toolbar-address-confirmed" id="address-confirmed" style="display:none">
-            <svg class="toolbar-addr-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span id="address-confirmed-text"></span>
-            <button type="button" class="toolbar-addr-change" id="address-change">Change</button>
+            <input type="text" class="hero-addr-input" id="address-input" placeholder="123 Main St, Austin, TX 78701" autocomplete="street-address">
+            <button type="submit" class="hero-addr-btn" id="address-btn">
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              Find my ballot
+            </button>
           </div>
+        </form>
+      </div>
+
+      <div class="toolbar-confirmed-bar" id="address-confirmed" style="display:none">
+        <div class="toolbar-confirmed-inner">
+          <svg class="toolbar-addr-check" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <span id="address-confirmed-text"></span>
+          <button type="button" class="toolbar-addr-change" id="address-change">Change</button>
           <div class="toolbar-election" aria-hidden="true">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -179,6 +186,9 @@ export function renderShell(): string {
             TX Primary — Mar 3, 2026
           </div>
         </div>
+      </div>
+
+      <div class="toolbar" id="toolbar" role="toolbar" aria-label="Ballot filters">
         <div class="toolbar-row toolbar-filters">
           <div class="filter-dropdown" id="dropdown-filters">
             <button class="filter-dropdown-btn" data-dropdown="filters" aria-expanded="false" aria-haspopup="true" aria-controls="popover-filters">
