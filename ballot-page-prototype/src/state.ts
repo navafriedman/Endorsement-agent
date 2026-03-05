@@ -3,16 +3,34 @@ type Listener = () => void;
 export type AlignmentRating = 'agree' | 'disagree' | null;
 
 class AppState {
-  private _selectedIssues = new Set<string>();
+  private _selectedIssues = new Set<string>(['immigration', 'education', 'healthcare']);
   private _selectedIdentities = new Set<string>();
-  private _openDropdown: 'issues' | 'identity' | null = null;
-  private _expandedRows = new Set<string>(); // "candidateName:issueId"
-  private _alignments = new Map<string, AlignmentRating>(); // "candidateName:issueId" -> rating
+  private _openDropdown: 'filters' | null = null;
+  private _expandedRows = new Set<string>();
+  private _alignments = new Map<string, AlignmentRating>();
+  private _usingDefaultIssues = true;
+  private _donationDismissed = false;
+  private _engagementCount = 0;
+  private _selectedCandidates = new Map<string, string>(); // raceId -> candidateName
+  private _ballotSummaryOpen = false;
   private listeners: Listener[] = [];
 
   get selectedIssues(): ReadonlySet<string> { return this._selectedIssues; }
   get selectedIdentities(): ReadonlySet<string> { return this._selectedIdentities; }
   get openDropdown(): string | null { return this._openDropdown; }
+  get usingDefaultIssues(): boolean { return this._usingDefaultIssues; }
+  get donationDismissed(): boolean { return this._donationDismissed; }
+  get engagementCount(): number { return this._engagementCount; }
+  get ballotSummaryOpen(): boolean { return this._ballotSummaryOpen; }
+
+  recordEngagement(): void {
+    this._engagementCount++;
+  }
+
+  dismissDonation(): void {
+    this._donationDismissed = true;
+    this.notify();
+  }
 
   subscribe(listener: Listener): () => void {
     this.listeners.push(listener);
@@ -26,6 +44,8 @@ class AppState {
   }
 
   toggleIssue(id: string): void {
+    this._usingDefaultIssues = false;
+    this._engagementCount++;
     if (this._selectedIssues.has(id)) {
       this._selectedIssues.delete(id);
     } else {
@@ -35,6 +55,7 @@ class AppState {
   }
 
   toggleIdentity(id: string): void {
+    this._engagementCount++;
     if (this._selectedIdentities.has(id)) {
       this._selectedIdentities.delete(id);
     } else {
@@ -43,12 +64,12 @@ class AppState {
     this.notify();
   }
 
-  setDropdown(which: 'issues' | 'identity' | null): void {
+  setDropdown(which: 'filters' | null): void {
     this._openDropdown = which;
     this.notify();
   }
 
-  toggleDropdown(which: 'issues' | 'identity'): void {
+  toggleDropdown(which: 'filters'): void {
     this._openDropdown = this._openDropdown === which ? null : which;
     this.notify();
   }
@@ -58,6 +79,7 @@ class AppState {
     this._selectedIdentities.clear();
     this._alignments.clear();
     this._expandedRows.clear();
+    this._usingDefaultIssues = false;
     this.notify();
   }
 
@@ -76,6 +98,35 @@ class AppState {
     } else {
       this._expandedRows.add(key);
     }
+    this.notify();
+  }
+
+  // Candidate selection per race
+  getSelectedCandidate(raceId: string): string | null {
+    return this._selectedCandidates.get(raceId) ?? null;
+  }
+
+  selectCandidate(raceId: string, candidateName: string): void {
+    const current = this._selectedCandidates.get(raceId);
+    if (current === candidateName) {
+      this._selectedCandidates.delete(raceId);
+    } else {
+      this._selectedCandidates.set(raceId, candidateName);
+    }
+    this._engagementCount++;
+    this.notify();
+  }
+
+  get selectedCandidateCount(): number {
+    return this._selectedCandidates.size;
+  }
+
+  get selectedCandidates(): ReadonlyMap<string, string> {
+    return this._selectedCandidates;
+  }
+
+  setBallotSummaryOpen(open: boolean): void {
+    this._ballotSummaryOpen = open;
     this.notify();
   }
 
@@ -98,29 +149,12 @@ class AppState {
     if (current === rating) {
       this._alignments.delete(key);
     } else {
+      if (!current) this._engagementCount++;
       this._alignments.set(key, rating);
     }
     this.notify();
   }
 
-  // Calculate alignment score for a candidate
-  getAlignmentScore(candidateName: string): { score: number; total: number } | null {
-    let agrees = 0;
-    let disagrees = 0;
-    let total = 0;
-
-    for (const [key, rating] of this._alignments) {
-      if (key.startsWith(candidateName + ':')) {
-        total++;
-        if (rating === 'agree') agrees++;
-        if (rating === 'disagree') disagrees++;
-      }
-    }
-
-    if (total === 0) return null;
-    const score = Math.round(((agrees) / total) * 100);
-    return { score, total };
-  }
 }
 
 export const state = new AppState();

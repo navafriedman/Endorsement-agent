@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd questionnaire-editor-ts && npm install && npm run build",
-  "outputDirectory": "questionnaire-editor-ts/public",
+  "buildCommand": "cd voter-match && npm install && npm run build",
+  "outputDirectory": "voter-match/dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/questionnaire-editor-ts/api" }
   ],

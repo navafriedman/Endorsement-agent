@@ -1,0 +1,1001 @@
+/* ============================================================
+   DESIGN TOKENS — matches change.vote
+   ============================================================ */
+:root {
+  --red: #E53935;
+  --red-hover: #C62828;
+  --red-light: #FFEBEE;
+  --red-text: #B71C1C;
+  --blue: #1976D2;
+  --blue-light: #E3F2FD;
+  --blue-text: #0D47A1;
+  --green: #2E7D32;
+  --green-light: #E8F5E9;
+  --green-text: #1B5E20;
+  --purple: #7B1FA2;
+  --purple-light: #F3E5F5;
+  --purple-text: #4A148C;
+  --amber: #F57F17;
+  --amber-light: #FFF8E1;
+  --gold: #FFD600;
+  --bg: #FFFFFF;
+  --bg-muted: #FAFAFA;
+  --border: #EEEEEE;
+  --border-hover: #E0E0E0;
+  --text: #212121;
+  --text-secondary: #616161;
+  --text-muted: #9E9E9E;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --radius-pill: 24px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --max-width: 960px;
+
+  /* Party colors */
+  --dem: #1976D2;
+  --dem-light: #E3F2FD;
+  --rep: #E53935;
+  --rep-light: #FFEBEE;
+  --lib: #FBC02D;
+  --lib-light: #FFF9C4;
+
+  /* Match colors */
+  --match-high: #2E7D32;
+  --match-high-bg: #E8F5E9;
+  --match-mid: #F57F17;
+  --match-mid-bg: #FFF8E1;
+  --match-low: #9E9E9E;
+  --match-low-bg: #FAFAFA;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: var(--text); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+*:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ============================================================
+   HEADER — minimal top bar like change.vote
+   ============================================================ */
+.header {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+.header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--red);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+  text-decoration: none;
+}
+.logo-mark:hover { text-decoration: none; background: var(--red-hover); }
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.header-nav-link {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.header-menu-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  padding: 4px;
+}
+
+/* ============================================================
+   HERO — city skyline style
+   ============================================================ */
+.hero {
+  padding: 48px 0 32px;
+  position: relative;
+}
+.hero-election-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+.hero-title {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  max-width: 560px;
+  margin-bottom: 16px;
+}
+.hero-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+/* ============================================================
+   STEP INDICATOR — subtle progress
+   ============================================================ */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-hover);
+  transition: all 0.2s;
+}
+.step-dot.active { background: var(--red); width: 24px; border-radius: 4px; }
+.step-dot.done { background: var(--green); }
+.step-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+/* ============================================================
+   FILTER TABS — matching change.vote tab bar
+   ============================================================ */
+.filter-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+.filter-tab {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.filter-tab:hover { color: var(--text); }
+.filter-tab.active {
+  color: var(--text);
+  border-bottom-color: var(--red);
+  font-weight: 600;
+}
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+.progress-container {
+  margin-bottom: 32px;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.progress-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.progress-track {
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--red);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* ============================================================
+   STANCE CARDS — issue selection (Step 1)
+   ============================================================ */
+.stance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stance-card {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+}
+.stance-card:last-child { border-bottom: none; }
+.stance-card.done { opacity: 0.55; }
+.stance-card.done:hover { opacity: 1; }
+
+.stance-card-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.stance-card-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.stance-card-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+.stance-card-num {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.stance-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stance-btn {
+  position: relative;
+  display: block;
+  text-align: left;
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.15s;
+  font: inherit;
+  color: var(--text);
+}
+.stance-btn:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-muted);
+}
+.stance-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.stance-btn.selected-agree {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+.stance-btn.selected-agree .stance-text { color: var(--green-text); }
+.stance-btn.selected-disagree {
+  border-color: var(--red);
+  background: var(--red-light);
+}
+.stance-btn.selected-disagree .stance-text { color: var(--red-text); }
+
+.stance-skip {
+  display: block;
+  margin: 10px auto 0;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+.stance-skip:hover { color: var(--text-secondary); text-decoration: underline; }
+
+/* ============================================================
+   GROUP PILLS — organization selection (Step 2)
+   ============================================================ */
+.group-section {
+  margin-bottom: 28px;
+}
+.group-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.group-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--bg);
+  color: var(--text-secondary);
+  user-select: none;
+  transition: all 0.15s;
+}
+.pill:hover { border-color: var(--border-hover); background: var(--bg-muted); }
+.pill.selected {
+  border-color: var(--red);
+  background: var(--red-light);
+  color: var(--red-text);
+}
+.pill-icon { font-size: 14px; line-height: 1; }
+.pill-count {
+  font-size: 11px;
+  background: var(--bg-muted);
+  padding: 1px 6px;
+  border-radius: 8px;
+  color: var(--text-muted);
+}
+.pill.selected .pill-count {
+  background: rgba(229,57,53,0.12);
+  color: var(--red-text);
+}
+
+/* ============================================================
+   STEP NAVIGATION
+   ============================================================ */
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 0;
+  margin-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--red);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-primary:hover:not(:disabled) { background: var(--red-hover); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-secondary:hover { border-color: var(--border-hover); background: var(--bg-muted); }
+
+.btn-sm { padding: 8px 16px; font-size: 13px; }
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 0;
+}
+.btn-text:hover { color: var(--text); text-decoration: underline; }
+
+/* ============================================================
+   RESULTS — Section headers like change.vote
+   ============================================================ */
+.results-header {
+  padding: 40px 0 8px;
+}
+.results-title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
+}
+.results-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 560px;
+  margin-bottom: 16px;
+}
+.results-subtitle strong { color: var(--text); }
+.results-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+/* ============================================================
+   RACE SECTIONS — matches change.vote open layout
+   ============================================================ */
+.race-section {
+  padding: 28px 0;
+  border-top: 1px solid var(--border);
+}
+.race-section:first-of-type { border-top: none; }
+
+.race-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.race-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.race-type-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  margin-left: 10px;
+}
+.race-type-badge.federal { background: var(--blue-light); color: var(--blue-text); }
+.race-type-badge.state { background: var(--amber-light); color: #E65100; }
+.race-type-badge.local { background: var(--green-light); color: var(--green-text); }
+.race-compare-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+  cursor: pointer;
+  background: none;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.race-compare-link:hover { text-decoration: underline; }
+
+/* ============================================================
+   CANDIDATE GRID — horizontal cards like change.vote
+   ============================================================ */
+.candidate-grid {
+  display: grid;
+  gap: 24px;
+}
+.candidate-grid.cols-1 { grid-template-columns: 1fr; }
+.candidate-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+.candidate-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.candidate-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+/* ============================================================
+   CANDIDATE CARD — open style like change.vote
+   ============================================================ */
+.candidate-card {
+  position: relative;
+}
+.candidate-card.top-match {
+  background: var(--match-high-bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: -16px;
+}
+
+/* Match score badge — floats on card */
+.match-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 12px;
+}
+.match-badge.high { background: var(--match-high-bg); color: var(--match-high); }
+.match-badge.mid { background: var(--match-mid-bg); color: var(--match-mid); }
+.match-badge.low { background: var(--match-low-bg); color: var(--match-low); }
+.match-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Avatar */
+.candidate-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--bg-muted);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: 0 auto 12px;
+}
+
+/* Name + meta */
+.candidate-name-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.candidate-name-link svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+}
+.candidate-meta-line {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.party-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.party-dot.dem { background: var(--dem); }
+.party-dot.rep { background: var(--rep); }
+.party-dot.lib { background: var(--lib); }
+
+/* Description */
+.candidate-description {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+
+/* Endorsements — small org avatars + text */
+.endorsement-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.endorsement-avatars {
+  display: flex;
+}
+.endorsement-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--bg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  margin-left: -6px;
+}
+.endorsement-avatar:first-child { margin-left: 0; }
+.endorsement-avatar.matched {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+.endorsement-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.endorsement-text strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.endorsement-text .match-highlight {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Candidate actions */
+.candidate-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+  justify-content: center;
+}
+.select-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.select-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+.select-btn.selected {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+}
+.details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.details-btn:hover { color: var(--text-secondary); border-color: var(--border-hover); }
+.chevron-icon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s;
+}
+.chevron-icon.open { transform: rotate(180deg); }
+
+/* ============================================================
+   MATCH DETAILS — expanded section
+   ============================================================ */
+.match-details {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+.detail-issue-row {
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+.detail-issue-row.match { background: var(--green-light); }
+.detail-issue-row.mismatch { background: var(--red-light); }
+.detail-issue-row.neutral { background: var(--bg-muted); }
+
+.detail-issue-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.detail-issue-icon { font-size: 14px; }
+.detail-issue-label {
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1;
+}
+.detail-match-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.detail-match-tag.agree { background: #C8E6C9; color: var(--green-text); }
+.detail-match-tag.disagree { background: #FFCDD2; color: var(--red-text); }
+
+.detail-stances {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+.stance-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.detail-position {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.detail-source {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.detail-other-issues {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.detail-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.detail-endorsements {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.detail-endorse-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.endorse-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.endorse-chip.matched {
+  background: var(--green-light);
+  color: var(--green-text);
+  border-color: var(--green);
+}
+
+/* ============================================================
+   FLOATING BALLOT BAR
+   ============================================================ */
+.ballot-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+  padding: 12px 24px;
+}
+.ballot-bar-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ballot-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.ballot-bar-info svg { color: var(--green); }
+.ballot-bar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--red);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ballot-bar-btn:hover { background: var(--red-hover); }
+
+/* ============================================================
+   BALLOT SUMMARY OVERLAY
+   ============================================================ */
+.ballot-summary-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.ballot-summary {
+  background: var(--bg);
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.2s ease;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.ballot-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.ballot-summary-header h2 { font-size: 18px; font-weight: 700; flex: 1; }
+.ballot-summary-count {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.ballot-summary-close {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-muted);
+  font-size: 18px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ballot-summary-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+}
+.ballot-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.ballot-summary-row:last-child { border-bottom: none; }
+.ballot-summary-race-name { font-size: 14px; font-weight: 600; }
+.ballot-summary-undecided { font-size: 13px; color: var(--text-muted); font-style: italic; }
+.ballot-summary-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.ballot-summary-pick .candidate-avatar { width: 28px; height: 28px; font-size: 10px; margin: 0; }
+.ballot-summary-change {
+  background: none; border: none;
+  color: var(--red); font-size: 12px; font-weight: 600;
+  cursor: pointer;
+}
+.ballot-summary-change:hover { text-decoration: underline; }
+
+.ballot-summary-footer {
+  display: flex;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  justify-content: flex-end;
+}
+
+/* ============================================================
+   FOOTER — matches change.vote
+   ============================================================ */
+.footer {
+  padding: 40px 24px;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  margin-top: 48px;
+}
+.footer a { color: var(--red); }
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.footer-links {
+  display: flex;
+  gap: 16px;
+}
+.footer-links a {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.footer-links a:hover { color: var(--text); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 700px) {
+  .hero-title { font-size: 28px; }
+  .stance-options { grid-template-columns: 1fr; }
+  .candidate-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+  .candidate-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 500px) {
+  .candidate-grid.cols-2,
+  .candidate-grid.cols-3,
+  .candidate-grid.cols-4 { grid-template-columns: 1fr; }
+  .results-title { font-size: 26px; }
+  .ballot-summary { max-height: 90vh; }
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  .header, .footer, .step-nav, .ballot-bar, .ballot-summary-overlay,
+  .results-toolbar, .candidate-actions { display: none !important; }
+  .container { max-width: 100%; }
+  .candidate-card.top-match { background: #f5f5f5; }
+}
