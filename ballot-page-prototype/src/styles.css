@@ -580,9 +580,14 @@ body {
   overflow: hidden;
 }
 .inline-issue + .inline-issue { margin-top: 5px; }
+.inline-issue.issue-highlighted {
+  border-left: 3px solid var(--issue-accent, var(--border));
+  background: var(--issue-bg, transparent);
+}
 .inline-issue.rated-agree { background: var(--agree-bg); border-color: var(--agree-border); }
 .inline-issue.rated-disagree { background: var(--disagree-bg); border-color: var(--disagree-border); }
 .inline-issue.expanded { border-color: var(--border-hover); }
+.inline-issue.expanded.issue-highlighted { border-left: 3px solid var(--issue-accent, var(--border-hover)); }
 
 /* Clickable issue header row */
 button.inline-issue-header {
