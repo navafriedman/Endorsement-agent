@@ -273,15 +273,32 @@ function renderMatchBadge(score: number): string {
 // KEY POSITIONS — 1-2 top issue stances shown on card by default
 // ============================================================
 
-function renderKeyPositions(c: import('./types').Candidate): string {
-  const issueIds = Object.keys(c.issues).slice(0, 2);
-  if (issueIds.length === 0) return '';
+function renderKeyPositions(c: import('./types').Candidate, ms: MatchScore): string {
+  const allIssueIds = Object.keys(c.issues);
+  if (allIssueIds.length === 0) return '';
+
+  // Prioritize: matched issues first, then other rated issues, then unrated
+  const matchedAgree = new Set(ms.matchedIssues.filter(m => m.stance === 'agree').map(m => m.issueId));
+  const matchedDisagree = new Set(ms.matchedIssues.filter(m => m.stance === 'disagree').map(m => m.issueId));
+
+  const sorted = [...allIssueIds].sort((a, b) => {
+    const aPri = matchedAgree.has(a) ? 0 : matchedDisagree.has(a) ? 1 : 2;
+    const bPri = matchedAgree.has(b) ? 0 : matchedDisagree.has(b) ? 1 : 2;
+    return aPri - bPri;
+  });
+
+  const issueIds = sorted.slice(0, 2);
 
   const pills = issueIds.map(id => {
     const pos = c.issues[id];
     const issue = ISSUES.find(i => i.id === id);
     if (!pos || !issue || pos.stances.length === 0) return '';
-    return `<span class="key-position-pill">${issue.icon} ${esc(pos.stances[0])}</span>`;
+    const colors = ISSUE_COLORS[id];
+    const matchClass = matchedAgree.has(id) ? 'match' : matchedDisagree.has(id) ? 'mismatch' : '';
+    return `<span class="key-position-pill ${matchClass}" style="background:${colors.bg};color:${colors.text}">
+      <span class="key-position-issue">${issue.icon} ${esc(issue.label)}</span>
+      <span class="key-position-stance">${esc(pos.stances[0])}</span>
+    </span>`;
   }).filter(Boolean).join('');
 
   return `<div class="key-positions">${pills}</div>`;
@@ -459,7 +476,7 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
         <span class="party-dot ${partyClass}"></span>
         <span>${esc(c.party)}${c.incumbent ? ' · Incumbent' : ''}</span>
       </div>
-      ${renderKeyPositions(c)}
+      ${renderKeyPositions(c, ms)}
       ${renderEndorsementRow(ms)}
       <div class="candidate-actions">
         <button type="button" class="select-btn ${isSel ? 'selected' : ''}" data-select-candidate="${esc(c.name)}" data-select-race="${esc(ms.race.id)}" aria-pressed="${isSel}">
