@@ -1,4 +1,4 @@
 {
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "dist"
+  "buildCommand": "cd ballot-page-prototype && npm install && npm run build",
+  "outputDirectory": "ballot-page-prototype/dist"
 }
