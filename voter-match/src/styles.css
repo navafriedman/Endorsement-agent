@@ -431,13 +431,12 @@ a:hover { text-decoration: underline; }
   .engage-title { font-size: 14px; margin-bottom: 8px; }
   .engage-subtitle { display: none; }
   .engage-cards { grid-template-columns: 1fr 1fr; gap: 6px; }
-  .engage-card { padding: 8px 10px; gap: 0; flex-direction: row; align-items: center; }
-  .engage-card-title { flex: 1; min-width: 0; }
+  .engage-card { padding: 8px 10px; gap: 2px; }
   .engage-card-icon { font-size: 14px; }
   .engage-card-label { font-size: 12px; }
   .engage-card-desc { display: none; }
   .engage-card-status { display: none; }
-  .engage-card-arrow { font-size: 11px; margin-top: 0; flex-shrink: 0; }
+  .engage-card-arrow { font-size: 11px; margin-top: 0; }
   .active-tags-row { margin-top: 6px; gap: 3px; }
   .active-tag { height: 24px; font-size: 11px; padding: 0 8px; }
   .location-context { padding: 8px 12px; margin-bottom: 8px; font-size: 13px; }
