@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd questionnaire-editor-ts && npm install && npm run build",
+  "buildCommand": "cd ballot-page-prototype && npm install && npx vite build && cp dist/index.html ../questionnaire-editor-ts/public/ballot/index.html && cd ../questionnaire-editor-ts && npm install && npm run build",
   "outputDirectory": "questionnaire-editor-ts/public",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/questionnaire-editor-ts/api" }
