@@ -1318,9 +1318,9 @@ a:hover { text-decoration: underline; }
   .candidate-grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 320px)); }
 }
 @media (max-width: 500px) {
-  .hero { padding: 10px 0 4px; }
-  .hero-election-label { margin-bottom: 2px; font-size: 11px; }
-  .hero-title { font-size: 20px; margin-bottom: 4px; }
+  .hero { padding: 20px 0 16px; }
+  .hero-election-label { margin-bottom: 6px; font-size: 12px; }
+  .hero-title { font-size: 24px; margin-bottom: 0; }
   .hero-subtitle { display: none; }
   .race-section { margin-bottom: 12px; }
   .race-section-header { margin-bottom: 12px; }
