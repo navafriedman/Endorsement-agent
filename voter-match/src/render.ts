@@ -130,12 +130,12 @@ function renderFilterSection(): string {
     ${renderLocationContext()}
     <div class="engage-cards">
       <button class="engage-card ${issueCardClass}" data-open-filter="issues">
-        <span class="engage-card-title"><span class="engage-card-icon">⚖</span> <span class="engage-card-label">Issues you care about</span></span>
+        <span class="engage-card-title"><span class="engage-card-icon">⚖</span> <span class="engage-card-label">Issues</span></span>
         ${issueStatus}
         ${issueCta}
       </button>
       <button class="engage-card ${groupCardClass}" data-open-filter="groups">
-        <span class="engage-card-title"><span class="engage-card-icon">🤝</span> <span class="engage-card-label">Organizations you trust</span></span>
+        <span class="engage-card-title"><span class="engage-card-icon">🤝</span> <span class="engage-card-label">Organizations</span></span>
         ${groupStatus}
         ${groupCta}
       </button>
