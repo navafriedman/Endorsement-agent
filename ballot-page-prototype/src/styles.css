@@ -1,66 +1,96 @@
 /* ============================================================
-   DESIGN TOKENS
+   DESIGN TOKENS — Figma Design System
    ============================================================ */
-:root {
-  --coral: #F06449;
-  --coral-hover: #E05339;
-  --coral-light: #fef2f0;
-  --coral-text: #c4391f;       /* darkened for contrast on --coral-light */
-  --purple: #8B5CF6;
-  --purple-light: #ede9fe;
-  --purple-text: #6d28d9;     /* darkened for contrast on --purple-light */
-  --teal: #2DD4BF;
-  --teal-light: #ccfbf1;
-  --blue: #3B82F6;
-  --blue-light: #dbeafe;
-  --amber: #F59E0B;
-  --amber-light: #fef3c7;
-  --green: #10B981;
-  --green-light: #d1fae5;
-  --rose: #F43F5E;
-  --rose-light: #ffe4e6;
-  --dem: #3B82F6;
-  --dem-light: #eff6ff;
-  --dem-border: #bfdbfe;
-  --rep: #EF4444;
-  --rep-light: #fef2f2;
-  --rep-border: #fecaca;
-  --bg: #f8fafc;
+@import url('https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&family=Merriweather:ital@1&display=swap');
 
-  --border: #e2e8f0;
-  --border-hover: #cbd5e1;
-  --text: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #64748b;      /* darkened from #94a3b8 for 4.6:1 contrast */
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
-  --primary: var(--coral);
-  --surface-raised: #ffffff;
-  --surface-inset: #f8fafc;
+:root {
+  /* Primary palette */
+  --text-primary: #403A49;
+  --text-secondary: #766F81;
+  --text-muted: #918A9D;
+  --text-dark: #1E1A26;
+
+  /* Blues */
+  --blue: #0D4DFB;
+  --blue-badge: #4771FF;
+  --blue-dark: #003CD6;
+  --blue-light: #CDDBFF;
+  --blue-bg: #F0F7FF;
+
+  /* Greens */
+  --green: #1AA11C;
+  --green-score: #04B54E;
+  --green-score-text: #0F8110;
+  --green-light: #E6F7E6;
+
+  /* Yellows */
+  --yellow-cta: #FFDB00;
+  --yellow-submit: #FFD000;
+  --yellow-hover: #E6C400;
+
+  /* Reds */
+  --red-logo: #F34E49;
+  --red-light: #FFE8E8;
+
+  /* Purples */
+  --purple-media: #BE46FF;
+  --purple-dark: #5E5768;
+  --purple-light: #F3E8FF;
+
+  /* Neutrals & Borders */
+  --border: #E1DDE9;
   --border-soft: rgba(0,0,0,0.06);
-  --agree-bg: #f0fdf4;
-  --agree-border: #bbf7d0;
-  --agree-text: #15803d;
-  --agree-icon: #16a34a;
-  --disagree-bg: #fffbeb;
-  --disagree-border: #fde68a;
-  --disagree-text: #c2410c;
-  --disagree-icon: #ea580c;
-  --success: #059669;
-  --copied-border: #22c55e;
-  --copied-text: #16a34a;
+  --bg: #FFFFFF;
+  --bg-card: #F9FAFB;
+  --bg-footer: #F0F7FF;
+  --avatar-bg: #918A9D;
+  --muted: #BDB7C9;
+  --progress-track: #D0CBDA;
+
+  /* Party colors */
+  --dem: #0D4DFB;
+  --dem-light: #CDDBFF;
+  --dem-border: #4771FF;
+  --rep: #F34E49;
+  --rep-light: #FFE8E8;
+  --rep-border: #F34E49;
+
+  /* Alignment */
+  --agree-bg: #E6F7E6;
+  --agree-border: #1AA11C;
+  --agree-text: #0F8110;
+  --agree-icon: #1AA11C;
+  --disagree-bg: #FFE8E8;
+  --disagree-border: #F34E49;
+  --disagree-text: #C83C38;
+  --disagree-icon: #F34E49;
+
+  /* Radii */
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-pill: 24px;
+
+  /* Shadows */
+  --shadow: 0 1px 3px rgba(64, 58, 73, 0.08);
+  --shadow-md: 0 4px 12px rgba(64, 58, 73, 0.08);
+  --shadow-lg: 0 8px 30px rgba(64, 58, 73, 0.12);
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 40px;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
-  color: var(--text);
+  font-family: 'Commissioner', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.43;
+  color: var(--text-primary);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -70,7 +100,7 @@ body {
    GLOBAL FOCUS INDICATOR
    ============================================================ */
 *:focus-visible {
-  outline: 2px solid var(--coral);
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
 
@@ -81,7 +111,7 @@ body {
   position: absolute;
   left: -9999px;
   top: 0;
-  background: var(--coral);
+  background: var(--blue);
   color: white;
   padding: 8px 16px;
   font-weight: 600;
@@ -110,15 +140,15 @@ body {
   border: 0;
 }
 
-.container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+.container { max-width: 960px; margin: 0 auto; padding: 0 var(--space-xl); }
 
 /* ============================================================
    HEADER
    ============================================================ */
 .header {
-  background: var(--surface-raised);
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
-  padding: 14px 0;
+  padding: 12px 0;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -129,15 +159,17 @@ body {
   gap: 12px;
 }
 .logo {
-  font-size: 18px;
+  font-family: 'Commissioner', sans-serif;
+  font-size: 20px;
   font-weight: 700;
-  color: var(--coral);
+  color: var(--red-logo);
   text-decoration: none;
+  letter-spacing: -0.3px;
 }
-.logo span { color: var(--text); }
+.logo span { color: var(--text-primary); }
 .header-tagline {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 12px;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 .print-guide-btn {
@@ -145,10 +177,11 @@ body {
   align-items: center;
   gap: 5px;
   padding: 6px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
   color: var(--text-secondary);
+  font-family: inherit;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -156,9 +189,9 @@ body {
   margin-left: auto;
 }
 .print-guide-btn:hover {
-  border-color: var(--coral);
-  color: var(--coral);
-  background: var(--coral-light);
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-bg);
 }
 .print-guide-btn svg {
   width: 15px;
@@ -169,18 +202,20 @@ body {
    BALLOT HEADLINE
    ============================================================ */
 .ballot-headline {
-  font-size: 22px;
+  font-family: 'Commissioner', sans-serif;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.4px;
-  color: var(--text);
-  margin: 24px 0 0;
+  line-height: 32px;
+  letter-spacing: -0.3px;
+  color: var(--text-dark);
+  margin: var(--space-lg) 0 0;
 }
 
 /* ============================================================
    UNIFIED TOOLBAR (address + election + filters)
    ============================================================ */
 .toolbar {
-  background: var(--surface-raised);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin: 20px 0 4px;
@@ -190,13 +225,13 @@ body {
 .toolbar-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
+  gap: var(--space-sm);
+  padding: 10px var(--space-md);
   flex-wrap: wrap;
 }
 .toolbar-top {
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--bg-card);
   border-radius: var(--radius) var(--radius) 0 0;
 }
 
@@ -218,45 +253,48 @@ body {
   flex: 1;
   min-width: 140px;
   min-height: 36px;
-  padding: 6px 10px;
-  border: 1.5px solid var(--border);
+  padding: 6px 12px;
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 13px;
-  background: var(--surface-raised);
-  color: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--bg);
+  color: var(--text-primary);
   transition: border-color 0.15s;
 }
 .toolbar-addr-input::placeholder { color: var(--text-muted); }
-.toolbar-addr-input:focus-visible { outline-offset: 0; }
+.toolbar-addr-input:focus-visible { outline-offset: 0; border-color: var(--blue); }
 .toolbar-addr-btn {
   min-height: 36px;
-  padding: 6px 14px;
+  padding: 6px 16px;
   border: none;
   border-radius: var(--radius-sm);
-  background: var(--coral);
+  background: var(--blue);
   color: white;
+  font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s;
 }
 .toolbar-addr-btn:hover,
-.toolbar-addr-btn:focus-visible { background: var(--coral-hover); }
+.toolbar-addr-btn:focus-visible { background: var(--blue-dark); }
 
 .toolbar-address-confirmed {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
-  color: var(--success);
+  color: var(--green-score-text);
 }
-.toolbar-addr-check { color: var(--success); flex-shrink: 0; }
+.toolbar-addr-check { color: var(--green); flex-shrink: 0; }
 .toolbar-addr-change {
   background: none;
   border: none;
   color: var(--text-muted);
+  font-family: inherit;
   font-size: 12px;
   cursor: pointer;
   text-decoration: underline;
@@ -265,7 +303,7 @@ body {
 }
 .toolbar-addr-change:hover { color: var(--text-secondary); }
 
-/* Election badge (compact, right-aligned) */
+/* Election badge */
 .toolbar-election {
   display: inline-flex;
   align-items: center;
@@ -284,28 +322,29 @@ body {
   align-items: center;
   gap: 6px;
   min-height: 36px;
-  padding: 6px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
-  font-size: 13px;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  background: var(--surface-raised);
+  background: var(--bg);
   color: var(--text-secondary);
   transition: all 0.15s;
 }
 .filter-dropdown-btn:hover,
 .filter-dropdown-btn:focus-visible {
-  border-color: var(--border-hover);
-  background: var(--bg);
+  border-color: var(--blue);
+  background: var(--blue-bg);
 }
 .filter-dropdown-btn.has-selections {
-  border-color: var(--coral-text);
-  background: var(--coral-light);
-  color: var(--coral-text);
+  border-color: var(--blue);
+  background: var(--blue-bg);
+  color: var(--blue);
 }
 .filter-dropdown-btn .badge {
-  background: var(--coral);
+  background: var(--blue);
   color: white;
   font-size: 11px;
   font-weight: 700;
@@ -330,23 +369,27 @@ body {
   top: calc(100% + 6px);
   left: 0;
   z-index: 200;
-  background: var(--surface-raised);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 16px;
+  padding: var(--space-md);
   box-shadow: var(--shadow-lg);
   min-width: 340px;
   max-width: min(440px, calc(100vw - 32px));
 }
 .filter-dropdown.open .filter-popover { display: block; }
 .filter-popover-heading {
-  font-size: 14px;
-  font-weight: 600;
+  font-family: 'Commissioner', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--text-dark);
   margin-bottom: 4px;
 }
 .filter-popover p {
   font-size: 12px;
-  color: var(--text-muted);
+  line-height: 20px;
+  color: var(--text-secondary);
   margin-bottom: 10px;
 }
 
@@ -370,29 +413,31 @@ body {
 .filter-active-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-xs);
   margin-left: 4px;
 }
 .filter-active-tag {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   min-height: 32px;
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-family: inherit;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   border: none;
   transition: opacity 0.15s;
 }
 .filter-active-tag:hover,
 .filter-active-tag:focus-visible { opacity: 0.7; }
-.filter-active-tag.issue-tag { background: var(--coral-light); color: var(--coral-text); }
-.filter-active-tag.identity-tag { background: var(--purple-light); color: var(--purple-text); }
+.filter-active-tag.issue-tag { background: var(--blue-bg); color: var(--blue); }
+.filter-active-tag.identity-tag { background: var(--purple-light); color: var(--purple-dark); }
 .filter-active-tag .remove { font-size: 10px; margin-left: 2px; }
 
 .clear-all-link {
+  font-family: inherit;
   font-size: 12px;
   color: var(--text-muted);
   cursor: pointer;
@@ -404,24 +449,25 @@ body {
   padding: 4px 8px;
 }
 .clear-all-link:hover,
-.clear-all-link:focus-visible { color: var(--coral); text-decoration: underline; }
+.clear-all-link:focus-visible { color: var(--blue); text-decoration: underline; }
 
 .filter-bar-hint {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
   text-align: center;
-  margin: 4px 0 16px;
+  margin: 4px 0 var(--space-md);
 }
 .filter-bar-hint.defaults-active {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   width: auto;
-  margin: 8px auto 16px;
+  margin: 8px auto var(--space-md);
   padding: 8px 16px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--coral-light), #fef9f0);
-  border: 1px solid rgba(240,100,73,0.15);
+  border-radius: var(--radius-pill);
+  background: var(--blue-bg);
+  border: 1px solid var(--blue-light);
   color: var(--text-secondary);
   font-weight: 500;
   animation: hintSlideIn 0.3s ease;
@@ -438,28 +484,29 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--coral);
+  background: var(--blue);
   border: none;
   color: white;
-  font-size: 11px;
+  font-family: inherit;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   padding: 4px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-pill);
   text-decoration: none;
   transition: background 0.15s;
   letter-spacing: 0.2px;
 }
-.hint-customize-btn:hover { background: var(--coral-hover); }
+.hint-customize-btn:hover { background: var(--blue-dark); }
 .hint-customize-btn.subtle {
-  background: var(--surface-raised);
+  background: var(--bg);
   color: var(--text-muted);
   border: 1px solid var(--border);
 }
 .hint-customize-btn.subtle:hover {
-  background: var(--coral-light);
-  color: var(--coral);
-  border-color: var(--coral);
+  background: var(--blue-bg);
+  color: var(--blue);
+  border-color: var(--blue);
 }
 .hint-customize-btn svg {
   width: 12px;
@@ -469,57 +516,66 @@ body {
 /* ============================================================
    PILLS (inside popovers)
    ============================================================ */
-.pill-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill-grid { display: flex; flex-wrap: wrap; gap: 10px; }
 .pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   min-height: 36px;
-  padding: 6px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 24px;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-family: inherit;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  background: var(--surface-raised);
+  background: var(--bg);
   color: var(--text-secondary);
   user-select: none;
   transition: all 0.15s;
 }
 .pill:hover,
-.pill:focus-visible { border-color: var(--border-hover); background: var(--bg); }
-.pill.selected { border-color: var(--coral-text); background: var(--coral-light); color: var(--coral-text); }
-.pill.identity.selected { border-color: var(--purple-text); background: var(--purple-light); color: var(--purple-text); }
+.pill:focus-visible { border-color: var(--blue); background: var(--blue-bg); }
+.pill.selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+.pill.identity.selected { border-color: var(--purple-media); background: var(--purple-light); color: var(--purple-dark); }
 .pill-icon { font-size: 14px; line-height: 1; }
 .pill-count {
   font-size: 11px;
-  background: var(--bg);
+  background: var(--bg-card);
   padding: 1px 6px;
   border-radius: 8px;
   color: var(--text-muted);
 }
-.pill.selected .pill-count { background: rgba(196,57,31,0.15); color: var(--coral-text); }
-.pill.identity.selected .pill-count { background: rgba(109,40,217,0.15); color: var(--purple-text); }
+.pill.selected .pill-count { background: rgba(13,77,251,0.12); color: var(--blue); }
+.pill.identity.selected .pill-count { background: rgba(190,70,255,0.12); color: var(--purple-dark); }
 
 /* ============================================================
    RACE CARDS
    ============================================================ */
 .race-card {
-  background: var(--surface-raised);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
 }
 .race-header {
-  padding: 14px 20px;
+  padding: 14px var(--space-lg);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--bg);
+  background: var(--bg-card);
+  border-radius: var(--radius) var(--radius) 0 0;
 }
-.race-name { font-size: 16px; font-weight: 700; flex: 1; }
+.race-name {
+  font-family: 'Commissioner', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+  flex: 1;
+  color: var(--text-dark);
+}
 
 .race-share-btn {
   display: inline-flex;
@@ -527,32 +583,34 @@ body {
   gap: 4px;
   padding: 4px 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
   color: var(--text-secondary);
+  font-family: inherit;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
   white-space: nowrap;
 }
-.race-share-btn:hover { background: var(--bg); color: var(--text); }
-.race-share-btn.copied { border-color: var(--copied-border); color: var(--copied-text); }
+.race-share-btn:hover { background: var(--blue-bg); color: var(--blue); border-color: var(--blue); }
+.race-share-btn.copied { border-color: var(--green); color: var(--green-score-text); }
 .race-share-btn svg {
   width: 14px;
   height: 14px;
 }
 .race-badge {
+  font-family: inherit;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 3px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-pill);
 }
-.race-badge.federal { background: var(--blue-light); color: #1d4ed8; }
-.race-badge.state { background: var(--amber-light); color: #92400e; }
-.race-badge.local { background: var(--green-light); color: #065f46; }
+.race-badge.federal { background: var(--blue-bg); color: var(--blue); }
+.race-badge.state { background: #FFF8E1; color: #92400e; }
+.race-badge.local { background: var(--green-light); color: var(--green-score-text); }
 
 /* ============================================================
    CANDIDATE HEADERS (top row of race card)
@@ -566,15 +624,15 @@ body {
 .candidate-headers.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
 .candidate-header-cell {
-  padding: 16px 20px 14px;
+  padding: var(--space-md) var(--space-lg);
   min-width: 0;
 }
 .candidate-header-cell:not(:last-child) { border-right: 1px solid var(--border); }
 
 /* Inline issue blocks within candidate header */
 .inline-issue {
-  margin-top: 8px;
-  border-radius: 8px;
+  margin-top: var(--space-sm);
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   transition: all 0.15s;
   overflow: hidden;
@@ -586,8 +644,8 @@ body {
 }
 .inline-issue.rated-agree { background: var(--agree-bg); border-color: var(--agree-border); }
 .inline-issue.rated-disagree { background: var(--disagree-bg); border-color: var(--disagree-border); }
-.inline-issue.expanded { border-color: var(--border-hover); }
-.inline-issue.expanded.issue-highlighted { border-left: 3px solid var(--issue-accent, var(--border-hover)); }
+.inline-issue.expanded { border-color: var(--blue-light); }
+.inline-issue.expanded.issue-highlighted { border-left: 3px solid var(--issue-accent, var(--blue-light)); }
 
 /* Clickable issue header row */
 button.inline-issue-header {
@@ -595,7 +653,7 @@ button.inline-issue-header {
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 7px 10px;
+  padding: 8px 10px;
   border: none;
   background: none;
   cursor: pointer;
@@ -630,11 +688,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .endorsement-expand-btn {
   display: inline-flex;
   align-items: center;
-  padding: 1px 8px;
-  border-radius: 8px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
   font-size: 10px;
   font-weight: 600;
-  background: var(--bg);
+  background: var(--bg-card);
   color: var(--text-muted);
   cursor: pointer;
   border: 1px solid var(--border);
@@ -644,9 +703,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .endorsement-expand-btn:hover,
 .endorsement-expand-btn:focus-visible {
-  background: var(--purple-light);
-  color: var(--purple-text);
-  border-color: var(--purple-text);
+  background: var(--green-light);
+  color: var(--green-score-text);
+  border-color: var(--green);
 }
 
 .candidate-name-row {
@@ -672,8 +731,8 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .candidate-name-line .alignment-detail { display: none; }
 
 .candidate-avatar {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -681,9 +740,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
-  background: var(--bg);
+  background: var(--avatar-bg);
   border: 2px solid var(--border);
-  color: var(--text-muted);
+  color: white;
 }
 
 /* Party logo next to label */
@@ -695,23 +754,29 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .candidate-info { min-width: 0; }
 .candidate-info h4 {
-  font-size: 15px;
+  font-family: 'Commissioner', sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 24px;
+  color: var(--text-dark);
 }
-.candidate-meta { font-size: 12px; color: var(--text-muted); }
+.candidate-meta {
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--text-secondary);
+}
 .incumbent-badge {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  background: var(--teal-light);
-  color: #0f766e;
+  background: var(--blue-bg);
+  color: var(--blue);
   padding: 1px 6px;
   border-radius: 4px;
   letter-spacing: 0.3px;
 }
 
-/* Endorsements — compact inline row near candidate name */
+/* Endorsements — compact inline row */
 .endorsement-inline {
   display: flex;
   flex-wrap: wrap;
@@ -724,19 +789,20 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 1px 7px;
-  border-radius: 8px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
   font-size: 10px;
   font-weight: 500;
-  background: rgba(0,0,0,0.04);
-  color: var(--text-muted);
+  background: var(--bg-card);
+  color: var(--text-secondary);
   white-space: nowrap;
   line-height: 1.6;
 }
 .endorsement-chip-inline.highlighted {
-  background: var(--purple-light);
-  color: var(--purple-text);
-  font-weight: 600;
+  background: var(--green-light);
+  color: var(--green-score-text);
+  font-weight: 700;
 }
 .endorsement-overflow-wrap {
   position: relative;
@@ -746,10 +812,11 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: inline-flex;
   align-items: center;
   padding: 1px 7px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
   font-size: 10px;
   font-weight: 700;
-  background: var(--bg);
+  background: var(--bg-card);
   color: var(--text-muted);
   cursor: pointer;
   border: 1px solid var(--border);
@@ -758,9 +825,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .endorsement-overflow-btn:hover,
 .endorsement-overflow-btn:focus-visible {
-  background: var(--purple-light);
-  color: var(--purple-text);
-  border-color: var(--purple-text);
+  background: var(--green-light);
+  color: var(--green-score-text);
+  border-color: var(--green);
 }
 .endorsement-overflow-popover {
   display: none;
@@ -769,9 +836,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   left: 50%;
   transform: translateX(-50%);
   z-index: 300;
-  background: var(--surface-raised);
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 6px 8px;
   box-shadow: var(--shadow-md);
   min-width: 140px;
@@ -787,7 +854,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   gap: 4px;
 }
 
-/* Endorsement match block (when groups are selected) */
+/* Endorsement match block */
 .endorsement-match-block {
   margin-top: 6px;
 }
@@ -796,17 +863,17 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   align-items: center;
   gap: 4px;
   padding: 2px 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   font-size: 11px;
   font-weight: 700;
   margin-bottom: 4px;
 }
-.endorsement-match-score.high { background: var(--green-light); color: #065f46; }
-.endorsement-match-score.medium { background: var(--purple-light); color: var(--purple-text); }
-.endorsement-match-score.low { background: var(--bg); color: var(--text-muted); }
+.endorsement-match-score.high { background: var(--green-light); color: var(--green-score-text); }
+.endorsement-match-score.medium { background: var(--blue-bg); color: var(--blue); }
+.endorsement-match-score.low { background: var(--bg-card); color: var(--text-muted); }
 .endorsement-check {
   font-size: 10px;
-  color: var(--purple-text);
+  color: var(--green);
 }
 
 /* Alignment chip */
@@ -824,16 +891,17 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   align-items: center;
   gap: 4px;
   padding: 3px 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
 }
-.alignment-chip.high { background: var(--green-light); color: #065f46; }
-.alignment-chip.medium { background: var(--amber-light); color: #92400e; }
-.alignment-chip.low { background: var(--rose-light); color: #9f1239; }
+.alignment-chip.high { background: var(--green-light); color: var(--green-score-text); }
+.alignment-chip.medium { background: #FFF8E1; color: #92400e; }
+.alignment-chip.low { background: var(--red-light); color: var(--red-logo); }
 .alignment-detail {
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 20px;
   color: var(--text-muted);
 }
 
@@ -846,24 +914,25 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .issue-section.compact { border-top: 1px solid var(--border-soft); }
 
 .issue-section-header {
-  padding: 6px 20px;
+  padding: 6px var(--space-lg);
   display: flex;
   align-items: center;
   gap: 6px;
   border-top: 1px solid var(--border);
 }
 .issue-section-header.compact {
-  padding: 8px 20px;
-  background: var(--surface-inset);
+  padding: 8px var(--space-lg);
+  background: var(--bg-card);
 }
 .issue-section-icon { font-size: 16px; line-height: 1; }
 .issue-section-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-family: 'Commissioner', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 .issue-section-header.compact .issue-section-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -878,24 +947,25 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .issue-comparison.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
 /* ============================================================
-   POSITION CELL (one candidate's take on one issue)
+   POSITION CELL
    ============================================================ */
 .position-cell {
-  padding: 10px 20px 12px;
+  padding: 10px var(--space-lg) 12px;
   min-width: 0;
   transition: background 0.15s;
 }
 .position-cell:not(:last-child) { border-right: 1px solid var(--border); }
-.position-cell.compact { padding: 8px 20px 10px; opacity: 0.8; }
+.position-cell.compact { padding: 8px var(--space-lg) 10px; opacity: 0.8; }
 .position-cell.compact:hover,
 .position-cell.compact:focus-within { opacity: 1; }
 
 .position-cell.rated-agree { background: var(--agree-bg); }
 .position-cell.rated-disagree { background: var(--disagree-bg); }
 
-/* Mobile-only candidate label inside cells */
+/* Mobile candidate label inside cells */
 .position-cell-name {
   display: none;
+  font-family: inherit;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -913,14 +983,15 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .stance-pill {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
   line-height: 1.4;
 }
 
-/* Detail toggle + collapsible detail pane */
+/* Detail toggle */
 .detail-toggle {
   display: inline-flex;
   align-items: center;
@@ -929,6 +1000,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   padding: 0;
   border: none;
   background: none;
+  font-family: inherit;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
@@ -936,7 +1008,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   transition: color 0.15s;
 }
 .detail-toggle:hover,
-.detail-toggle:focus-visible { color: var(--primary); }
+.detail-toggle:focus-visible { color: var(--blue); }
 .detail-chevron {
   width: 14px;
   height: 14px;
@@ -953,15 +1025,15 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .position-detail.visible { display: block; }
 
 .position-quote {
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--text-secondary);
-  line-height: 1.5;
   margin-bottom: 6px;
 }
 .position-quote-compact {
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--text-secondary);
-  line-height: 1.5;
 }
 
 /* Source link */
@@ -969,9 +1041,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--blue);
   cursor: pointer;
 }
 .source-link:hover { text-decoration: underline; }
@@ -1000,12 +1072,13 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  min-height: 24px;
-  padding: 2px 8px;
-  border-radius: 12px;
+  min-height: 26px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--border);
-  background: var(--surface-raised);
-  font-size: 10px;
+  background: var(--bg);
+  font-family: inherit;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
@@ -1014,7 +1087,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .align-pill svg { width: 11px; height: 11px; fill: var(--text-muted); transition: fill 0.15s; }
 .align-pill:hover,
-.align-pill:focus-visible { border-color: var(--border-hover); background: var(--surface-inset); }
+.align-pill:focus-visible { border-color: var(--blue-light); background: var(--blue-bg); }
 
 /* Active states */
 .align-pill.active-agree {
@@ -1030,7 +1103,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .align-pill.active-disagree svg { fill: var(--disagree-icon); }
 
-/* Inferred states (dashed border) */
+/* Inferred states */
 .align-pill.inferred-agree {
   background: var(--agree-bg);
   border-color: var(--agree-border);
@@ -1050,9 +1123,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   font-size: 10px;
   font-weight: 600;
   color: var(--text-muted);
-  background: var(--bg);
+  background: var(--bg-card);
   padding: 2px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px dashed var(--border);
   white-space: nowrap;
 }
@@ -1060,16 +1133,15 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 /* ============================================================
    OTHER ISSUES TOGGLE
    ============================================================ */
-/* Race card footer & actions bar */
 .race-card-footer { padding: 0; }
 
 .race-card-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 20px;
+  padding: 8px var(--space-lg);
   border-top: 1px solid var(--border);
-  background: var(--surface-inset);
+  background: var(--bg-card);
 }
 .race-card-actions:empty {
   display: none;
@@ -1081,12 +1153,13 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   gap: 4px;
   min-height: 30px;
   padding: 4px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-family: inherit;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  background: var(--surface-raised);
+  background: var(--bg);
   color: var(--text-secondary);
   transition: all 0.15s;
 }
@@ -1097,12 +1170,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .rate-stances-btn:hover,
 .rate-stances-btn:focus-visible {
-  border-color: var(--coral);
-  color: var(--coral);
-  background: var(--coral-light);
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-bg);
 }
 .rate-stances-btn:hover svg,
-.rate-stances-btn:focus-visible svg { fill: var(--coral); }
+.rate-stances-btn:focus-visible svg { fill: var(--blue); }
 .rate-stances-btn.active {
   border-color: var(--agree-border);
   background: var(--agree-bg);
@@ -1115,8 +1188,8 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: var(--surface-inset);
+  padding: 10px var(--space-lg);
+  background: var(--bg-card);
   border-top: 1px solid var(--border);
 }
 
@@ -1125,9 +1198,10 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   align-items: center;
   gap: 4px;
   padding: 0;
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--text);
+  color: var(--text-primary);
   cursor: pointer;
   transition: color 0.15s;
   border: none;
@@ -1136,7 +1210,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   white-space: nowrap;
 }
 .other-issues-toggle:hover,
-.other-issues-toggle:focus-visible { color: var(--primary); }
+.other-issues-toggle:focus-visible { color: var(--blue); }
 .other-issues-toggle .toggle-caret {
   font-size: 9px;
   transition: transform 0.2s;
@@ -1155,11 +1229,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   align-items: center;
   gap: 2px;
   padding: 2px 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
   font-size: 11px;
   font-weight: 500;
   color: var(--text-secondary);
-  background: var(--surface-raised);
+  background: var(--bg);
   border: 1px solid var(--border);
   white-space: nowrap;
   cursor: pointer;
@@ -1167,9 +1242,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .other-issue-tag:hover,
 .other-issue-tag:focus-visible {
-  border-color: var(--coral-text);
-  background: var(--coral-light);
-  color: var(--coral-text);
+  border-color: var(--blue);
+  background: var(--blue-bg);
+  color: var(--blue);
 }
 .other-issue-more {
   font-size: 11px;
@@ -1192,13 +1267,13 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   color: var(--text-muted);
   text-decoration: none;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   transition: all 0.15s;
   white-space: nowrap;
 }
 .header-support-link:hover {
-  color: var(--coral);
-  background: var(--coral-light);
+  color: var(--red-logo);
+  background: var(--red-light);
 }
 .header-support-link svg {
   width: 14px;
@@ -1210,12 +1285,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
    ============================================================ */
 .donation-card {
   position: relative;
-  background: linear-gradient(135deg, #fef2f0 0%, #fef9f0 50%, #ede9fe 100%);
-  border: 1px solid rgba(240,100,73,0.18);
+  background: linear-gradient(135deg, var(--blue-bg) 0%, #F5F0FF 100%);
+  border: 1px solid var(--blue-light);
   border-radius: var(--radius);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
-  padding: 20px 24px;
+  padding: var(--space-lg);
 }
 .donation-dismiss {
   position: absolute;
@@ -1231,12 +1306,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   border-radius: 4px;
   transition: all 0.15s;
 }
-.donation-dismiss:hover { color: var(--text); background: rgba(0,0,0,0.05); }
+.donation-dismiss:hover { color: var(--text-primary); background: rgba(0,0,0,0.05); }
 
 .donation-card-inner {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-md);
   flex-wrap: wrap;
 }
 .donation-icon {
@@ -1244,7 +1319,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--coral);
+  background: var(--red-logo);
   color: white;
   display: flex;
   align-items: center;
@@ -1260,15 +1335,17 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .donation-text strong {
   display: block;
+  font-family: 'Commissioner', sans-serif;
   font-size: 14px;
-  color: var(--text);
+  font-weight: 700;
+  color: var(--text-dark);
   margin-bottom: 2px;
 }
 .donation-text p {
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 20px;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.4;
 }
 .donation-actions {
   display: flex;
@@ -1279,8 +1356,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: inline-flex;
   align-items: center;
   padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
@@ -1288,17 +1366,17 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   white-space: nowrap;
 }
 .donation-btn.primary {
-  background: var(--coral);
-  color: white;
+  background: var(--yellow-cta);
+  color: var(--text-dark);
   border: none;
 }
-.donation-btn.primary:hover { background: var(--coral-hover); }
+.donation-btn.primary:hover { background: var(--yellow-hover); }
 .donation-btn.secondary {
-  background: var(--surface-raised);
-  color: var(--text-muted);
+  background: var(--bg);
+  color: var(--text-secondary);
   border: 1px solid var(--border);
 }
-.donation-btn.secondary:hover { border-color: var(--border-hover); color: var(--text-secondary); }
+.donation-btn.secondary:hover { border-color: var(--blue); color: var(--blue); }
 
 /* ============================================================
    DONATION POST-PRINT MODAL
@@ -1307,7 +1385,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(30,26,38,0.5);
   z-index: 1000;
   align-items: center;
   justify-content: center;
@@ -1317,9 +1395,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .donation-modal {
   position: relative;
-  background: var(--surface-raised);
-  border-radius: 16px;
-  padding: 32px 36px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: var(--space-xl) 36px;
   box-shadow: var(--shadow-lg);
   max-width: 380px;
   width: calc(100% - 32px);
@@ -1344,13 +1422,13 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   border-radius: 4px;
   transition: all 0.15s;
 }
-.donation-modal-close:hover { color: var(--text); background: rgba(0,0,0,0.05); }
+.donation-modal-close:hover { color: var(--text-primary); background: rgba(0,0,0,0.05); }
 .donation-modal-icon {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--coral-light);
-  color: var(--coral);
+  background: var(--blue-bg);
+  color: var(--blue);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1361,13 +1439,16 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   height: 22px;
 }
 .donation-modal h2 {
+  font-family: 'Commissioner', sans-serif;
   font-size: 18px;
   font-weight: 700;
-  color: var(--text);
+  line-height: 24px;
+  color: var(--text-dark);
   margin-bottom: 4px;
 }
 .donation-modal p {
   font-size: 14px;
+  line-height: 20px;
   color: var(--text-secondary);
   margin-bottom: 20px;
 }
@@ -1383,35 +1464,37 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   justify-content: center;
   min-width: 64px;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.15s;
   border: 2px solid var(--border);
-  background: var(--surface-raised);
-  color: var(--text);
+  background: var(--bg);
+  color: var(--text-primary);
 }
 .donation-amount-btn:hover {
-  border-color: var(--coral);
-  background: var(--coral-light);
-  color: var(--coral);
+  border-color: var(--blue);
+  background: var(--blue-bg);
+  color: var(--blue);
 }
 .donation-amount-btn.featured {
-  border-color: var(--coral);
-  background: var(--coral);
-  color: white;
+  border-color: var(--yellow-cta);
+  background: var(--yellow-cta);
+  color: var(--text-dark);
 }
 .donation-amount-btn.featured:hover {
-  background: var(--coral-hover);
-  border-color: var(--coral-hover);
+  background: var(--yellow-hover);
+  border-color: var(--yellow-hover);
 }
 .donation-modal-skip {
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 14px;
   cursor: pointer;
   padding: 6px 12px;
   transition: color 0.15s;
@@ -1422,15 +1505,17 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
    FOOTER
    ============================================================ */
 .footer {
-  padding: 32px 0 80px;
+  padding: var(--space-xl) 0 80px;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 12px;
+  line-height: 15px;
+  font-weight: 500;
+  background: var(--bg-footer);
   border-top: 1px solid var(--border);
-  margin-top: 40px;
-  line-height: 1.8;
+  margin-top: var(--space-2xl);
 }
-.footer a { color: var(--coral-text); text-decoration: none; }
+.footer a { color: var(--blue); text-decoration: none; }
 .footer a:hover { text-decoration: underline; }
 
 /* ============================================================
@@ -1451,12 +1536,10 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 700px) {
-  /* Toolbar stacks */
   .toolbar-top { flex-direction: column; align-items: stretch; gap: 6px; }
   .toolbar-address { flex-wrap: wrap; }
   .toolbar-election { margin-left: 0; }
 
-  /* Stack candidates vertically */
   .candidate-headers.cols-2,
   .candidate-headers.cols-3,
   .candidate-headers.cols-4 { grid-template-columns: 1fr; }
@@ -1475,22 +1558,21 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
     border-bottom: 1px solid var(--border-soft);
   }
 
-  /* Show candidate name labels inside position cells */
   .position-cell-name { display: block; }
 
-  .position-cell { padding: 10px 20px 12px; }
+  .position-cell { padding: 10px var(--space-lg) 12px; }
 
   .filter-popover { min-width: 280px; left: -40px; max-width: calc(100vw - 32px); }
 }
 
 @media (max-width: 400px) {
-  .container { padding: 0 14px; }
-  .candidate-header-cell { padding: 12px 14px; }
-  .position-cell { padding: 10px 14px; }
-  .issue-section-header { padding: 8px 14px; }
-  .race-header { padding: 12px 14px; }
-  .race-card-footer { padding: 0 14px 4px; }
-  .other-issues-content.visible { margin: 0 -14px; }
+  .container { padding: 0 var(--space-md); }
+  .candidate-header-cell { padding: 12px var(--space-md); }
+  .position-cell { padding: 10px var(--space-md); }
+  .issue-section-header { padding: 8px var(--space-md); }
+  .race-header { padding: 12px var(--space-md); }
+  .race-card-footer { padding: 0 var(--space-md) 4px; }
+  .other-issues-content.visible { margin: 0 calc(-1 * var(--space-md)); }
 }
 
 /* ============================================================
@@ -1502,12 +1584,13 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   gap: 4px;
   min-height: 30px;
   padding: 4px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-family: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  background: var(--surface-raised);
+  background: var(--bg);
   color: var(--text-muted);
   transition: all 0.15s;
   flex-shrink: 0;
@@ -1518,16 +1601,16 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .candidate-select-btn:hover,
 .candidate-select-btn:focus-visible {
   border-color: var(--green);
-  color: var(--green);
+  color: var(--green-score-text);
   background: var(--green-light);
 }
 .candidate-select-btn.selected {
-  border-color: #059669;
+  border-color: var(--green);
   background: var(--green-light);
-  color: #065f46;
+  color: var(--green-score-text);
   font-weight: 700;
 }
-.candidate-select-btn.selected svg { stroke: #059669; }
+.candidate-select-btn.selected svg { stroke: var(--green); }
 
 .candidate-header-cell.is-selected {
   background: linear-gradient(180deg, var(--green-light) 0%, transparent 60%);
@@ -1543,9 +1626,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   left: 0;
   right: 0;
   z-index: 500;
-  background: var(--surface-raised);
+  background: var(--bg);
   border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 -4px 20px rgba(64, 58, 73, 0.1);
   animation: ballotBarSlideUp 0.3s ease;
 }
 @keyframes ballotBarSlideUp {
@@ -1555,7 +1638,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .ballot-bar-inner {
   max-width: 960px;
   margin: 0 auto;
-  padding: 10px 20px;
+  padding: 10px var(--space-lg);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1566,26 +1649,28 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   align-items: center;
   gap: 8px;
   font-size: 14px;
+  font-weight: 500;
   color: var(--text-secondary);
 }
 .ballot-bar-info svg { color: var(--green); stroke: var(--green); }
-.ballot-bar-info strong { color: var(--text); }
+.ballot-bar-info strong { color: var(--text-dark); }
 .ballot-bar-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 20px;
+  padding: 10px 24px;
   border: none;
-  border-radius: 8px;
-  background: var(--coral);
-  color: white;
-  font-size: 13px;
+  border-radius: var(--radius-sm);
+  background: var(--yellow-cta);
+  color: var(--text-dark);
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.15s;
 }
-.ballot-bar-btn:hover { background: var(--coral-hover); }
-.ballot-bar-btn svg { stroke: white; }
+.ballot-bar-btn:hover { background: var(--yellow-hover); }
+.ballot-bar-btn svg { stroke: var(--text-dark); }
 
 /* ============================================================
    BALLOT SUMMARY OVERLAY
@@ -1594,15 +1679,15 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: 1000;
-  background: rgba(0,0,0,0.5);
+  background: rgba(30,26,38,0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.15s ease;
 }
 .ballot-summary {
-  background: var(--surface-raised);
-  border-radius: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
   max-width: 560px;
   width: calc(100% - 32px);
@@ -1615,21 +1700,24 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 20px 24px 16px;
+  padding: 20px var(--space-lg) 16px;
   border-bottom: 1px solid var(--border);
 }
 .ballot-summary-header h2 {
+  font-family: 'Commissioner', sans-serif;
   font-size: 18px;
   font-weight: 700;
+  line-height: 24px;
   flex: 1;
+  color: var(--text-dark);
 }
 .ballot-summary-count {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--green-score-text);
   background: var(--green-light);
   padding: 2px 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-pill);
 }
 .ballot-summary-close {
   background: none;
@@ -1642,14 +1730,14 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   border-radius: 4px;
   transition: all 0.15s;
 }
-.ballot-summary-close:hover { color: var(--text); background: rgba(0,0,0,0.05); }
+.ballot-summary-close:hover { color: var(--text-primary); background: rgba(0,0,0,0.05); }
 .ballot-summary-body {
   overflow-y: auto;
   flex: 1;
   padding: 8px 0;
 }
 .ballot-summary-row {
-  padding: 12px 24px;
+  padding: 12px var(--space-lg);
   border-bottom: 1px solid var(--border-soft);
 }
 .ballot-summary-row:last-child { border-bottom: none; }
@@ -1660,7 +1748,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   margin-bottom: 8px;
 }
 .ballot-summary-race-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -1678,8 +1766,10 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .ballot-summary-candidate strong {
   display: block;
-  font-size: 15px;
+  font-family: 'Commissioner', sans-serif;
+  font-size: 16px;
   font-weight: 700;
+  color: var(--text-dark);
 }
 .ballot-summary-candidate .candidate-meta {
   display: block;
@@ -1693,8 +1783,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .ballot-summary-change {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px 12px;
+  font-family: inherit;
   font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
@@ -1703,11 +1794,11 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   transition: all 0.15s;
 }
 .ballot-summary-change:hover {
-  border-color: var(--coral);
-  color: var(--coral);
+  border-color: var(--blue);
+  color: var(--blue);
 }
 .ballot-summary-undecided {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   font-style: italic;
 }
@@ -1717,7 +1808,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   align-items: center;
   justify-content: flex-end;
   gap: 8px;
-  padding: 16px 24px;
+  padding: var(--space-md) var(--space-lg);
   border-top: 1px solid var(--border);
 }
 .ballot-summary-print {
@@ -1725,32 +1816,34 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   align-items: center;
   gap: 6px;
   padding: 8px 18px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 }
 .ballot-summary-print:hover {
-  border-color: var(--coral);
-  color: var(--coral);
-  background: var(--coral-light);
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-bg);
 }
 .ballot-summary-done {
-  padding: 8px 18px;
+  padding: 10px 24px;
   border: none;
-  border-radius: 8px;
-  background: var(--coral);
-  color: white;
-  font-size: 13px;
+  border-radius: var(--radius-sm);
+  background: var(--yellow-cta);
+  color: var(--text-dark);
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.15s;
 }
-.ballot-summary-done:hover { background: var(--coral-hover); }
+.ballot-summary-done:hover { background: var(--yellow-hover); }
 
 /* ============================================================
    PRINT
@@ -1780,5 +1873,5 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   .position-detail { display: block !important; border: none; margin-top: 4px; padding-top: 0; }
   .inline-issue { border: none; padding: 4px 0; }
   .candidate-headers { gap: 0; }
-  .candidate-header-cell.is-selected { border-top: 3px solid #059669; }
+  .candidate-header-cell.is-selected { border-top: 3px solid var(--green); }
 }

@@ -336,8 +336,8 @@ export function renderFilterPills(): void {
 // ============================================================
 
 const PARTY_LOGO: Record<string, string> = {
-  Democratic: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B82F6"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">D</text></svg>',
-  Republican: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#EF4444"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">R</text></svg>',
+  Democratic: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#0D4DFB"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Commissioner,sans-serif">D</text></svg>',
+  Republican: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#F34E49"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Commissioner,sans-serif">R</text></svg>',
 };
 
 function renderInlineIssue(c: Candidate, issueId: string, highlight: boolean): string {
