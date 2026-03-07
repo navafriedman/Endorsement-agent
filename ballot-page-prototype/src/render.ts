@@ -336,11 +336,11 @@ export function renderFilterPills(): void {
 // ============================================================
 
 const PARTY_LOGO: Record<string, string> = {
-  Democratic: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3B82F6"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">D</text></svg>',
-  Republican: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#EF4444"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="sans-serif">R</text></svg>',
+  Democratic: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#0D4DFB"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Commissioner,sans-serif">D</text></svg>',
+  Republican: '<svg class="party-logo" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#F34E49"/><text x="12" y="16.5" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="Commissioner,sans-serif">R</text></svg>',
 };
 
-function renderInlineIssue(c: Candidate, issueId: string): string {
+function renderInlineIssue(c: Candidate, issueId: string, highlight: boolean): string {
   const issue = ISSUES.find(i => i.id === issueId)!;
   const pos = c.issues[issueId];
   const key = `${c.name}:${issueId}`;
@@ -357,6 +357,9 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
   const stancePills = renderStancePills(pos.stances, colors);
   const expandKey = `issue:${c.name}:${issueId}`;
   const isOpen = state.isExpanded(expandKey);
+
+  const highlightClass = highlight ? 'issue-highlighted' : '';
+  const highlightStyle = highlight && colors ? `style="--issue-accent:${colors.border};--issue-bg:${colors.bg}20"` : '';
 
   let expandedContent = '';
   if (isOpen) {
@@ -378,7 +381,7 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
       </div>`;
   }
 
-  return `<div class="inline-issue ${ratedClass} ${isOpen ? 'expanded' : ''}">
+  return `<div class="inline-issue ${ratedClass} ${highlightClass} ${isOpen ? 'expanded' : ''}" ${highlightStyle}>
     <button type="button" class="inline-issue-header" data-issue-expand="${esc(expandKey)}" aria-expanded="${isOpen}">
       <span class="inline-issue-icon" aria-hidden="true">${issue.icon}</span>
       <div class="stance-pills-block">${stancePills}</div>
@@ -444,7 +447,14 @@ function renderEndorsementMatch(c: Candidate): string {
 
 function renderCandidateHeader(c: Candidate, raceId: string): string {
   const selectedIssueIds = [...state.selectedIssues];
-  const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id)).join('');
+  // Highlight the first 2 issues that this candidate has a position on
+  let highlightCount = 0;
+  const issueBlocksHtml = selectedIssueIds.map(id => {
+    const hasPosition = !!c.issues[id];
+    const shouldHighlight = hasPosition && highlightCount < 2;
+    if (shouldHighlight) highlightCount++;
+    return renderInlineIssue(c, id, shouldHighlight);
+  }).join('');
   const endorsementsHtml = renderEndorsementMatch(c);
 
   // Alignment score

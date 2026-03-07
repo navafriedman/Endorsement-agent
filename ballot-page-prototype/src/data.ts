@@ -34,18 +34,18 @@ export const IDENTITY_GROUPS: IdentityGroup[] = [
 
 // Issue color map for stance pills and detail borders
 export const ISSUE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  immigration:          { bg: '#dbeafe', text: '#1e40af', border: '#3b82f6' },
-  education:            { bg: '#fef3c7', text: '#92400e', border: '#f59e0b' },
-  healthcare:           { bg: '#d1fae5', text: '#065f46', border: '#10b981' },
-  housing:              { bg: '#e0e7ff', text: '#3730a3', border: '#6366f1' },
-  criminal_justice:     { bg: '#f3e8ff', text: '#6b21a8', border: '#a855f7' },
-  economy:              { bg: '#fef3c7', text: '#78350f', border: '#d97706' },
-  environment:          { bg: '#ccfbf1', text: '#134e4a', border: '#14b8a6' },
-  voting_rights:        { bg: '#fce7f3', text: '#9d174d', border: '#ec4899' },
-  gun_policy:           { bg: '#fee2e2', text: '#991b1b', border: '#ef4444' },
-  reproductive_rights:  { bg: '#fce7f3', text: '#831843', border: '#db2777' },
-  lgbtq:                { bg: '#ede9fe', text: '#5b21b6', border: '#8b5cf6' },
-  budget:               { bg: '#e0f2fe', text: '#075985', border: '#0ea5e9' },
+  immigration:          { bg: '#CDDBFF', text: '#003CD6', border: '#0D4DFB' },
+  education:            { bg: '#FFF8E1', text: '#92400e', border: '#F59E0B' },
+  healthcare:           { bg: '#E6F7E6', text: '#0F8110', border: '#1AA11C' },
+  housing:              { bg: '#E8E0FF', text: '#4A3580', border: '#7C5CFC' },
+  criminal_justice:     { bg: '#F3E8FF', text: '#5E5768', border: '#BE46FF' },
+  economy:              { bg: '#FFF8E1', text: '#78350f', border: '#D97706' },
+  environment:          { bg: '#E0F5F0', text: '#134E4A', border: '#14B8A6' },
+  voting_rights:        { bg: '#FCE7F3', text: '#9D174D', border: '#EC4899' },
+  gun_policy:           { bg: '#FFE8E8', text: '#991B1B', border: '#F34E49' },
+  reproductive_rights:  { bg: '#FCE7F3', text: '#831843', border: '#DB2777' },
+  lgbtq:                { bg: '#F3E8FF', text: '#5E5768', border: '#BE46FF' },
+  budget:               { bg: '#F0F7FF', text: '#003CD6', border: '#4771FF' },
 };
 
 export const RACES: Race[] = [
