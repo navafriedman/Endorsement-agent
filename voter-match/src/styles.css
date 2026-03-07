@@ -1,43 +1,61 @@
 /* ============================================================
-   DESIGN TOKENS — matches change.vote
+   DESIGN TOKENS — change.vote Figma design system
    ============================================================ */
 :root {
-  --red: #E53935;
-  --red-hover: #C62828;
-  --red-light: #FFEBEE;
-  --red-text: #B71C1C;
-  --blue: #1976D2;
-  --blue-light: #E3F2FD;
-  --blue-text: #0D47A1;
+  /* Primary palette */
+  --primary: #0D4DFB;
+  --primary-hover: #0A3DD0;
+  --primary-light: #EEF2FF;
+  --primary-text: #0A3DD0;
+  --logo-red: #F34E49;
+  --logo-red-hover: #D93F3A;
+  --logo-red-light: #FFF0F0;
+
+  /* Semantic colors (keep for stance/match indicators) */
+  --red: #F34E49;
+  --red-hover: #D93F3A;
+  --red-light: #FFF0F0;
+  --red-text: #C0392B;
+  --blue: #0D4DFB;
+  --blue-light: #EEF2FF;
+  --blue-text: #0A3DD0;
   --green: #2E7D32;
   --green-light: #E8F5E9;
   --green-text: #1B5E20;
-  --purple: #7B1FA2;
-  --purple-light: #F3E5F5;
-  --purple-text: #4A148C;
+  --purple: #5B4A72;
+  --purple-light: #F0EDF7;
+  --purple-text: #403A49;
   --amber: #F57F17;
   --amber-light: #FFF8E1;
   --gold: #FFD600;
+
+  /* Neutrals */
   --bg: #FFFFFF;
-  --bg-muted: #FAFAFA;
-  --border: #EEEEEE;
-  --border-hover: #E0E0E0;
-  --text: #212121;
-  --text-secondary: #616161;
+  --bg-muted: #F5F3F9;
+  --border: #E1DDE9;
+  --border-hover: #C9C3D4;
+  --text: #403A49;
+  --text-secondary: #766F81;
   --text-muted: #9E9E9E;
+
+  /* Radii */
   --radius: 8px;
   --radius-sm: 4px;
+  --radius-card: 16px;
   --radius-pill: 24px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow: 0 1px 4px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+
+  /* Shadows */
+  --shadow-sm: 0px 2px 2px rgba(0,0,0,0.05);
+  --shadow: 0px 2px 2px rgba(0,0,0,0.05), 0px 3px 19px rgba(58,41,62,0.06);
+  --shadow-md: 0px 4px 24px rgba(58,41,62,0.10);
+
   --max-width: 960px;
 
   /* Party colors */
-  --dem: #1976D2;
-  --dem-light: #E3F2FD;
-  --rep: #E53935;
-  --rep-light: #FFEBEE;
+  --dem: #0D4DFB;
+  --dem-light: #EEF2FF;
+  --rep: #F34E49;
+  --rep-light: #FFF0F0;
   --lib: #FBC02D;
   --lib-light: #FFF9C4;
 
@@ -47,13 +65,13 @@
   --match-mid: #F57F17;
   --match-mid-bg: #FFF8E1;
   --match-low: #9E9E9E;
-  --match-low-bg: #FAFAFA;
+  --match-low-bg: #F5F3F9;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Commissioner', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-size: 16px;
   line-height: 1.6;
   color: var(--text);
@@ -66,7 +84,7 @@ a { color: var(--text); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 *:focus-visible {
-  outline: 2px solid var(--red);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -97,7 +115,7 @@ a:hover { text-decoration: underline; }
 .logo-mark {
   width: 32px;
   height: 32px;
-  background: var(--red);
+  background: var(--logo-red);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -107,7 +125,7 @@ a:hover { text-decoration: underline; }
   font-size: 18px;
   text-decoration: none;
 }
-.logo-mark:hover { text-decoration: none; background: var(--red-hover); }
+.logo-mark:hover { text-decoration: none; background: var(--logo-red-hover); }
 .header-nav {
   display: flex;
   align-items: center;
@@ -144,8 +162,8 @@ a:hover { text-decoration: underline; }
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .location-context:focus-within {
-  border-color: var(--purple);
-  box-shadow: 0 0 0 3px var(--purple-light);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 .location-context svg { color: var(--text-secondary); flex-shrink: 0; width: 18px; height: 18px; }
 .location-context.confirmed {
@@ -251,10 +269,10 @@ a:hover { text-decoration: underline; }
   transition: all 0.15s;
 }
 .filter-btn:hover { border-color: var(--border-hover); background: var(--bg-muted); }
-.filter-btn.active { border-color: var(--red); color: var(--red); }
-.filter-btn.has-selections { border-color: var(--red); background: var(--red-light); color: var(--red-text); }
+.filter-btn.active { border-color: var(--primary); color: var(--primary); }
+.filter-btn.has-selections { border-color: var(--primary); background: var(--primary-light); color: var(--primary-text); }
 .filter-count {
-  background: var(--red);
+  background: var(--primary);
   color: white;
   font-size: 11px;
   font-weight: 700;
@@ -278,7 +296,7 @@ a:hover { text-decoration: underline; }
   margin-left: auto;
   padding: 4px 8px;
 }
-.clear-link:hover { color: var(--red); text-decoration: underline; }
+.clear-link:hover { color: var(--primary); text-decoration: underline; }
 
 .active-tags-row {
   display: flex;
@@ -301,7 +319,7 @@ a:hover { text-decoration: underline; }
 }
 .active-tag:hover { opacity: 0.7; }
 .active-tag.issue-tag { background: var(--green-light); color: var(--green-text); }
-.active-tag.group-tag { background: var(--purple-light); color: var(--purple-text); }
+.active-tag.group-tag { background: var(--primary-light); color: var(--primary-text); }
 .tag-x { font-size: 10px; margin-left: 2px; }
 
 .filter-hint {
@@ -316,14 +334,15 @@ a:hover { text-decoration: underline; }
 .engage-section {
   padding: 24px;
   margin-bottom: 8px;
-  background: var(--purple-light);
-  border-radius: 12px;
-  border: 1px solid #E1BEE7;
+  background: var(--bg-muted);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 .engage-title {
   font-size: 18px;
-  font-weight: 800;
-  color: var(--purple-text);
+  font-weight: 700;
+  color: var(--text);
   margin-bottom: 2px;
 }
 .engage-subtitle {
@@ -352,13 +371,13 @@ a:hover { text-decoration: underline; }
   box-shadow: var(--shadow);
 }
 .engage-card:hover {
-  border-color: var(--purple);
+  border-color: var(--primary);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 .engage-card.active {
-  border-color: var(--purple);
-  background: #F3E5F5;
+  border-color: var(--primary);
+  background: var(--primary-light);
 }
 .engage-card.done {
   border-color: var(--green);
@@ -399,7 +418,7 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 .engage-card-arrow {
-  color: var(--purple);
+  color: var(--primary);
   font-size: 13px;
   font-weight: 600;
   margin-top: 2px;
@@ -439,7 +458,7 @@ a:hover { text-decoration: underline; }
 .filter-panel {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   padding: 20px;
   margin-bottom: 16px;
   box-shadow: var(--shadow-md);
@@ -524,9 +543,9 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
 }
 .stance-opt.sel-b {
-  border-color: var(--purple);
-  background: var(--purple-light);
-  color: var(--purple-text);
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-text);
   font-weight: 600;
 }
 @media (max-width: 500px) {
@@ -557,7 +576,7 @@ a:hover { text-decoration: underline; }
   margin-bottom: 10px;
   transition: border-color 0.15s;
 }
-.group-search:focus { border-color: var(--purple); outline: none; }
+.group-search:focus { border-color: var(--primary); outline: none; }
 .group-search::placeholder { color: var(--text-muted); }
 .group-cat-bar {
   display: flex;
@@ -612,9 +631,9 @@ a:hover { text-decoration: underline; }
 }
 .pill:hover { border-color: var(--border-hover); background: var(--bg-muted); }
 .pill.selected {
-  border-color: var(--purple);
-  background: var(--purple-light);
-  color: var(--purple-text);
+  border-color: var(--primary);
+  background: var(--primary-light);
+  color: var(--primary-text);
   font-weight: 600;
 }
 .pill-icon { font-size: 14px; line-height: 1; }
@@ -626,8 +645,8 @@ a:hover { text-decoration: underline; }
   color: var(--text-muted);
 }
 .pill.selected .pill-count {
-  background: rgba(123,31,162,0.12);
-  color: var(--purple-text);
+  background: rgba(13,77,251,0.08);
+  color: var(--primary-text);
 }
 
 .btn-primary {
@@ -637,14 +656,14 @@ a:hover { text-decoration: underline; }
   padding: 12px 24px;
   border: none;
   border-radius: var(--radius);
-  background: var(--red);
+  background: var(--primary);
   color: white;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;
 }
-.btn-primary:hover:not(:disabled) { background: var(--red-hover); }
+.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
 .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
 
 .btn-secondary {
@@ -667,7 +686,7 @@ a:hover { text-decoration: underline; }
 .btn-text {
   background: none;
   border: none;
-  color: var(--red);
+  color: var(--primary);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -745,7 +764,7 @@ a:hover { text-decoration: underline; }
 .race-compare-link {
   font-size: 13px;
   font-weight: 600;
-  color: var(--red);
+  color: var(--primary);
   cursor: pointer;
   background: none;
   border: none;
@@ -772,15 +791,15 @@ a:hover { text-decoration: underline; }
    CANDIDATE CARD — clean contained card like change.vote
    ============================================================ */
 .candidate-card {
-  border: 1.5px solid var(--border-hover);
-  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-card);
   background: var(--bg);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .candidate-card:hover {
-  border-color: #BDBDBD;
+  border-color: var(--border-hover);
   box-shadow: var(--shadow-md);
 }
 .candidate-card.top-match {
@@ -788,7 +807,7 @@ a:hover { text-decoration: underline; }
   border-width: 2px;
 }
 .candidate-card.is-selected {
-  border-color: var(--red);
+  border-color: var(--primary);
   border-width: 2px;
 }
 
@@ -979,18 +998,18 @@ a:hover { text-decoration: underline; }
   transition: all 0.15s;
 }
 .select-btn:hover {
-  border-color: var(--red);
-  color: var(--red);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 .select-btn.selected {
-  background: var(--red);
-  border-color: var(--red);
+  background: var(--primary);
+  border-color: var(--primary);
   color: white;
 }
 .details-link {
   background: none;
   border: none;
-  color: var(--red);
+  color: var(--primary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -1072,7 +1091,7 @@ a:hover { text-decoration: underline; }
   gap: 4px;
   background: none;
   border: none;
-  color: var(--red);
+  color: var(--primary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -1244,7 +1263,7 @@ a:hover { text-decoration: underline; }
 .candidate-avatar.sm { width: 28px; height: 28px; font-size: 10px; }
 .ballot-summary-change {
   background: none; border: none;
-  color: var(--red); font-size: 12px; font-weight: 600;
+  color: var(--primary); font-size: 12px; font-weight: 600;
   cursor: pointer;
 }
 .ballot-summary-change:hover { text-decoration: underline; }
@@ -1267,7 +1286,7 @@ a:hover { text-decoration: underline; }
   border-top: 1px solid var(--border);
   margin-top: 48px;
 }
-.footer a { color: var(--red); }
+.footer a { color: var(--primary); }
 .footer-inner {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -1532,7 +1551,7 @@ a:hover { text-decoration: underline; }
 }
 .cv-verbatim {
   background: #f8f8fa;
-  border-left: 3px solid var(--purple);
+  border-left: 3px solid var(--primary);
   padding: 12px 16px;
   margin: 12px 0;
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
@@ -1644,7 +1663,7 @@ a:hover { text-decoration: underline; }
 }
 .cv-website-link {
   font-size: 13px;
-  color: var(--purple);
+  color: var(--primary);
   font-weight: 500;
   text-decoration: none;
 }
