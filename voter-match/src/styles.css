@@ -430,17 +430,17 @@ a:hover { text-decoration: underline; }
   .engage-section { padding: 12px; margin-bottom: 4px; }
   .engage-title { font-size: 14px; margin-bottom: 8px; }
   .engage-subtitle { display: none; }
-  .engage-cards { grid-template-columns: 1fr 1fr; gap: 6px; }
-  .engage-card { padding: 8px 10px; gap: 2px; }
-  .engage-card-icon { font-size: 14px; }
-  .engage-card-label { font-size: 12px; }
+  .engage-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .engage-card { padding: 12px; gap: 6px; }
+  .engage-card-icon { font-size: 16px; }
+  .engage-card-label { font-size: 13px; }
   .engage-card-desc { display: none; }
   .engage-card-status { display: none; }
-  .engage-card-arrow { font-size: 11px; margin-top: 0; }
-  .active-tags-row { margin-top: 6px; gap: 3px; }
-  .active-tag { height: 24px; font-size: 11px; padding: 0 8px; }
-  .location-context { padding: 8px 12px; margin-bottom: 8px; font-size: 13px; }
-  .location-go { padding: 5px 14px; font-size: 12px; }
+  .engage-card-arrow { font-size: 14px; font-weight: 700; margin-top: 2px; }
+  .active-tags-row { margin-top: 6px; gap: 4px; }
+  .active-tag { height: 28px; font-size: 12px; padding: 0 10px; }
+  .location-context { padding: 10px 14px; margin-bottom: 10px; font-size: 14px; }
+  .location-go { padding: 8px 16px; font-size: 14px; }
 }
 
 /* ============================================================
