@@ -548,7 +548,7 @@ function renderCandidateView(): string {
     ...allIssueIds.filter(id => !ratedIds.has(id)),
   ];
 
-  const issueCards = sortedIssueIds.map(issueId => {
+  const renderIssueRow = (issueId: string) => {
     const issue = ISSUES.find(i => i.id === issueId);
     const pos = candidate.issues[issueId];
     if (!issue || !pos) return '';
@@ -556,16 +556,7 @@ function renderCandidateView(): string {
     const mi = ms.matchedIssues.find(m => m.issueId === issueId);
     const isExpanded = state.expandedPositions.has(issueId);
 
-    let matchTag = '';
-    if (mi) {
-      matchTag = mi.stance === 'agree'
-        ? '<span class="cv-match-tag agree">✓ Match</span>'
-        : '<span class="cv-match-tag disagree">✗ Differs</span>';
-    }
-
-    const pills = pos.stances.map(s =>
-      `<span class="stance-pill" style="background:${colors.bg};color:${colors.text}">${esc(s)}</span>`
-    ).join('');
+    const stanceText = pos.stances.join(' · ');
 
     const srcInfo = SOURCE_TYPE_ICONS[pos.sourceType] ?? SOURCE_TYPE_ICONS['candidate_website'];
     const srcClass = pos.sourceType === 'candidate_website' || pos.sourceType === 'public_statements' ? 'first-party' : 'third-party';
@@ -588,19 +579,45 @@ function renderCandidateView(): string {
       </div>`;
     }
 
-    return `<div class="cv-issue-card ${isExpanded ? 'expanded' : ''} ${mi ? mi.stance : ''}" id="cv-issue-${issueId}">
-      <button type="button" class="cv-issue-collapsed" data-toggle-position="${issueId}">
-        <span class="cv-issue-left">
-          <span class="cv-issue-icon">${issue.icon}</span>
-          <span class="cv-issue-label">${esc(issue.label)}</span>
-        </span>
-        ${matchTag}
-        <span class="cv-issue-pills">${pills}</span>
+    return `<div class="cv-issue-row ${isExpanded ? 'expanded' : ''} ${mi ? mi.stance : ''}" id="cv-issue-${issueId}">
+      <button type="button" class="cv-issue-row-btn" data-toggle-position="${issueId}">
+        <span class="cv-issue-icon">${issue.icon}</span>
+        <span class="cv-issue-label">${esc(issue.label)}</span>
+        <span class="cv-issue-stances" style="color:${colors.text}">${esc(stanceText)}</span>
         <svg class="cv-chevron ${isExpanded ? 'open' : ''}" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       ${expandedContent}
     </div>`;
-  }).join('');
+  };
+
+  // Split into matched vs other
+  const matchedIds = ms.matchedIssues.map(m => m.issueId);
+  const otherIds = allIssueIds.filter(id => !ratedIds.has(id));
+
+  let matchedSection = '';
+  if (matchedIds.length > 0) {
+    const agreeIds = ms.matchedIssues.filter(m => m.stance === 'agree').map(m => m.issueId);
+    const disagreeIds = ms.matchedIssues.filter(m => m.stance === 'disagree').map(m => m.issueId);
+    const matchedRows = [...agreeIds, ...disagreeIds].map(renderIssueRow).join('');
+    matchedSection = `<div class="cv-issue-group matched">
+      <div class="cv-issue-group-header">
+        <span class="cv-group-dot agree"></span>
+        Matches your priorities
+      </div>
+      <div class="cv-issue-group-rows">${matchedRows}</div>
+    </div>`;
+  }
+
+  let otherSection = '';
+  if (otherIds.length > 0) {
+    const otherRows = otherIds.map(renderIssueRow).join('');
+    otherSection = `<div class="cv-issue-group other">
+      <div class="cv-issue-group-header">Other positions</div>
+      <div class="cv-issue-group-rows">${otherRows}</div>
+    </div>`;
+  }
+
+  const issueCards = matchedSection + otherSection;
 
   // Endorsement clusters by category
   let endorseSection = '';
