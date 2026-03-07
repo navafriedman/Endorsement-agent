@@ -1,4 +1,12 @@
 {
-  "buildCommand": "cd ballot-page-prototype && npm install && npm run build",
-  "outputDirectory": "ballot-page-prototype/dist"
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/questionnaire-editor-ts/api" }
+  ],
+  "functions": {
+    "questionnaire-editor-ts/api/index.ts": {
+      "runtime": "@vercel/node@3"
+    }
+  }
 }
