@@ -1,65 +1,87 @@
 /* ============================================================
-   DESIGN TOKENS
+   DESIGN TOKENS — Figma Elections Voter Guide
    ============================================================ */
 :root {
-  --coral: #F06449;
-  --coral-hover: #E05339;
-  --coral-light: #fef2f0;
-  --coral-text: #c4391f;       /* darkened for contrast on --coral-light */
-  --purple: #8B5CF6;
-  --purple-light: #ede9fe;
-  --purple-text: #6d28d9;     /* darkened for contrast on --purple-light */
-  --teal: #2DD4BF;
-  --teal-light: #ccfbf1;
-  --blue: #3B82F6;
-  --blue-light: #dbeafe;
-  --amber: #F59E0B;
-  --amber-light: #fef3c7;
-  --green: #10B981;
-  --green-light: #d1fae5;
-  --rose: #F43F5E;
-  --rose-light: #ffe4e6;
-  --dem: #3B82F6;
-  --dem-light: #eff6ff;
-  --dem-border: #bfdbfe;
-  --rep: #EF4444;
-  --rep-light: #fef2f2;
-  --rep-border: #fecaca;
-  --bg: #f8fafc;
+  /* Primary palette */
+  --primary: #0D4DFB;
+  --primary-accent: #4771FF;
+  --primary-light: #CDDBFF;
+  --primary-bg: #F0F7FF;
+  --logo-red: #F34E49;
+  --logo-red-hover: #D93E3A;
 
-  --border: #e2e8f0;
-  --border-hover: #cbd5e1;
-  --text: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #64748b;      /* darkened from #94a3b8 for 4.6:1 contrast */
-  --radius: 10px;
-  --radius-sm: 6px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.08);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  --shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
-  --primary: var(--coral);
+  /* Greens */
+  --green: #1AA11C;
+  --green-accent: #04B54E;
+  --green-light: #E6F9E7;
+  --green-bg: #F0FDF4;
+
+  /* CTA */
+  --yellow: #FFDB00;
+  --yellow-hover: #E6C500;
+
+  /* Text */
+  --text: #403A49;
+  --text-secondary: #766F81;
+  --text-muted: #8E8898;
+
+  /* Surfaces & borders */
+  --bg: #F5F3F7;
   --surface-raised: #ffffff;
-  --surface-inset: #f8fafc;
-  --border-soft: rgba(0,0,0,0.06);
-  --agree-bg: #f0fdf4;
-  --agree-border: #bbf7d0;
-  --agree-text: #15803d;
-  --agree-icon: #16a34a;
-  --disagree-bg: #fffbeb;
-  --disagree-border: #fde68a;
-  --disagree-text: #c2410c;
-  --disagree-icon: #ea580c;
+  --surface-inset: #F9FAFB;
+  --card-bg: #F9FAFB;
+  --border: #E1DDE9;
+  --border-hover: #C5C0CE;
+  --border-soft: rgba(64,58,73,0.06);
+
+  /* Party colors */
+  --dem: #0D4DFB;
+  --dem-light: #EBF0FF;
+  --dem-border: #CDDBFF;
+  --rep: #F34E49;
+  --rep-light: #FEF2F2;
+  --rep-border: #FECACA;
+
+  /* Semantic */
+  --agree-bg: #F0FDF4;
+  --agree-border: #BBF7D0;
+  --agree-text: #15803D;
+  --agree-icon: #16A34A;
+  --disagree-bg: #FFFBEB;
+  --disagree-border: #FDE68A;
+  --disagree-text: #C2410C;
+  --disagree-icon: #EA580C;
   --success: #059669;
-  --copied-border: #22c55e;
-  --copied-text: #16a34a;
+  --copied-border: #22C55E;
+  --copied-text: #16A34A;
+
+  /* Radii */
+  --radius: 16px;
+  --radius-card: 16px;
+  --radius-pill: 24px;
+  --radius-btn: 8px;
+  --radius-sm: 6px;
+
+  /* Shadows */
+  --shadow: 0px 2px 2px rgba(0,0,0,0.05), 0px 3px 19px rgba(58,41,62,0.06);
+  --shadow-md: 0px 4px 12px rgba(58,41,62,0.08);
+  --shadow-lg: 0px 8px 30px rgba(58,41,62,0.12);
+
+  /* Legacy aliases for issue colors */
+  --blue-light: #dbeafe;
+  --amber-light: #fef3c7;
+  --rose-light: #ffe4e6;
+  --teal-light: #ccfbf1;
+  --purple-light: #F0ECFF;
+  --purple-text: #6D28D9;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
+  font-family: 'Commissioner', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
@@ -70,7 +92,7 @@ body {
    GLOBAL FOCUS INDICATOR
    ============================================================ */
 *:focus-visible {
-  outline: 2px solid var(--coral);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -81,7 +103,7 @@ body {
   position: absolute;
   left: -9999px;
   top: 0;
-  background: var(--coral);
+  background: var(--primary);
   color: white;
   padding: 8px 16px;
   font-weight: 600;
@@ -110,7 +132,7 @@ body {
   border: 0;
 }
 
-.container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+.container { max-width: 960px; margin: 0 auto; padding: 0 32px; }
 
 /* ============================================================
    HEADER
@@ -118,7 +140,7 @@ body {
 .header {
   background: var(--surface-raised);
   border-bottom: 1px solid var(--border);
-  padding: 14px 0;
+  padding: 12px 0;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -129,14 +151,15 @@ body {
   gap: 12px;
 }
 .logo {
+  font-family: 'Commissioner', sans-serif;
   font-size: 18px;
   font-weight: 700;
-  color: var(--coral);
+  color: var(--logo-red);
   text-decoration: none;
 }
 .logo span { color: var(--text); }
 .header-tagline {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-muted);
   font-weight: 500;
 }
@@ -146,7 +169,7 @@ body {
   gap: 5px;
   padding: 6px 14px;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   background: var(--surface-raised);
   color: var(--text-secondary);
   font-size: 12px;
@@ -156,9 +179,9 @@ body {
   margin-left: auto;
 }
 .print-guide-btn:hover {
-  border-color: var(--coral);
-  color: var(--coral);
-  background: var(--coral-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-bg);
 }
 .print-guide-btn svg {
   width: 15px;
@@ -169,9 +192,11 @@ body {
    BALLOT HEADLINE
    ============================================================ */
 .ballot-headline {
-  font-size: 22px;
+  font-family: 'Commissioner', sans-serif;
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: -0.4px;
+  line-height: 32px;
+  letter-spacing: -0.3px;
   color: var(--text);
   margin: 24px 0 0;
 }
@@ -182,7 +207,7 @@ body {
 .toolbar {
   background: var(--surface-raised);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   margin: 20px 0 4px;
   box-shadow: var(--shadow);
   position: relative;
@@ -196,8 +221,8 @@ body {
 }
 .toolbar-top {
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
-  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--surface-inset);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
 
 /* Address section */
@@ -221,7 +246,8 @@ body {
   padding: 6px 10px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 13px;
+  font-size: 14px;
+  font-family: 'Commissioner', sans-serif;
   background: var(--surface-raised);
   color: var(--text);
   transition: border-color 0.15s;
@@ -233,8 +259,9 @@ body {
   padding: 6px 14px;
   border: none;
   border-radius: var(--radius-sm);
-  background: var(--coral);
+  background: var(--primary);
   color: white;
+  font-family: 'Commissioner', sans-serif;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -242,13 +269,13 @@ body {
   transition: background 0.15s;
 }
 .toolbar-addr-btn:hover,
-.toolbar-addr-btn:focus-visible { background: var(--coral-hover); }
+.toolbar-addr-btn:focus-visible { background: #0A3EC9; }
 
 .toolbar-address-confirmed {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--success);
 }
@@ -286,8 +313,8 @@ body {
   min-height: 36px;
   padding: 6px 14px;
   border: 1.5px solid var(--border);
-  border-radius: 20px;
-  font-size: 13px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   background: var(--surface-raised);
@@ -297,15 +324,15 @@ body {
 .filter-dropdown-btn:hover,
 .filter-dropdown-btn:focus-visible {
   border-color: var(--border-hover);
-  background: var(--bg);
+  background: var(--surface-inset);
 }
 .filter-dropdown-btn.has-selections {
-  border-color: var(--coral-text);
-  background: var(--coral-light);
-  color: var(--coral-text);
+  border-color: var(--primary);
+  background: var(--primary-bg);
+  color: var(--primary);
 }
 .filter-dropdown-btn .badge {
-  background: var(--coral);
+  background: var(--primary);
   color: white;
   font-size: 11px;
   font-weight: 700;
@@ -332,7 +359,7 @@ body {
   z-index: 200;
   background: var(--surface-raised);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   padding: 16px;
   box-shadow: var(--shadow-lg);
   min-width: 340px;
@@ -340,14 +367,17 @@ body {
 }
 .filter-dropdown.open .filter-popover { display: block; }
 .filter-popover-heading {
-  font-size: 14px;
-  font-weight: 600;
+  font-family: 'Commissioner', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
   margin-bottom: 4px;
 }
 .filter-popover p {
   font-size: 12px;
   color: var(--text-muted);
   margin-bottom: 10px;
+  line-height: 16px;
 }
 
 /* Unified popover sections */
@@ -388,7 +418,7 @@ body {
 }
 .filter-active-tag:hover,
 .filter-active-tag:focus-visible { opacity: 0.7; }
-.filter-active-tag.issue-tag { background: var(--coral-light); color: var(--coral-text); }
+.filter-active-tag.issue-tag { background: var(--primary-light); color: var(--primary); }
 .filter-active-tag.identity-tag { background: var(--purple-light); color: var(--purple-text); }
 .filter-active-tag .remove { font-size: 10px; margin-left: 2px; }
 
@@ -404,13 +434,14 @@ body {
   padding: 4px 8px;
 }
 .clear-all-link:hover,
-.clear-all-link:focus-visible { color: var(--coral); text-decoration: underline; }
+.clear-all-link:focus-visible { color: var(--primary); text-decoration: underline; }
 
 .filter-bar-hint {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   text-align: center;
   margin: 4px 0 16px;
+  line-height: 20px;
 }
 .filter-bar-hint.defaults-active {
   display: inline-flex;
@@ -419,9 +450,9 @@ body {
   width: auto;
   margin: 8px auto 16px;
   padding: 8px 16px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, var(--coral-light), #fef9f0);
-  border: 1px solid rgba(240,100,73,0.15);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--primary-bg), #F9FAFB);
+  border: 1px solid rgba(13,77,251,0.12);
   color: var(--text-secondary);
   font-weight: 500;
   animation: hintSlideIn 0.3s ease;
@@ -438,7 +469,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--coral);
+  background: var(--primary);
   border: none;
   color: white;
   font-size: 11px;
@@ -450,16 +481,16 @@ body {
   transition: background 0.15s;
   letter-spacing: 0.2px;
 }
-.hint-customize-btn:hover { background: var(--coral-hover); }
+.hint-customize-btn:hover { background: #0A3EC9; }
 .hint-customize-btn.subtle {
   background: var(--surface-raised);
   color: var(--text-muted);
   border: 1px solid var(--border);
 }
 .hint-customize-btn.subtle:hover {
-  background: var(--coral-light);
-  color: var(--coral);
-  border-color: var(--coral);
+  background: var(--primary-bg);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 .hint-customize-btn svg {
   width: 12px;
@@ -477,7 +508,7 @@ body {
   min-height: 36px;
   padding: 6px 12px;
   border: 1.5px solid var(--border);
-  border-radius: 24px;
+  border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -487,18 +518,18 @@ body {
   transition: all 0.15s;
 }
 .pill:hover,
-.pill:focus-visible { border-color: var(--border-hover); background: var(--bg); }
-.pill.selected { border-color: var(--coral-text); background: var(--coral-light); color: var(--coral-text); }
+.pill:focus-visible { border-color: var(--border-hover); background: var(--surface-inset); }
+.pill.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
 .pill.identity.selected { border-color: var(--purple-text); background: var(--purple-light); color: var(--purple-text); }
 .pill-icon { font-size: 14px; line-height: 1; }
 .pill-count {
   font-size: 11px;
-  background: var(--bg);
+  background: var(--surface-inset);
   padding: 1px 6px;
   border-radius: 8px;
   color: var(--text-muted);
 }
-.pill.selected .pill-count { background: rgba(196,57,31,0.15); color: var(--coral-text); }
+.pill.selected .pill-count { background: rgba(13,77,251,0.12); color: var(--primary); }
 .pill.identity.selected .pill-count { background: rgba(109,40,217,0.15); color: var(--purple-text); }
 
 /* ============================================================
@@ -507,7 +538,7 @@ body {
 .race-card {
   background: var(--surface-raised);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-card);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
 }
@@ -517,9 +548,16 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--bg);
+  background: var(--surface-inset);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
 }
-.race-name { font-size: 16px; font-weight: 700; flex: 1; }
+.race-name {
+  font-family: 'Commissioner', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+  flex: 1;
+}
 
 .race-share-btn {
   display: inline-flex;
@@ -527,7 +565,7 @@ body {
   gap: 4px;
   padding: 4px 10px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--surface-raised);
   color: var(--text-secondary);
   font-size: 12px;
@@ -536,7 +574,7 @@ body {
   transition: all 0.15s;
   white-space: nowrap;
 }
-.race-share-btn:hover { background: var(--bg); color: var(--text); }
+.race-share-btn:hover { background: var(--surface-inset); color: var(--text); }
 .race-share-btn.copied { border-color: var(--copied-border); color: var(--copied-text); }
 .race-share-btn svg {
   width: 14px;
@@ -550,7 +588,7 @@ body {
   padding: 3px 10px;
   border-radius: 12px;
 }
-.race-badge.federal { background: var(--blue-light); color: #1d4ed8; }
+.race-badge.federal { background: var(--dem-light); color: #1d4ed8; }
 .race-badge.state { background: var(--amber-light); color: #92400e; }
 .race-badge.local { background: var(--green-light); color: #065f46; }
 
@@ -574,7 +612,7 @@ body {
 /* Inline issue blocks within candidate header */
 .inline-issue {
   margin-top: 8px;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   border: 1px solid var(--border);
   transition: all 0.15s;
   overflow: hidden;
@@ -629,7 +667,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   border-radius: 8px;
   font-size: 10px;
   font-weight: 600;
-  background: var(--bg);
+  background: var(--surface-inset);
   color: var(--text-muted);
   cursor: pointer;
   border: 1px solid var(--border);
@@ -676,7 +714,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
-  background: var(--bg);
+  background: var(--surface-inset);
   border: 2px solid var(--border);
   color: var(--text-muted);
 }
@@ -690,11 +728,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .candidate-info { min-width: 0; }
 .candidate-info h4 {
-  font-size: 15px;
+  font-family: 'Commissioner', sans-serif;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 24px;
 }
-.candidate-meta { font-size: 12px; color: var(--text-muted); }
+.candidate-meta { font-size: 12px; color: var(--text-muted); line-height: 16px; }
 .incumbent-badge {
   font-size: 10px;
   font-weight: 600;
@@ -744,7 +783,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   border-radius: 8px;
   font-size: 10px;
   font-weight: 700;
-  background: var(--bg);
+  background: var(--surface-inset);
   color: var(--text-muted);
   cursor: pointer;
   border: 1px solid var(--border);
@@ -798,7 +837,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .endorsement-match-score.high { background: var(--green-light); color: #065f46; }
 .endorsement-match-score.medium { background: var(--purple-light); color: var(--purple-text); }
-.endorsement-match-score.low { background: var(--bg); color: var(--text-muted); }
+.endorsement-match-score.low { background: var(--surface-inset); color: var(--text-muted); }
 .endorsement-check {
   font-size: 10px;
   color: var(--purple-text);
@@ -853,12 +892,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .issue-section-icon { font-size: 16px; line-height: 1; }
 .issue-section-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
 }
 .issue-section-header.compact .issue-section-label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -908,8 +947,8 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .stance-pill {
   display: inline-block;
   padding: 3px 10px;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: var(--radius-btn);
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
   line-height: 1.4;
@@ -948,7 +987,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .position-detail.visible { display: block; }
 
 .position-quote {
+  font-family: 'Merriweather', 'Georgia', serif;
   font-size: 13px;
+  font-style: italic;
   color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: 6px;
@@ -1045,7 +1086,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   font-size: 10px;
   font-weight: 600;
   color: var(--text-muted);
-  background: var(--bg);
+  background: var(--surface-inset);
   padding: 2px 8px;
   border-radius: 8px;
   border: 1px dashed var(--border);
@@ -1092,12 +1133,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .rate-stances-btn:hover,
 .rate-stances-btn:focus-visible {
-  border-color: var(--coral);
-  color: var(--coral);
-  background: var(--coral-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-bg);
 }
 .rate-stances-btn:hover svg,
-.rate-stances-btn:focus-visible svg { fill: var(--coral); }
+.rate-stances-btn:focus-visible svg { fill: var(--primary); }
 .rate-stances-btn.active {
   border-color: var(--agree-border);
   background: var(--agree-bg);
@@ -1120,7 +1161,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   align-items: center;
   gap: 4px;
   padding: 0;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text);
   cursor: pointer;
@@ -1162,9 +1203,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .other-issue-tag:hover,
 .other-issue-tag:focus-visible {
-  border-color: var(--coral-text);
-  background: var(--coral-light);
-  color: var(--coral-text);
+  border-color: var(--primary);
+  background: var(--primary-bg);
+  color: var(--primary);
 }
 .other-issue-more {
   font-size: 11px;
@@ -1187,13 +1228,13 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   color: var(--text-muted);
   text-decoration: none;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   transition: all 0.15s;
   white-space: nowrap;
 }
 .header-support-link:hover {
-  color: var(--coral);
-  background: var(--coral-light);
+  color: var(--logo-red);
+  background: var(--rep-light);
 }
 .header-support-link svg {
   width: 14px;
@@ -1205,9 +1246,9 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
    ============================================================ */
 .donation-card {
   position: relative;
-  background: linear-gradient(135deg, #fef2f0 0%, #fef9f0 50%, #ede9fe 100%);
-  border: 1px solid rgba(240,100,73,0.18);
-  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--primary-bg) 0%, #F9FAFB 50%, var(--purple-light) 100%);
+  border: 1px solid rgba(13,77,251,0.12);
+  border-radius: var(--radius-card);
   margin-bottom: 20px;
   box-shadow: var(--shadow);
   padding: 20px 24px;
@@ -1239,7 +1280,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--coral);
+  background: var(--logo-red);
   color: white;
   display: flex;
   align-items: center;
@@ -1260,10 +1301,10 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   margin-bottom: 2px;
 }
 .donation-text p {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.4;
+  line-height: 20px;
 }
 .donation-actions {
   display: flex;
@@ -1274,8 +1315,8 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: inline-flex;
   align-items: center;
   padding: 8px 18px;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: var(--radius-btn);
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
@@ -1283,11 +1324,11 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   white-space: nowrap;
 }
 .donation-btn.primary {
-  background: var(--coral);
+  background: var(--primary);
   color: white;
   border: none;
 }
-.donation-btn.primary:hover { background: var(--coral-hover); }
+.donation-btn.primary:hover { background: #0A3EC9; }
 .donation-btn.secondary {
   background: var(--surface-raised);
   color: var(--text-muted);
@@ -1302,7 +1343,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(64,58,73,0.5);
   z-index: 1000;
   align-items: center;
   justify-content: center;
@@ -1313,7 +1354,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .donation-modal {
   position: relative;
   background: var(--surface-raised);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 32px 36px;
   box-shadow: var(--shadow-lg);
   max-width: 380px;
@@ -1344,8 +1385,8 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--coral-light);
-  color: var(--coral);
+  background: var(--primary-bg);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1356,8 +1397,10 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   height: 22px;
 }
 .donation-modal h2 {
+  font-family: 'Commissioner', sans-serif;
   font-size: 18px;
   font-weight: 700;
+  line-height: 24px;
   color: var(--text);
   margin-bottom: 4px;
 }
@@ -1365,6 +1408,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   font-size: 14px;
   color: var(--text-secondary);
   margin-bottom: 20px;
+  line-height: 20px;
 }
 .donation-modal-amounts {
   display: flex;
@@ -1378,7 +1422,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   justify-content: center;
   min-width: 64px;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-btn);
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -1389,24 +1433,24 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   color: var(--text);
 }
 .donation-amount-btn:hover {
-  border-color: var(--coral);
-  background: var(--coral-light);
-  color: var(--coral);
+  border-color: var(--primary);
+  background: var(--primary-bg);
+  color: var(--primary);
 }
 .donation-amount-btn.featured {
-  border-color: var(--coral);
-  background: var(--coral);
+  border-color: var(--primary);
+  background: var(--primary);
   color: white;
 }
 .donation-amount-btn.featured:hover {
-  background: var(--coral-hover);
-  border-color: var(--coral-hover);
+  background: #0A3EC9;
+  border-color: #0A3EC9;
 }
 .donation-modal-skip {
   background: none;
   border: none;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
   padding: 6px 12px;
   transition: color 0.15s;
@@ -1421,11 +1465,12 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   text-align: center;
   color: var(--text-muted);
   font-size: 12px;
+  background: var(--primary-bg);
   border-top: 1px solid var(--border);
   margin-top: 40px;
-  line-height: 1.8;
+  line-height: 20px;
 }
-.footer a { color: var(--coral-text); text-decoration: none; }
+.footer a { color: var(--primary); text-decoration: none; }
 .footer a:hover { text-decoration: underline; }
 
 /* ============================================================
@@ -1479,7 +1524,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 
 @media (max-width: 400px) {
-  .container { padding: 0 14px; }
+  .container { padding: 0 16px; }
   .candidate-header-cell { padding: 12px 14px; }
   .position-cell { padding: 10px 14px; }
   .issue-section-header { padding: 8px 14px; }
@@ -1540,7 +1585,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   z-index: 500;
   background: var(--surface-raised);
   border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 -4px 20px rgba(58,41,62,0.1);
   animation: ballotBarSlideUp 0.3s ease;
 }
 @keyframes ballotBarSlideUp {
@@ -1571,15 +1616,15 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   gap: 6px;
   padding: 8px 20px;
   border: none;
-  border-radius: 8px;
-  background: var(--coral);
+  border-radius: var(--radius-btn);
+  background: var(--primary);
   color: white;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.15s;
 }
-.ballot-bar-btn:hover { background: var(--coral-hover); }
+.ballot-bar-btn:hover { background: #0A3EC9; }
 .ballot-bar-btn svg { stroke: white; }
 
 /* ============================================================
@@ -1589,7 +1634,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   z-index: 1000;
-  background: rgba(0,0,0,0.5);
+  background: rgba(64,58,73,0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1597,7 +1642,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .ballot-summary {
   background: var(--surface-raised);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   box-shadow: var(--shadow-lg);
   max-width: 560px;
   width: calc(100% - 32px);
@@ -1614,12 +1659,14 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   border-bottom: 1px solid var(--border);
 }
 .ballot-summary-header h2 {
+  font-family: 'Commissioner', sans-serif;
   font-size: 18px;
   font-weight: 700;
+  line-height: 24px;
   flex: 1;
 }
 .ballot-summary-count {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--green);
   background: var(--green-light);
@@ -1655,7 +1702,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   margin-bottom: 8px;
 }
 .ballot-summary-race-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
 }
@@ -1673,7 +1720,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 }
 .ballot-summary-candidate strong {
   display: block;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
 }
 .ballot-summary-candidate .candidate-meta {
@@ -1688,7 +1735,7 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
 .ballot-summary-change {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -1698,11 +1745,11 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   transition: all 0.15s;
 }
 .ballot-summary-change:hover {
-  border-color: var(--coral);
-  color: var(--coral);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 .ballot-summary-undecided {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-muted);
   font-style: italic;
 }
@@ -1721,31 +1768,31 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   gap: 6px;
   padding: 8px 18px;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   background: var(--surface-raised);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s;
 }
 .ballot-summary-print:hover {
-  border-color: var(--coral);
-  color: var(--coral);
-  background: var(--coral-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-bg);
 }
 .ballot-summary-done {
   padding: 8px 18px;
   border: none;
-  border-radius: 8px;
-  background: var(--coral);
+  border-radius: var(--radius-btn);
+  background: var(--primary);
   color: white;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.15s;
 }
-.ballot-summary-done:hover { background: var(--coral-hover); }
+.ballot-summary-done:hover { background: #0A3EC9; }
 
 /* ============================================================
    PRINT
