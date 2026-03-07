@@ -5,6 +5,8 @@
     { "source": "/api/(.*)", "destination": "/questionnaire-editor-ts/api" }
   ],
   "functions": {
-    "questionnaire-editor-ts/api/index.ts": {}
+    "questionnaire-editor-ts/api/index.ts": {
+      "maxDuration": 10
+    }
   }
 }
