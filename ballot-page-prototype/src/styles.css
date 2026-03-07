@@ -643,6 +643,17 @@ button.inline-issue-header:hover { background: rgba(0,0,0,0.02); }
   line-height: 1;
   flex-shrink: 0;
 }
+.inline-issue-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.inline-issue.rated-agree .inline-issue-label { color: var(--agree-text); }
+.inline-issue.rated-disagree .inline-issue-label { color: var(--disagree-text); }
 .inline-issue-chevron {
   margin-left: auto;
   flex-shrink: 0;

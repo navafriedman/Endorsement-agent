@@ -381,6 +381,7 @@ function renderInlineIssue(c: Candidate, issueId: string): string {
   return `<div class="inline-issue ${ratedClass} ${isOpen ? 'expanded' : ''}">
     <button type="button" class="inline-issue-header" data-issue-expand="${esc(expandKey)}" aria-expanded="${isOpen}">
       <span class="inline-issue-icon" aria-hidden="true">${issue.icon}</span>
+      <span class="inline-issue-label">${esc(issue.label)}</span>
       <div class="stance-pills-block">${stancePills}</div>
       <span class="inline-issue-chevron">${ICON_CHEVRON}</span>
     </button>
@@ -442,8 +443,20 @@ function renderEndorsementMatch(c: Candidate): string {
   </div>`;
 }
 
+function getIssueSortPriority(c: Candidate, issueId: string): number {
+  if (!c.issues[issueId]) return 3; // no position — last
+  const key = `${c.name}:${issueId}`;
+  const explicit = state.getAlignment(key);
+  if (explicit) return 0; // explicitly rated — top
+  const inferred = getInferredAlignment(c, issueId);
+  if (inferred) return 1; // inferred match — second
+  return 2; // has position but no rating
+}
+
 function renderCandidateHeader(c: Candidate, raceId: string): string {
-  const selectedIssueIds = [...state.selectedIssues];
+  const selectedIssueIds = [...state.selectedIssues].sort((a, b) =>
+    getIssueSortPriority(c, a) - getIssueSortPriority(c, b)
+  );
   const issueBlocksHtml = selectedIssueIds.map(id => renderInlineIssue(c, id)).join('');
   const endorsementsHtml = renderEndorsementMatch(c);
 
