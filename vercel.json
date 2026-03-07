@@ -1,12 +1,4 @@
 {
   "buildCommand": "npm install && npm run build",
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/questionnaire-editor-ts/api" }
-  ],
-  "functions": {
-    "questionnaire-editor-ts/api/index.ts": {
-      "maxDuration": 10
-    }
-  }
+  "outputDirectory": "dist"
 }
