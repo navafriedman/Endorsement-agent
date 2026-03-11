@@ -8,6 +8,13 @@ function esc(s: string): string {
   return div.innerHTML;
 }
 
+function joinList(items: string[]): string {
+  if (items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return items.slice(0, -1).join(', ') + ', and ' + items[items.length - 1];
+}
+
 const RACE_TYPE_ORDER: Record<string, number> = { federal: 0, state: 1, local: 2 };
 const ICON_CHECK = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
 
@@ -124,9 +131,41 @@ function renderFilterSection(): string {
     ? `<span class="engage-card-arrow">Edit →</span>`
     : `<span class="engage-card-arrow">Choose →</span>`;
 
+  // Build preference sentence when user has set preferences
+  let sentenceHtml = '';
+  if (hasPrefs) {
+    const parts: string[] = [];
+
+    // Collect stance labels
+    const stanceLabels: string[] = [];
+    for (const [issueId, choice] of state.issueStances) {
+      if (choice === 'skip') continue;
+      const stances = ISSUE_STANCES[issueId];
+      if (!stances) continue;
+      stanceLabels.push(choice === 'agree' ? stances.shortProgressive.toLowerCase() : stances.shortConservative.toLowerCase());
+    }
+    if (stanceLabels.length > 0) {
+      parts.push(`I support <strong>${joinList(stanceLabels)}</strong>`);
+    }
+
+    // Collect group categories
+    const groupLabels: string[] = [];
+    for (const gid of state.selectedGroups) {
+      const g = IDENTITY_GROUPS.find(x => x.id === gid);
+      if (g) groupLabels.push(g.label);
+    }
+    if (groupLabels.length > 0) {
+      parts.push(`trust the recommendations of <strong>${joinList(groupLabels)}</strong>`);
+    }
+
+    if (parts.length > 0) {
+      sentenceHtml = `<p class="engage-sentence">${parts.join(' and ')}</p>`;
+    }
+  }
+
   return `<div class="engage-section">
     <h2 class="engage-title">Personalize your ballot</h2>
-    <p class="engage-subtitle">Tell us what matters to you and we'll rank candidates by how well they match.</p>
+    ${sentenceHtml || '<p class="engage-subtitle">Tell us what matters to you and we\'ll rank candidates by how well they match.</p>'}
     ${renderLocationContext()}
     <div class="engage-cards">
       <button class="engage-card ${issueCardClass}" data-open-filter="issues">

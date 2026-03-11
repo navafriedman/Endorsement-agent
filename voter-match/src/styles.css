@@ -318,8 +318,8 @@ a:hover { text-decoration: underline; }
   transition: opacity 0.15s;
 }
 .active-tag:hover { opacity: 0.7; }
-.active-tag.issue-tag { background: var(--green-light); color: var(--green-text); }
-.active-tag.group-tag { background: var(--primary-light); color: var(--primary-text); }
+.active-tag.issue-tag { background: var(--bg-muted); color: var(--text-secondary); }
+.active-tag.group-tag { background: var(--bg-muted); color: var(--text-secondary); }
 .tag-x { font-size: 10px; margin-left: 2px; }
 
 .filter-hint {
@@ -349,6 +349,16 @@ a:hover { text-decoration: underline; }
   font-size: 14px;
   color: var(--text-secondary);
   margin-bottom: 16px;
+}
+.engage-sentence {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+.engage-sentence strong {
+  color: var(--text);
+  font-weight: 600;
 }
 .engage-cards {
   display: grid;
@@ -380,11 +390,11 @@ a:hover { text-decoration: underline; }
   background: var(--primary-light);
 }
 .engage-card.done {
-  border-color: var(--green);
-  background: var(--green-light);
+  border-color: var(--primary);
+  background: var(--primary-light);
 }
 .engage-card.done:hover {
-  border-color: var(--green);
+  border-color: var(--primary);
   box-shadow: var(--shadow-md);
 }
 .engage-card-title {
@@ -414,7 +424,7 @@ a:hover { text-decoration: underline; }
   line-height: 1.4;
 }
 .engage-card-status.done {
-  color: var(--green);
+  color: var(--primary);
   font-weight: 600;
 }
 .engage-card-arrow {
@@ -424,7 +434,7 @@ a:hover { text-decoration: underline; }
   margin-top: 2px;
 }
 .engage-card.done .engage-card-arrow {
-  color: var(--green-text);
+  color: var(--primary-text);
 }
 @media (max-width: 500px) {
   .engage-section { padding: 12px; margin-bottom: 4px; }
