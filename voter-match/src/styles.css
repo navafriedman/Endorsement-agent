@@ -352,13 +352,29 @@ a:hover { text-decoration: underline; }
 }
 .engage-sentence {
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 2.2;
   color: var(--text-secondary);
-  margin-bottom: 14px;
+  margin-top: 14px;
+  margin-bottom: 0;
 }
-.engage-sentence strong {
-  color: var(--text);
+.sentence-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
   font-weight: 600;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.sentence-pill.issue-pill {
+  background: var(--primary-light);
+  color: var(--primary-text);
+}
+.sentence-pill.group-pill {
+  background: var(--purple-light);
+  color: var(--purple-text);
 }
 .engage-cards {
   display: grid;

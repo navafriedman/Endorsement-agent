@@ -131,31 +131,33 @@ function renderFilterSection(): string {
     ? `<span class="engage-card-arrow">Edit →</span>`
     : `<span class="engage-card-arrow">Choose →</span>`;
 
-  // Build preference sentence when user has set preferences
+  // Build preference sentence with inline pills
   let sentenceHtml = '';
   if (hasPrefs) {
     const parts: string[] = [];
 
-    // Collect stance labels
-    const stanceLabels: string[] = [];
+    // Build stance pills
+    const stancePills: string[] = [];
     for (const [issueId, choice] of state.issueStances) {
       if (choice === 'skip') continue;
+      const issue = ISSUES.find(i => i.id === issueId);
       const stances = ISSUE_STANCES[issueId];
-      if (!stances) continue;
-      stanceLabels.push(choice === 'agree' ? stances.shortProgressive.toLowerCase() : stances.shortConservative.toLowerCase());
+      if (!stances || !issue) continue;
+      const label = choice === 'agree' ? stances.shortProgressive : stances.shortConservative;
+      stancePills.push(`<span class="sentence-pill issue-pill">${issue.icon} ${esc(label)}</span>`);
     }
-    if (stanceLabels.length > 0) {
-      parts.push(`I support <strong>${joinList(stanceLabels)}</strong>`);
+    if (stancePills.length > 0) {
+      parts.push(`I support ${stancePills.join(' ')}`);
     }
 
-    // Collect group categories
-    const groupLabels: string[] = [];
+    // Build group pills
+    const groupPills: string[] = [];
     for (const gid of state.selectedGroups) {
       const g = IDENTITY_GROUPS.find(x => x.id === gid);
-      if (g) groupLabels.push(g.label);
+      if (g) groupPills.push(`<span class="sentence-pill group-pill">${g.icon} ${esc(g.label)}</span>`);
     }
-    if (groupLabels.length > 0) {
-      parts.push(`trust the recommendations of <strong>${joinList(groupLabels)}</strong>`);
+    if (groupPills.length > 0) {
+      parts.push(`trust ${groupPills.join(' ')}`);
     }
 
     if (parts.length > 0) {
@@ -165,7 +167,7 @@ function renderFilterSection(): string {
 
   return `<div class="engage-section">
     <h2 class="engage-title">Personalize your ballot</h2>
-    ${sentenceHtml || '<p class="engage-subtitle">Tell us what matters to you and we\'ll rank candidates by how well they match.</p>'}
+    <p class="engage-subtitle">Tell us what matters to you and we'll rank candidates by how well they match.</p>
     ${renderLocationContext()}
     <div class="engage-cards">
       <button class="engage-card ${issueCardClass}" data-open-filter="issues">
@@ -179,9 +181,7 @@ function renderFilterSection(): string {
         ${groupCta}
       </button>
     </div>
-    ${activeTags ? `<div class="active-tags-row">${activeTags}
-      ${hasPrefs ? '<button class="clear-link" id="clear-all">Clear all</button>' : ''}
-    </div>` : ''}
+    ${sentenceHtml}
   </div>`;
 }
 
