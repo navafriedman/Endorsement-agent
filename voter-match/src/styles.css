@@ -356,6 +356,13 @@ a:hover { text-decoration: underline; }
   background: var(--primary-light);
   color: var(--primary-text);
 }
+.sentence-pill.imp-high {
+  border: 1.5px solid var(--primary);
+  font-weight: 700;
+}
+.sentence-pill.imp-low {
+  opacity: 0.6;
+}
 .sentence-pill.group-pill {
   background: var(--purple-light);
   color: var(--purple-text);
@@ -451,9 +458,10 @@ a:hover { text-decoration: underline; }
 }
 .issue-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
   padding: 10px 0;
   border-bottom: 1px solid var(--border);
 }
@@ -501,6 +509,45 @@ a:hover { text-decoration: underline; }
   color: var(--primary-text);
   font-weight: 600;
 }
+.importance-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+.importance-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.importance-toggle {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.imp-opt {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: none;
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.imp-opt:last-child { border-right: none; }
+.imp-opt:hover { background: var(--bg-muted); }
+.imp-opt.imp-sel {
+  background: var(--primary-light);
+  color: var(--primary-text);
+  font-weight: 600;
+}
 @media (max-width: 500px) {
   .issue-row {
     flex-direction: column;
@@ -512,6 +559,8 @@ a:hover { text-decoration: underline; }
   .issue-row-icon { font-size: 15px; }
   .issue-row-options { width: 100%; }
   .stance-opt { flex: 1; padding: 8px 10px; font-size: 13px; }
+  .importance-row { margin-top: 4px; }
+  .imp-opt { padding: 3px 8px; font-size: 10px; }
 }
 
 /* ============================================================

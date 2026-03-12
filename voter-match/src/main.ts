@@ -101,6 +101,15 @@ app.addEventListener('click', (e) => {
     return;
   }
 
+  // Importance selection
+  const impBtn = target.closest('[data-imp-issue]') as HTMLElement | null;
+  if (impBtn) {
+    const issueId = impBtn.getAttribute('data-imp-issue')!;
+    const level = impBtn.getAttribute('data-imp-level')! as 'low' | 'medium' | 'high';
+    state.setIssueImportance(issueId, level);
+    return;
+  }
+
   // Group selection
   const groupBtn = target.closest('[data-group]') as HTMLElement | null;
   if (groupBtn) {

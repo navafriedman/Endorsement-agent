@@ -1,10 +1,11 @@
-import type { StanceChoice, MatchScore, Candidate, Race } from './types';
+import type { StanceChoice, IssueImportance, MatchScore, Candidate, Race } from './types';
 import { RACES, IDENTITY_GROUPS, ISSUE_STANCES } from './data';
 
 type Listener = () => void;
 
 class AppState {
   private _issueStances = new Map<string, StanceChoice>();
+  private _issueImportance = new Map<string, IssueImportance>();
   private _selectedGroups = new Set<string>();
   private _selectedCandidates = new Map<string, string>();
   private _expandedCards = new Set<string>();
@@ -20,6 +21,7 @@ class AppState {
   private listeners: Listener[] = [];
 
   get issueStances(): ReadonlyMap<string, StanceChoice> { return this._issueStances; }
+  get issueImportance(): ReadonlyMap<string, IssueImportance> { return this._issueImportance; }
   get selectedGroups(): ReadonlySet<string> { return this._selectedGroups; }
   get selectedCandidates(): ReadonlyMap<string, string> { return this._selectedCandidates; }
   get ballotOpen(): boolean { return this._ballotOpen; }
@@ -40,7 +42,24 @@ class AppState {
 
   setIssueStance(issueId: string, choice: StanceChoice): void {
     this._issueStances.set(issueId, choice);
+    // Default importance to 'medium' when first choosing a stance
+    if (choice !== 'skip' && !this._issueImportance.has(issueId)) {
+      this._issueImportance.set(issueId, 'medium');
+    }
+    if (choice === 'skip') {
+      this._issueImportance.delete(issueId);
+    }
     this.notify();
+  }
+
+  setIssueImportance(issueId: string, importance: IssueImportance): void {
+    this._issueImportance.set(issueId, importance);
+    this.notify();
+  }
+
+  getIssueWeight(issueId: string): number {
+    const imp = this._issueImportance.get(issueId) ?? 'medium';
+    return imp === 'high' ? 3 : imp === 'medium' ? 2 : 1;
   }
 
   toggleGroup(id: string): void {
@@ -144,6 +163,7 @@ class AppState {
 
   clearIssues(): void {
     this._issueStances.clear();
+    this._issueImportance.clear();
     this.notify();
   }
 
@@ -162,6 +182,8 @@ class AppState {
   }
 
   private scoreCandidate(candidate: Candidate, race: Race): MatchScore {
+    let weightedMatches = 0;
+    let weightedTotal = 0;
     let issueMatches = 0;
     let issueTotal = 0;
     const matchedIssues: { issueId: string; stance: 'agree' | 'disagree' }[] = [];
@@ -171,10 +193,13 @@ class AppState {
       const pos = candidate.issues[issueId];
       if (!pos) continue;
 
+      const weight = this.getIssueWeight(issueId);
       issueTotal++;
+      weightedTotal += weight;
       const alignment = this.getCandidateAlignment(candidate, issueId, choice);
       if (alignment === 'agree') {
         issueMatches++;
+        weightedMatches += weight;
         matchedIssues.push({ issueId, stance: 'agree' });
       } else {
         matchedIssues.push({ issueId, stance: 'disagree' });
@@ -197,11 +222,11 @@ class AppState {
 
     let score: number;
     if (hasIssues && hasEndorsements) {
-      const issueScore = (issueMatches / issueTotal) * 100;
+      const issueScore = (weightedMatches / weightedTotal) * 100;
       const endorseScore = (endorsementMatches / endorsementTotal) * 100;
       score = issueScore * 0.6 + endorseScore * 0.4;
     } else if (hasIssues) {
-      score = (issueMatches / issueTotal) * 100;
+      score = (weightedMatches / weightedTotal) * 100;
     } else if (hasEndorsements) {
       score = (endorsementMatches / endorsementTotal) * 100;
     } else {

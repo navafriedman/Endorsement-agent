@@ -43,6 +43,7 @@ export interface Race {
 }
 
 export type StanceChoice = 'agree' | 'disagree' | 'skip';
+export type IssueImportance = 'low' | 'medium' | 'high';
 
 export interface UserStance {
   issueId: string;

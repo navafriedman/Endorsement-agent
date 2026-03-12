@@ -91,7 +91,9 @@ function renderFilterSection(): string {
       const stances = ISSUE_STANCES[issueId];
       if (!stances || !issue) continue;
       const label = choice === 'agree' ? stances.shortProgressive : stances.shortConservative;
-      pills.push(`<span class="sentence-pill issue-pill">${issue.icon} ${esc(label)}</span>`);
+      const imp = state.issueImportance.get(issueId) ?? 'medium';
+      const impClass = imp === 'high' ? ' imp-high' : imp === 'low' ? ' imp-low' : '';
+      pills.push(`<span class="sentence-pill issue-pill${impClass}">${issue.icon} ${esc(label)}</span>`);
     }
     issueSlot = `<span class="sentence-slot" data-open-filter="issues">${pills.join(' ')}</span>`;
   } else {
@@ -131,6 +133,8 @@ function renderIssuesPanel(): string {
     const stances = ISSUE_STANCES[issue.id];
     if (!stances) return '';
     const current = state.issueStances.get(issue.id);
+    const importance = state.issueImportance.get(issue.id) ?? 'medium';
+    const hasStance = current && current !== 'skip';
 
     return `<div class="issue-row">
       <span class="issue-row-label"><span class="issue-row-icon">${issue.icon}</span>${esc(issue.label)}</span>
@@ -142,6 +146,14 @@ function renderIssuesPanel(): string {
           ${esc(stances.shortConservative)}
         </button>
       </div>
+      ${hasStance ? `<div class="importance-row">
+        <span class="importance-label">Importance:</span>
+        <div class="importance-toggle">
+          <button type="button" class="imp-opt ${importance === 'low' ? 'imp-sel' : ''}" data-imp-issue="${issue.id}" data-imp-level="low">Low</button>
+          <button type="button" class="imp-opt ${importance === 'medium' ? 'imp-sel' : ''}" data-imp-issue="${issue.id}" data-imp-level="medium">Medium</button>
+          <button type="button" class="imp-opt ${importance === 'high' ? 'imp-sel' : ''}" data-imp-issue="${issue.id}" data-imp-level="high">Top priority</button>
+        </div>
+      </div>` : ''}
     </div>`;
   }).join('');
 
