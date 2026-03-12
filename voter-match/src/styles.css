@@ -64,8 +64,8 @@
   --match-high-bg: #E8F5E9;
   --match-mid: #F57F17;
   --match-mid-bg: #FFF8E1;
-  --match-low: #9E9E9E;
-  --match-low-bg: #F5F3F9;
+  --match-low: #C62828;
+  --match-low-bg: #FFEBEE;
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -803,6 +803,18 @@ a:hover { text-decoration: underline; }
 .candidate-card:hover {
   border-color: var(--border-hover);
   box-shadow: var(--shadow-md);
+}
+.candidate-card.match-level-high {
+  border-color: var(--match-high);
+  border-width: 2px;
+}
+.candidate-card.match-level-mid {
+  border-color: var(--match-mid);
+  border-width: 2px;
+}
+.candidate-card.match-level-low {
+  border-color: var(--match-low);
+  border-width: 2px;
 }
 .candidate-card.top-match {
   border-color: var(--match-high);

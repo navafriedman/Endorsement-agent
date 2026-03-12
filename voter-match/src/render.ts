@@ -448,8 +448,9 @@ function renderCandidateCard(ms: MatchScore, rank: number): string {
   const isSel = state.selectedCandidates.get(ms.race.id) === c.name;
   const partyClass = c.party === 'Democratic' ? 'dem' : 'rep';
   const isTopMatch = rank === 0 && ms.score >= 60;
+  const matchLevel = ms.score >= 0 ? (ms.score >= 70 ? 'match-level-high' : ms.score >= 40 ? 'match-level-mid' : 'match-level-low') : '';
 
-  return `<div class="candidate-card ${isTopMatch ? 'top-match' : ''} ${isSel ? 'is-selected' : ''}">
+  return `<div class="candidate-card ${matchLevel} ${isTopMatch ? 'top-match' : ''} ${isSel ? 'is-selected' : ''}">
     <div class="card-inner">
       <div class="card-header">
         <div class="candidate-avatar">${esc(c.initials)}</div>
