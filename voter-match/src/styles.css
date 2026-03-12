@@ -287,41 +287,6 @@ a:hover { text-decoration: underline; }
 }
 .filter-btn.active .filter-caret { transform: rotate(180deg); }
 
-.clear-link {
-  font-size: 12px;
-  color: var(--text-muted);
-  cursor: pointer;
-  background: none;
-  border: none;
-  margin-left: auto;
-  padding: 4px 8px;
-}
-.clear-link:hover { color: var(--primary); text-decoration: underline; }
-
-.active-tags-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 8px;
-}
-.active-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 14px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  transition: opacity 0.15s;
-}
-.active-tag:hover { opacity: 0.7; }
-.active-tag.issue-tag { background: var(--bg-muted); color: var(--text-secondary); }
-.active-tag.group-tag { background: var(--bg-muted); color: var(--text-secondary); }
-.tag-x { font-size: 10px; margin-left: 2px; }
-
 .filter-hint {
   font-size: 13px;
   color: var(--text-muted);
@@ -345,25 +310,19 @@ a:hover { text-decoration: underline; }
   color: var(--text);
   margin-bottom: 2px;
 }
-.engage-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-bottom: 16px;
-}
 .engage-sentence {
-  font-size: 14px;
-  line-height: 2.2;
+  font-size: 15px;
+  line-height: 2.4;
   color: var(--text-secondary);
-  margin-top: 14px;
-  margin-bottom: 0;
+  margin: 0;
 }
 .sentence-pill {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 10px;
+  gap: 4px;
+  padding: 3px 12px;
   border-radius: var(--radius-pill);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   vertical-align: middle;
   white-space: nowrap;
@@ -376,95 +335,48 @@ a:hover { text-decoration: underline; }
   background: var(--purple-light);
   color: var(--purple-text);
 }
-.engage-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.engage-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px 16px;
-  border: 1.5px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg);
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: left;
-  font: inherit;
-  color: var(--text);
-  box-shadow: var(--shadow);
-}
-.engage-card:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-.engage-card.active {
-  border-color: var(--primary);
-  background: var(--primary-light);
-}
-.engage-card.done {
-  border-color: var(--primary);
-  background: var(--primary-light);
-}
-.engage-card.done:hover {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
-}
-.engage-card-title {
-  display: flex;
+.sentence-trigger {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-}
-.engage-card-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.engage-card-label {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-}
-.engage-card-desc {
-  font-size: 12px;
-  color: var(--text-muted);
-  display: block;
-  line-height: 1.4;
-}
-.engage-card-status {
-  font-size: 12px;
-  color: var(--text-muted);
-  display: block;
-  line-height: 1.4;
-}
-.engage-card-status.done {
-  color: var(--primary);
-  font-weight: 600;
-}
-.engage-card-arrow {
+  gap: 4px;
+  padding: 3px 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px dashed var(--primary);
+  background: var(--primary-light);
   color: var(--primary);
   font-size: 13px;
   font-weight: 600;
-  margin-top: 2px;
+  cursor: pointer;
+  vertical-align: middle;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: inherit;
 }
-.engage-card.done .engage-card-arrow {
-  color: var(--primary-text);
+.sentence-trigger:hover {
+  background: var(--primary);
+  color: white;
+  border-style: solid;
+}
+.sentence-trigger-edit {
+  border: none;
+  background: none;
+  padding: 0 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.sentence-trigger-edit:hover {
+  background: none;
+  color: var(--primary);
 }
 @media (max-width: 500px) {
   .engage-section { padding: 12px; margin-bottom: 4px; }
   .engage-title { font-size: 14px; margin-bottom: 8px; }
-  .engage-subtitle { display: none; }
-  .engage-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .engage-card { padding: 14px 12px; gap: 6px; }
-  .engage-card-icon { font-size: 18px; }
-  .engage-card-label { font-size: 15px; }
-  .engage-card-desc { display: none; }
-  .engage-card-status { display: none; }
-  .engage-card-arrow { font-size: 15px; font-weight: 700; margin-top: 2px; }
-  .active-tags-row { margin-top: 6px; gap: 4px; }
-  .active-tag { height: 28px; font-size: 12px; padding: 0 10px; }
+  .engage-sentence { font-size: 14px; line-height: 2.2; }
+  .sentence-pill { font-size: 12px; padding: 2px 8px; }
+  .sentence-trigger { font-size: 12px; padding: 2px 10px; }
   .location-context { padding: 10px 14px; margin-bottom: 10px; font-size: 14px; }
   .location-go { padding: 8px 16px; font-size: 14px; }
 }

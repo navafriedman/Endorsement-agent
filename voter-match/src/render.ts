@@ -8,13 +8,6 @@ function esc(s: string): string {
   return div.innerHTML;
 }
 
-function joinList(items: string[]): string {
-  if (items.length === 0) return '';
-  if (items.length === 1) return items[0];
-  if (items.length === 2) return `${items[0]} and ${items[1]}`;
-  return items.slice(0, -1).join(', ') + ', and ' + items[items.length - 1];
-}
-
 const RACE_TYPE_ORDER: Record<string, number> = { federal: 0, state: 1, local: 2 };
 const ICON_CHECK = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
 
@@ -81,107 +74,49 @@ function renderLocationContext(): string {
 }
 
 // ============================================================
-// FILTER SECTION — always-visible engagement cards that evolve
+// FILTER SECTION — interactive sentence with inline triggers
 // ============================================================
 
 function renderFilterSection(): string {
   const issueCount = state.ratedIssueCount;
   const groupCount = state.selectedGroups.size;
-  const hasPrefs = state.hasPreferences;
 
-  // Build active tags for below the cards
-  let activeTags = '';
-  for (const [issueId, choice] of state.issueStances) {
-    if (choice === 'skip') continue;
-    const issue = ISSUES.find(i => i.id === issueId);
-    if (!issue) continue;
-    activeTags += `<button class="active-tag issue-tag" data-remove-issue="${issueId}" aria-label="Remove ${esc(issue.label)}">
-      ${issue.icon} ${esc(issue.label)} <span class="tag-x">&times;</span>
-    </button>`;
-  }
-  for (const gid of state.selectedGroups) {
-    const g = IDENTITY_GROUPS.find(x => x.id === gid);
-    if (!g) continue;
-    activeTags += `<button class="active-tag group-tag" data-remove-group="${gid}" aria-label="Remove ${esc(g.label)}">
-      ${g.icon} ${esc(g.label)} <span class="tag-x">&times;</span>
-    </button>`;
-  }
-
-  // Issues card — evolves based on state
-  const issueCardClass = state.filterOpen === 'issues' ? 'active' : issueCount > 0 ? 'done' : '';
-  let issueStatus: string;
+  // Build issue pills (or a trigger button if none selected)
+  let issueSlot: string;
   if (issueCount > 0) {
-    issueStatus = `<span class="engage-card-status done">${issueCount} issue${issueCount > 1 ? 's' : ''} selected ✓</span>`;
-  } else {
-    issueStatus = `<span class="engage-card-desc">Pick where you stand on key topics</span>`;
-  }
-  const issueCta = issueCount > 0
-    ? `<span class="engage-card-arrow">Edit →</span>`
-    : `<span class="engage-card-arrow">Choose →</span>`;
-
-  // Groups card — evolves based on state
-  const groupCardClass = state.filterOpen === 'groups' ? 'active' : groupCount > 0 ? 'done' : '';
-  let groupStatus: string;
-  if (groupCount > 0) {
-    groupStatus = `<span class="engage-card-status done">${groupCount} group${groupCount > 1 ? 's' : ''} selected ✓</span>`;
-  } else {
-    groupStatus = `<span class="engage-card-desc">Select groups whose endorsements you value</span>`;
-  }
-  const groupCta = groupCount > 0
-    ? `<span class="engage-card-arrow">Edit →</span>`
-    : `<span class="engage-card-arrow">Choose →</span>`;
-
-  // Build preference sentence with inline pills
-  let sentenceHtml = '';
-  if (hasPrefs) {
-    const parts: string[] = [];
-
-    // Build stance pills
-    const stancePills: string[] = [];
+    const pills: string[] = [];
     for (const [issueId, choice] of state.issueStances) {
       if (choice === 'skip') continue;
       const issue = ISSUES.find(i => i.id === issueId);
       const stances = ISSUE_STANCES[issueId];
       if (!stances || !issue) continue;
       const label = choice === 'agree' ? stances.shortProgressive : stances.shortConservative;
-      stancePills.push(`<span class="sentence-pill issue-pill">${issue.icon} ${esc(label)}</span>`);
+      pills.push(`<span class="sentence-pill issue-pill">${issue.icon} ${esc(label)}</span>`);
     }
-    if (stancePills.length > 0) {
-      parts.push(`I support ${stancePills.join(' ')}`);
-    }
+    issueSlot = pills.join(' ') +
+      ` <button class="sentence-trigger sentence-trigger-edit" data-open-filter="issues">edit</button>`;
+  } else {
+    issueSlot = `<button class="sentence-trigger" data-open-filter="issues">choose issues</button>`;
+  }
 
-    // Build group pills
-    const groupPills: string[] = [];
+  // Build group pills (or a trigger button if none selected)
+  let groupSlot: string;
+  if (groupCount > 0) {
+    const pills: string[] = [];
     for (const gid of state.selectedGroups) {
       const g = IDENTITY_GROUPS.find(x => x.id === gid);
-      if (g) groupPills.push(`<span class="sentence-pill group-pill">${g.icon} ${esc(g.label)}</span>`);
+      if (g) pills.push(`<span class="sentence-pill group-pill">${g.icon} ${esc(g.label)}</span>`);
     }
-    if (groupPills.length > 0) {
-      parts.push(`trust ${groupPills.join(' ')}`);
-    }
-
-    if (parts.length > 0) {
-      sentenceHtml = `<p class="engage-sentence">${parts.join(' and ')}</p>`;
-    }
+    groupSlot = pills.join(' ') +
+      ` <button class="sentence-trigger sentence-trigger-edit" data-open-filter="groups">edit</button>`;
+  } else {
+    groupSlot = `<button class="sentence-trigger" data-open-filter="groups">choose organizations</button>`;
   }
 
   return `<div class="engage-section">
     <h2 class="engage-title">Personalize your ballot</h2>
-    <p class="engage-subtitle">Tell us what matters to you and we'll rank candidates by how well they match.</p>
     ${renderLocationContext()}
-    <div class="engage-cards">
-      <button class="engage-card ${issueCardClass}" data-open-filter="issues">
-        <span class="engage-card-title"><span class="engage-card-icon">⚖</span> <span class="engage-card-label">Issues</span></span>
-        ${issueStatus}
-        ${issueCta}
-      </button>
-      <button class="engage-card ${groupCardClass}" data-open-filter="groups">
-        <span class="engage-card-title"><span class="engage-card-icon">🤝</span> <span class="engage-card-label">Organizations</span></span>
-        ${groupStatus}
-        ${groupCta}
-      </button>
-    </div>
-    ${sentenceHtml}
+    <p class="engage-sentence">I support ${issueSlot} and trust ${groupSlot}</p>
   </div>`;
 }
 
