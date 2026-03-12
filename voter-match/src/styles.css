@@ -296,6 +296,27 @@ a:hover { text-decoration: underline; }
 /* ============================================================
    ENGAGEMENT SECTION — warm, inviting CTA for first-time users
    ============================================================ */
+/* Standalone header above the card */
+.engage-header {
+  margin-bottom: 16px;
+}
+.engage-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.engage-sentence {
+  font-size: 20px;
+  line-height: 2;
+  color: var(--text);
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Card now only wraps the location bar */
 .engage-section {
   padding: 24px;
   margin-bottom: 8px;
@@ -304,25 +325,15 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
-.engage-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 2px;
-}
-.engage-sentence {
-  font-size: 15px;
-  line-height: 2.4;
-  color: var(--text-secondary);
-  margin: 0;
-}
+
+/* Inline pills and triggers — sized to match the 20px sentence */
 .sentence-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 12px;
+  padding: 4px 14px;
   border-radius: var(--radius-pill);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   vertical-align: middle;
   white-space: nowrap;
@@ -339,12 +350,12 @@ a:hover { text-decoration: underline; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 14px;
+  padding: 4px 16px;
   border-radius: var(--radius-pill);
   border: 1.5px dashed var(--primary);
   background: var(--primary-light);
   color: var(--primary);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   vertical-align: middle;
@@ -361,7 +372,7 @@ a:hover { text-decoration: underline; }
   border: none;
   background: none;
   padding: 0 4px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-muted);
   text-decoration: underline;
@@ -373,10 +384,11 @@ a:hover { text-decoration: underline; }
 }
 @media (max-width: 500px) {
   .engage-section { padding: 12px; margin-bottom: 4px; }
-  .engage-title { font-size: 14px; margin-bottom: 8px; }
-  .engage-sentence { font-size: 14px; line-height: 2.2; }
-  .sentence-pill { font-size: 12px; padding: 2px 8px; }
-  .sentence-trigger { font-size: 12px; padding: 2px 10px; }
+  .engage-header { margin-bottom: 12px; }
+  .engage-title { font-size: 12px; }
+  .engage-sentence { font-size: 16px; line-height: 2; }
+  .sentence-pill { font-size: 13px; padding: 3px 10px; }
+  .sentence-trigger { font-size: 13px; padding: 3px 12px; }
   .location-context { padding: 10px 14px; margin-bottom: 10px; font-size: 14px; }
   .location-go { padding: 8px 16px; font-size: 14px; }
 }

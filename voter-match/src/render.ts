@@ -113,10 +113,12 @@ function renderFilterSection(): string {
     groupSlot = `<button class="sentence-trigger" data-open-filter="groups">choose organizations</button>`;
   }
 
-  return `<div class="engage-section">
+  return `<div class="engage-header">
     <h2 class="engage-title">Personalize your ballot</h2>
-    ${renderLocationContext()}
     <p class="engage-sentence">I support ${issueSlot} and trust ${groupSlot}</p>
+  </div>
+  <div class="engage-section">
+    ${renderLocationContext()}
   </div>`;
 }
 
