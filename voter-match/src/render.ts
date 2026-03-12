@@ -93,8 +93,7 @@ function renderFilterSection(): string {
       const label = choice === 'agree' ? stances.shortProgressive : stances.shortConservative;
       pills.push(`<span class="sentence-pill issue-pill">${issue.icon} ${esc(label)}</span>`);
     }
-    issueSlot = pills.join(' ') +
-      ` <button class="sentence-trigger sentence-trigger-edit" data-open-filter="issues">edit</button>`;
+    issueSlot = `<span class="sentence-slot" data-open-filter="issues">${pills.join(' ')}</span>`;
   } else {
     issueSlot = `<button class="sentence-trigger" data-open-filter="issues">choose issues</button>`;
   }
@@ -107,15 +106,14 @@ function renderFilterSection(): string {
       const g = IDENTITY_GROUPS.find(x => x.id === gid);
       if (g) pills.push(`<span class="sentence-pill group-pill">${g.icon} ${esc(g.label)}</span>`);
     }
-    groupSlot = pills.join(' ') +
-      ` <button class="sentence-trigger sentence-trigger-edit" data-open-filter="groups">edit</button>`;
+    groupSlot = `<span class="sentence-slot" data-open-filter="groups">${pills.join(' ')}</span>`;
   } else {
     groupSlot = `<button class="sentence-trigger" data-open-filter="groups">choose organizations</button>`;
   }
 
   return `<div class="engage-header">
     <h2 class="engage-title">Personalize your ballot</h2>
-    <p class="engage-sentence">I support ${issueSlot} and trust ${groupSlot}</p>
+    <p class="engage-sentence">I support ${issueSlot} <span class="sentence-connective">and trust</span> ${groupSlot}</p>
   </div>
   <div class="engage-section">
     ${renderLocationContext()}

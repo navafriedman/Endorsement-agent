@@ -326,6 +326,20 @@ a:hover { text-decoration: underline; }
   box-shadow: var(--shadow);
 }
 
+/* Clickable slot wrapping pills — tapping anywhere opens the filter */
+.sentence-slot {
+  cursor: pointer;
+  border-bottom: 1.5px dashed var(--border-hover);
+  padding-bottom: 2px;
+  transition: border-color 0.15s;
+}
+.sentence-slot:hover {
+  border-color: var(--primary);
+}
+/* Keep "and trust" from orphaning on its own line */
+.sentence-connective {
+  white-space: nowrap;
+}
 /* Inline pills and triggers — sized to match the 20px sentence */
 .sentence-pill {
   display: inline-flex;
@@ -368,27 +382,13 @@ a:hover { text-decoration: underline; }
   color: white;
   border-style: solid;
 }
-.sentence-trigger-edit {
-  border: none;
-  background: none;
-  padding: 0 4px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-.sentence-trigger-edit:hover {
-  background: none;
-  color: var(--primary);
-}
 @media (max-width: 500px) {
   .engage-section { padding: 12px; margin-bottom: 4px; }
   .engage-header { margin-bottom: 12px; }
-  .engage-title { font-size: 12px; }
-  .engage-sentence { font-size: 16px; line-height: 2; }
-  .sentence-pill { font-size: 13px; padding: 3px 10px; }
-  .sentence-trigger { font-size: 13px; padding: 3px 12px; }
+  .engage-title { font-size: 11px; }
+  .engage-sentence { font-size: 15px; line-height: 2.2; }
+  .sentence-pill { font-size: 12px; padding: 2px 8px; gap: 3px; }
+  .sentence-trigger { font-size: 12px; padding: 2px 10px; }
   .location-context { padding: 10px 14px; margin-bottom: 10px; font-size: 14px; }
   .location-go { padding: 8px 16px; font-size: 14px; }
 }
